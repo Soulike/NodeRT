@@ -5,7 +5,7 @@ class FunctionStackFrame
      *
      * @param {string} functionName
      * @param {any[]} functionParameters
-     * @param {SourceObject} functionSourceObject
+     * @param {SourceObject| null} functionSourceObject
      * */
     constructor(functionName, functionParameters, functionSourceObject)
     {

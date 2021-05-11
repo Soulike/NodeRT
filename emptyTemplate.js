@@ -226,7 +226,7 @@
         /**
          * This callback is called before the execution of a builtin function body starts and after it completes.
          *
-         * @param {number} name - Builtin function name
+         * @param {string} name - Builtin function name
          * @param {function} f - The function object whose body is about to get executed
          * @param {*} dis - The value of the <tt>this</tt> variable in the function body
          * @param {Array} args - List of the arguments with which the function is called
@@ -239,7 +239,7 @@
         /**
          * This callback is called before the execution of a builtin function body starts and after it completes.
          *
-         * @param {number} name - Builtin function name
+         * @param {string} name - Builtin function name
          * @param {*} returnVal - The value returned by the function
          * @returns {{returnVal: *}}
          * */
