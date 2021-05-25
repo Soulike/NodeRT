@@ -14,7 +14,7 @@ const EventEmitter = require('events');
         let currentCallback = new Callback(null, 'global', null, null);
 
         /**@type Array<Callback>*/
-        let callbacks = [];
+        let pendingCallbacks = [];  // TODO: clean dead callbacks
 
         /**@type VariableDeclare[]*/
         const variableDeclares = [];
@@ -136,18 +136,38 @@ const EventEmitter = require('events');
          * */
         this.functionEnter = function (iid, f, dis, args)
         {
-            const timerCallbacksCopy = Array.from(callbacks);
-            for (let i = 0; i < timerCallbacksCopy.length; i++)
+            const pendingCallbacksCopy = Array.from(pendingCallbacks);
+            for (let i = 0; i < pendingCallbacksCopy.length; i++)
             {
-                const callback = timerCallbacksCopy[i];
-                if (callback.func === f)
+                const pendingCallback = pendingCallbacksCopy[i];
+                if (pendingCallback.func === f)    // switch to the next pending callback
                 {
-                    currentCallback = callback;
-                    callbacks = [...callbacks.slice(0, i), ...callbacks.slice(i + 1)];
+                    onCallbackExit();
+                    currentCallback = pendingCallback;
+                    pendingCallbacks = [...pendingCallbacks.slice(0, i), ...pendingCallbacks.slice(i + 1)];
                     break;
                 }
             }
         };
+
+        /**
+         * Jobs when currentCallback changes
+         * */
+        function onCallbackExit()
+        {
+            // may be called again, put the callback back to `pendingCallbacks`
+            if (currentCallback.type === 'interval' || currentCallback.type === 'eventListener')
+            {
+                const {
+                    func,
+                    type,
+                    scope,
+                    register,
+                } = currentCallback;
+                // Do not put reference back again. We need a new object to distinguish different calls
+                pendingCallbacks.push(new Callback(func, type, scope, register));
+            }
+        }
 
         /**
          * This callback is called when the execution of a function body completes
@@ -166,11 +186,6 @@ const EventEmitter = require('events');
          * */
         this.functionExit = function (iid, returnVal, wrappedExceptionVal)
         {
-            if (currentCallback.type === 'interval' || currentCallback.type === 'eventListener')
-            {
-                // Do not put reference back again. We need a new object to distinguish different calls
-                callbacks.push(new Callback(currentCallback.func, currentCallback.type, currentCallback.scope, currentCallback.register));
-            }
 
         };
 
@@ -204,22 +219,22 @@ const EventEmitter = require('events');
             if (f === setTimeout)
             {
                 const callback = args[0];
-                callbacks.push(new Callback(callback, 'timeout', currentCallback, register));
+                pendingCallbacks.push(new Callback(callback, 'timeout', currentCallback, register));
             }
             else if (f === setImmediate)
             {
                 const callback = args[0];
-                callbacks.push(new Callback(callback, 'immediate', currentCallback, register));
+                pendingCallbacks.push(new Callback(callback, 'immediate', currentCallback, register));
             }
             else if (f === setInterval)
             {
                 const callback = args[0];
-                callbacks.push(new Callback(callback, 'interval', currentCallback, register));
+                pendingCallbacks.push(new Callback(callback, 'interval', currentCallback, register));
             }
             else if (f === process.nextTick)
             {
                 const callback = args[0];
-                callbacks.push(new Callback(callback, 'nextTick', currentCallback, register));
+                pendingCallbacks.push(new Callback(callback, 'nextTick', currentCallback, register));
             }
             else if (f === Promise.prototype.then)
             {
@@ -227,27 +242,25 @@ const EventEmitter = require('events');
                 const reject = args[1];
                 if (typeof resolve === 'function')
                 {
-                    callbacks.push(new Callback(resolve, 'promiseThen', currentCallback, register));
+                    pendingCallbacks.push(new Callback(resolve, 'promiseThen', currentCallback, register));
                 }
                 if (typeof reject === 'function')
                 {
-                    callbacks.push(new Callback(reject, 'promiseThen', currentCallback, register));
+                    pendingCallbacks.push(new Callback(reject, 'promiseThen', currentCallback, register));
                 }
             }
-            else if (f === Promise.prototype.catch)
+            else if (f === Promise.prototype.catch || f === Promise.prototype.finally)
             {
-                const reject = args[1];
-                if (typeof reject === 'function')
+                const callback = args[1];
+                if (typeof callback === 'function')
                 {
-                    callbacks.push(new Callback(reject, 'promiseThen', currentCallback, register));
+                    pendingCallbacks.push(new Callback(callback, 'promiseThen', currentCallback, register));
                 }
             }
-            // TODO: other Promise apis
-
             else if (f === EventEmitter.prototype.on || f === EventEmitter.prototype.once)
             {
                 const callback = args[1];
-                callbacks.push(new Callback(callback, 'eventListener', currentCallback, register));
+                pendingCallbacks.push(new Callback(callback, 'eventListener', currentCallback, register));
             }
         };
 
