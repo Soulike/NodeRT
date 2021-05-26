@@ -1,3 +1,4 @@
+// DO NOT INSTRUMENT
 /**
  * Code range in a file
  * */

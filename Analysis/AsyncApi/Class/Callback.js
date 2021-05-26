@@ -1,10 +1,11 @@
+// DO NOT INSTRUMENT
 class Callback
 {
     /**
      * @param {function | null} func
      * @param {'global'|'immediate'|'timeout'|'interval' | 'nextTick' | 'promiseThen'|'eventListener'|'eventListenerOnce'} type
      * @param {Callback | null} scope
-     * @param {CallbackRegister | null} register
+     * @param {SourceCodeInfo | null} register
      * */
     constructor(func, type, scope, register)
     {

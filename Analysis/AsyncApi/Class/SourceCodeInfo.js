@@ -1,4 +1,5 @@
-class CallbackRegister
+// DO NOT INSTRUMENT
+class SourceCodeInfo
 {
     /**
      * @param {string} file - code file path
@@ -11,4 +12,4 @@ class CallbackRegister
     }
 }
 
-module.exports = CallbackRegister;
+module.exports = SourceCodeInfo;

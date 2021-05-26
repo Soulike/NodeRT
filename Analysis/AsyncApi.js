@@ -1,11 +1,13 @@
+// DO NOT INSTRUMENT
+
 const Callback = require('./AsyncApi/Class/Callback');
 const VariableDeclare = require('./AsyncApi/Class/VariableDeclare');
 const VariableOperation = require('./AsyncApi/Class/VariableOperation');
-const CallbackRegister = require('./AsyncApi/Class/CallbackRegister');
+const SourceCodeInfo = require('./AsyncApi/Class/SourceCodeInfo');
 const Range = require('./AsyncApi/Class/Range');
 const EventEmitter = require('events');
+const {toJSON} = require('./AsyncApi/Util');
 
-// DO NOT INSTRUMENT
 (function (sandbox)
 {
     function AsyncApi()
@@ -21,41 +23,12 @@ const EventEmitter = require('events');
 
         process.on('exit', () =>
         {
-            console.log(JSON.stringify(variableDeclares, function replacer(key, value)
-            {
-                if (value instanceof Map)
-                {
-                    return {
-                        dataType: 'Map',
-                        value: Array.from(value.entries()), // or with spread: value: [...value]
-                    };
-                }
-                else if (typeof value === 'function')
-                {
-                    return `[Function ${value.name ? value.name : 'anonymous'}]`;
-                }
-                else
-                {
-                    return value;
-                }
-            }, 4));
+            console.log(toJSON(variableDeclares));
         });
-
-        /**
-         *  Declaration of a symbol, type can be `'const', 'let', 'var'`, kind is `'FunctionDeclaration'` or `undefined`.
-         *  Jalangi version: this.declare = function (iid, name, val, isArgument, argumentIndex, isCatchParam) {
-         **/
-        this.declarePre = function (iid, name, type, kind)
-        {
-
-        };
 
         this.declare = function (iid, name, type, kind)
         {
-            if (type !== 'const')
-            {
-                variableDeclares.push(new VariableDeclare(name, currentCallback));
-            }
+            variableDeclares.push(new VariableDeclare(name, currentCallback, null));
         };
 
         /**
@@ -105,12 +78,117 @@ const EventEmitter = require('events');
          * */
         this.write = function (iid, name, val, lhs, isGlobal, isScriptLocal)
         {
-            for (let i = variableDeclares.length - 1; i >= 0; i--)
+            if (isGlobal)
             {
+                const declaration = new VariableDeclare(name, currentCallback, null);
+                const newOperation = new VariableOperation('write', val);
+                declaration.operations.set(currentCallback, [newOperation]);
+            }
+            else
+            {
+                for (let i = variableDeclares.length - 1; i >= 0; i--)
+                {
+                    const declare = variableDeclares[i];
+                    if (declare.name === name)
+                    {
+                        const newOperation = new VariableOperation('write', val);
+                        // append the operation to current callback
+                        const operationsOfCurrentCallback = declare.operations.get(currentCallback);
+                        if (operationsOfCurrentCallback === undefined)
+                        {
+                            declare.operations.set(currentCallback, [newOperation]);
+                        }
+                        else
+                        {
+                            operationsOfCurrentCallback.push(newOperation);
+                        }
+                        break;
+                    }
+                }
+            }
+        };
+
+        /**
+         * This callback is called after a property of an object is accessed.
+         *
+         * @param {number} iid - Static unique instruction identifier of this callback
+         * @param {*} base - Base object
+         * @param {string|*} offset - Property
+         * @param {*} val - Value of <code>base[offset]</code>
+         * @param {boolean} isComputed - True if property is accessed using square brackets.  For example,
+         * <tt>isComputed</tt> is <tt>true</tt> if the get field operation is <tt>o[p]</tt>, and <tt>false</tt>
+         * if the get field operation is <tt>o.p</tt>
+         * @param {boolean} isOpAssign - True if the operation is of the form <code>o.p op= e</code>
+         * @param {boolean} isMethodCall - True if the get field operation is part of a method call (e.g. <tt>o.p()</tt>)
+         * @returns {{result: *} | undefined} - If an object is returned, the value of the get field operation  is
+         * replaced with the value stored in the <tt>result</tt> property of the object.
+         * */
+        this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
+        {
+            for (let i = variableDeclares.length - 1; i >= -1; i--)
+            {
+                if (i === -1)   // not found in variableDeclares, newly created field
+                {
+                    const declare = new VariableDeclare(offset, currentCallback, base);
+                    declare.operations.set(currentCallback, [
+                        new VariableOperation('read', val),
+                    ]);
+                    variableDeclares.push(declare);
+                    break;
+                }
+
                 const declare = variableDeclares[i];
-                if (declare.name === name)
+                if (declare.name === offset && declare.base === base)
+                {
+                    const newOperation = new VariableOperation('read', val);
+                    const operationsOfCurrentCallback = declare.operations.get(currentCallback);
+                    if (operationsOfCurrentCallback === undefined)
+                    {
+                        declare.operations.set(currentCallback, [newOperation]);
+                    }
+                    else
+                    {
+                        operationsOfCurrentCallback.push(newOperation);
+                    }
+                    break;
+                }
+            }
+        };
+
+        /**
+         * This callback is called before a property of an object is written.
+         *
+         * @param {number} iid - Static unique instruction identifier of this callback
+         * @param {*} base - Base object
+         * @param {*} offset - Property
+         * @param {*} val - Value to be stored in <code>base[offset]</code>
+         * @param {boolean} isComputed - True if property is accessed using square brackets.  For example,
+         * <tt>isComputed</tt> is <tt>true</tt> if the get field operation is <tt>o[p]</tt>, and <tt>false</tt>
+         * if the get field operation is <tt>o.p</tt>
+         * @param {boolean} isOpAssign - True if the operation is of the form <code>o.p op= e</code>
+         * @returns {{base: *, offset: *, val: *, skip: boolean} | undefined} -  If an object is returned and the <tt>skip</tt>
+         * property is true, then the put field operation is skipped.  Original <tt>base</tt>, <tt>offset</tt>, and
+         * <tt>val</tt> are replaced with that from the returned object if an object is returned.
+         * */
+        this.putFieldPre = function (iid, base, offset, val, isComputed, isOpAssign)
+        {
+            for (let i = variableDeclares.length - 1; i >= -1; i--)
+            {
+                if (i === -1)   // not found in variableDeclares, newly created field
+                {
+                    const declare = new VariableDeclare(offset, currentCallback, base);
+                    declare.operations.set(currentCallback, [
+                        new VariableOperation('write', val),
+                    ]);
+                    variableDeclares.push(declare);
+                    break;
+                }
+
+                const declare = variableDeclares[i];
+                if (declare.name === offset && declare.base === base)
                 {
                     const newOperation = new VariableOperation('write', val);
+                    // append the operation to current callback
                     const operationsOfCurrentCallback = declare.operations.get(currentCallback);
                     if (operationsOfCurrentCallback === undefined)
                     {
@@ -170,26 +248,6 @@ const EventEmitter = require('events');
         }
 
         /**
-         * This callback is called when the execution of a function body completes
-         *
-         * @param {number} iid - Static unique instruction identifier of this callback
-         * @param {*} returnVal - The value returned by the function
-         * @param {{exception:*} | undefined} wrappedExceptionVal - If this parameter is an object, the function
-         * execution has thrown an uncaught exception and the exception is being stored in the <tt>exception</tt>
-         * property of the parameter
-         * @returns {{returnVal: *, wrappedExceptionVal: *, isBacktrack: boolean}}  If an object is returned, then the
-         * actual <tt>returnVal</tt> and <tt>wrappedExceptionVal.exception</tt> are replaced with that from the
-         * returned object. If an object is returned and the property <tt>isBacktrack</tt> is set, then the control-flow
-         * returns to the beginning of the function body instead of returning to the caller.  The property
-         * <tt>isBacktrack</tt> can be set to <tt>true</tt> to repeatedly execute the function body as in MultiSE
-         * symbolic execution.
-         * */
-        this.functionExit = function (iid, returnVal, wrappedExceptionVal)
-        {
-
-        };
-
-        /**
          * This callback is called before a function, method, or constructor invocation.
          *
          * @param {number} iid - Static unique instruction identifier of this callback
@@ -215,7 +273,7 @@ const EventEmitter = require('events');
                 name,
                 range,
             } = sandbox.iidToSourceObject(iid);
-            const register = new CallbackRegister(name, new Range(range[0], range[1]));
+            const register = new SourceCodeInfo(name, new Range(range[0], range[1]));
             if (f === setTimeout)
             {
                 const callback = args[0];
@@ -257,36 +315,16 @@ const EventEmitter = require('events');
                     pendingCallbacks.push(new Callback(callback, 'promiseThen', currentCallback, register));
                 }
             }
-            else if (f === EventEmitter.prototype.on || f === EventEmitter.prototype.once)
+            else if (f === EventEmitter.prototype.on)
             {
                 const callback = args[1];
                 pendingCallbacks.push(new Callback(callback, 'eventListener', currentCallback, register));
             }
-        };
-
-        /**
-         * This callback is called after a function, method, or constructor invocation.
-         *
-         * @param {number} iid - Static unique instruction identifier of this callback
-         * @param {function} f - The function object that was invoked
-         * @param {*} base - The receiver object for the function <tt>f</tt>
-         * @param {Array} args - The array of arguments passed to <tt>f</tt>
-         * @param {*} result - The value returned by the invocation
-         * @param {boolean} isConstructor - True if <tt>f</tt> is invoked as a constructor
-         * @param {boolean} isMethod - True if <tt>f</tt> is invoked as a method
-         * @param {number} functionIid - The iid (i.e. the unique instruction identifier) where the function was created
-         * @param {number} functionSid - The sid (i.e. the unique script identifier) where the function was created
-         * {@link MyAnalysis#functionEnter} when the function f is executed.  <tt>functionIid</tt> can be treated as the
-         * static identifier of the function <tt>f</tt>.  Note that a given function code block can create several function
-         * objects, but each such object has a common <tt>functionIid</tt>, which is the iid that is passed to
-         * {@link MyAnalysis#functionEnter} when the function executes.
-         * @returns {{result: *}| undefined} - If an object is returned, the return value of the invoked function is
-         * replaced with the value stored in the <tt>result</tt> property of the object.  This enables one to change the
-         * value that is returned by the actual function invocation.
-         * */
-        this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid)
-        {
-
+            else if (f === EventEmitter.prototype.once)
+            {
+                const callback = args[1];
+                pendingCallbacks.push(new Callback(callback, 'eventListenerOnce', currentCallback, register));
+            }
         };
     }
 

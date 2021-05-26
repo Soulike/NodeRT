@@ -1,5 +1,3 @@
-#!/usr/local/bin/node
-
 const childProcess = require('child_process');
 const path = require('path');
 
@@ -17,7 +15,7 @@ const argvWithAbsolutePath = process.argv.slice(2).map(value =>
     return value;
 });
 
-childProcess.spawnSync(`/Users/soulike/.lib/mx/mx`, ['jalangi', ...argvWithAbsolutePath], {
+childProcess.spawnSync(`/Users/soulike/.lib/mx/mx`, ['jalangi', '--scope=app', ...argvWithAbsolutePath], {
     cwd: `/Users/soulike/.lib/nodeprof.js`,
     env: process.env,
     stdio: 'inherit',
