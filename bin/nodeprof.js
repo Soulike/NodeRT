@@ -1,22 +1,22 @@
 const childProcess = require('child_process');
 const path = require('path');
 
-// TODO: parameterize nodeprof.js/ path and mx path
+const ROOT = path.resolve(__dirname, '..');
 
-const argvWithAbsolutePath = process.argv.slice(2).map(value =>
-{
-    if (value.charAt(0) !== '-') // is a path
-    {
-        if (!path.isAbsolute(value))
-        {
-            return path.resolve(value);
-        }
-    }
-    return value;
-});
-
-childProcess.spawnSync(`/Users/soulike/.lib/mx/mx`, ['jalangi', '--scope=app', ...argvWithAbsolutePath], {
-    cwd: `/Users/soulike/.lib/nodeprof.js`,
+const {error} = childProcess.spawnSync(`graalnode`, [
+    '--jvm',
+    '--experimental-options',
+    `--vm.Dtruffle.class.path.append=${path.resolve(ROOT, './lib/nodeprof.jar')}`,
+    '--nodeprof.Scope=app',
+    '--nodeprof.ExcludeSource="test,Test,node_modules,jest"',   // TODO: 添加测试框架关键词
+    '--nodeprof', path.resolve(ROOT, './lib/nodeprof.js/src/ch.usi.inf.nodeprof/js/jalangi.js'),
+    ...process.argv.slice(2),
+], {
     env: process.env,
     stdio: 'inherit',
 });
+
+if (error)
+{
+    console.error(error);
+}
