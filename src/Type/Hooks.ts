@@ -80,6 +80,23 @@ interface Hooks
     functionEnter: (iid: number, f: Function, dis: unknown, args: unknown[]) => void
 
     /**
+     * This callback is called when the execution of a function body completes
+     *
+     * @param iid - Static unique instruction identifier of this callback
+     * @param returnVal - The value returned by the function
+     * @param wrappedExceptionVal - If this parameter is an object, the function
+     * execution has thrown an uncaught exception and the exception is being stored in the <tt>exception</tt>
+     * property of the parameter
+     * @returns {{returnVal: *, wrappedExceptionVal: *, isBacktrack: boolean}}  If an object is returned, then the
+     * actual <tt>returnVal</tt> and <tt>wrappedExceptionVal.exception</tt> are replaced with that from the
+     * returned object. If an object is returned and the property <tt>isBacktrack</tt> is set, then the control-flow
+     * returns to the beginning of the function body instead of returning to the caller.  The property
+     * <tt>isBacktrack</tt> can be set to <tt>true</tt> to repeatedly execute the function body as in MultiSE
+     * symbolic execution.
+     * */
+    functionExit: (iid: number, returnVal: unknown, wrappedExceptionVal: unknown | undefined) => { returnVal: unknown, wrappedExceptionVal: unknown, isBacktrack: boolean } | void
+
+    /**
      * This callback is called before a function, method, or constructor invocation.
      *
      * @param iid - Static unique instruction identifier of this callback
