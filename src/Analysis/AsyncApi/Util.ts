@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
-const fs = require('fs');
+import fs from 'fs';
 
-function printSync(content)
+export function printSync(content: string): void
 {
     fs.writeFileSync(1, `${content}\n`, {encoding: 'utf-8'});
 }
 
-function toJSON(object)
+export function toJSON(object: unknown): string
 {
     try
     {
-        return JSON.stringify(object, function replacer(key, value)
+        return JSON.stringify(object, function replacer(_key, value)
         {
             if (value instanceof Map)
             {
@@ -33,11 +33,7 @@ function toJSON(object)
     {
         console.error(e);
         console.error(object);
+        return '';
     }
 
 }
-
-module.exports = {
-    printSync,
-    toJSON,
-};

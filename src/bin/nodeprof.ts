@@ -1,7 +1,7 @@
-const childProcess = require('child_process');
-const path = require('path');
+import childProcess from 'child_process';
+import path from 'path';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..', '..');
 
 const {error} = childProcess.spawnSync(`graalnode`, [
     '--jvm',
