@@ -1,5 +1,5 @@
 // DO NOT INSTRUMENT
-import SourceCodeInfo from './SourceCodeInfo';
+import SourceCodeInfo from '../../Class/SourceCodeInfo';
 
 class VariableOperation
 {
