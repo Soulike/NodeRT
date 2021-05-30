@@ -39,16 +39,19 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
     {
         this.declare = (iid, name, type, kind) =>
         {
-            const sandbox = this.getSandbox();
-            const currentCallbackFunction = this.getCurrentCallbackFunction();
-            const {variableDeclarations} = this;
-            const {
-                name: fileName,
-                range,
-            } = sandbox.iidToSourceObject(iid);
+            if (type !== 'const')
+            {
+                const sandbox = this.getSandbox();
+                const currentCallbackFunction = this.getCurrentCallbackFunction();
+                const {variableDeclarations} = this;
+                const {
+                    name: fileName,
+                    range,
+                } = sandbox.iidToSourceObject(iid);
 
-            const scopeSourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
-            variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
+                const scopeSourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
+            }
         };
 
         // TODO: getField 和 putField 是否会在访问全局变量时也会被触发
