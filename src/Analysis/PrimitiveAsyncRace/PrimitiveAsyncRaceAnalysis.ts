@@ -35,7 +35,7 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
         console.log(toJSON(this.variableDeclarations));
     }
 
-    private registerHooks()
+    protected override registerHooks()
     {
         this.declare = (iid, name, type, kind) =>
         {

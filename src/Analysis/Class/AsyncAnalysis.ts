@@ -3,17 +3,19 @@ import Analysis from '../../Type/Analysis';
 import Sandbox from '../../Type/Sandbox';
 import CallbackFunction from './CallbackFunction';
 
-class AsyncAnalysis extends Analysis
+abstract class AsyncAnalysis extends Analysis
 {
     private currentCallbackFunction: CallbackFunction;
     private pendingCallbackFunctions: CallbackFunction[]; // TODO: clean dead callbacks
 
-    constructor(sandbox: Sandbox)
+    protected constructor(sandbox: Sandbox)
     {
         super(sandbox);
         this.currentCallbackFunction = CallbackFunction.GLOBAL;
         this.pendingCallbackFunctions = [];
     }
+
+    protected abstract registerHooks(): void;
 
     public getCurrentCallbackFunction(): Readonly<CallbackFunction>
     {
