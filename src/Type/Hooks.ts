@@ -1,3 +1,4 @@
+// DO NOT INSTRUMENT
 import DeclareType from './DeclareType';
 
 interface Hooks

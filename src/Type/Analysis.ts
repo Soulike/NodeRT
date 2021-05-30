@@ -1,3 +1,4 @@
+// DO NOT INSTRUMENT
 import Sandbox from './Sandbox';
 
 class Analysis

@@ -1,3 +1,4 @@
+// DO NOT INSTRUMENT
 interface SourceObject
 {
     /**Absolute path of source file*/
