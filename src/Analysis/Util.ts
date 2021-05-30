@@ -37,3 +37,8 @@ export function toJSON(object: unknown): string
     }
 
 }
+
+export function isReferenceType(value: unknown): boolean
+{
+    return value instanceof Object;
+}
