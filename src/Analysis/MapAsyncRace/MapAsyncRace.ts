@@ -3,26 +3,26 @@
 import Analysis from '../../Type/Analysis';
 import Hooks from '../../Type/Hooks';
 import Sandbox from '../../Type/Sandbox';
-import SetDeclaration from './Class/SetDeclaration';
-import SetOperation from './Class/SetOperation';
+import MapDeclaration from './Class/MapDeclaration';
+import MapOperation from './Class/MapOperation';
 import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import {toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 
-class SetAsyncRace extends Analysis
+class MapAsyncRace extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public endExpression: Hooks['endExpression'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
 
-    private readonly setDeclarations: SetDeclaration[];
+    private readonly mapDeclarations: MapDeclaration[];
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.setDeclarations = [];
+        this.mapDeclarations = [];
 
         this.registerHooks();
 
@@ -33,14 +33,14 @@ class SetAsyncRace extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod) =>
         {
-            const readMethods: Function[] = [Set.prototype.entries, Set.prototype.forEach, Set.prototype.has, Set.prototype.keys, Set.prototype.values, Set.prototype[Symbol.iterator]];
-            const writeMethods: Function[] = [Set.prototype.add, Set.prototype.delete, Set.prototype.clear];
-            if (f === Set && isConstructor)
+            const readMethods: Function[] = [Map.prototype.get, Map.prototype.entries, Map.prototype.forEach, Map.prototype.has, Map.prototype.keys, Map.prototype.values, Map.prototype[Symbol.iterator]];
+            const writeMethods: Function[] = [Map.prototype.set, Map.prototype.delete, Map.prototype.clear];
+            if (f === Map && isConstructor)
             {
-                const setDeclaration = new SetDeclaration(result as Set<unknown>);
-                this.setDeclarations.push(setDeclaration);
+                const mapDeclaration = new MapDeclaration(result as Map<unknown, unknown>);
+                this.mapDeclarations.push(mapDeclaration);
             }
-            else if (base instanceof Set)
+            else if (base instanceof Map)
             {
                 const sandbox = this.getSandbox();
                 const {
@@ -63,20 +63,20 @@ class SetAsyncRace extends Analysis
 
                 if (type !== 'unknown')
                 {
-                    const setDeclaration = this.setDeclarations.find(setDeclaration => setDeclaration.is(base));
-                    if (setDeclaration !== undefined)
+                    const mapDeclaration = this.mapDeclarations.find(mapDeclaration => mapDeclaration.is(base));
+                    if (mapDeclaration !== undefined)
                     {
-                        setDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new SetOperation(type, sourceCodeInfo));
+                        mapDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new MapOperation(type, sourceCodeInfo));
                     }
                     else
                     {
                         const location = sandbox.iidToLocation(iid);
-                        console.warn(`Warning: set ${base} ${type === 'read' ? 'read' : 'written'} at ${location} is not in 'setDeclarations'`);
+                        console.warn(`Warning: map ${base} ${type === 'read' ? 'read' : 'written'} at ${location} is not in 'mapDeclarations'`);
                     }
                 }
                 else
                 {
-                    console.warn(`Warning: set ${base} is performed unknown method at ${location}`);
+                    console.warn(`Warning: map ${base} is performed unknown method at ${location}`);
                 }
             }
         };
@@ -84,7 +84,7 @@ class SetAsyncRace extends Analysis
         this.forObject = (iid, isForIn) =>
         {
             const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
-            if (!isForIn && lastExpressionValue instanceof Set)
+            if (!isForIn && lastExpressionValue instanceof Map)
             {
                 const sandbox = this.getSandbox();
                 const {
@@ -94,15 +94,15 @@ class SetAsyncRace extends Analysis
 
                 const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
 
-                const setDeclaration = this.setDeclarations.find(setDeclaration => setDeclaration.is(lastExpressionValue));
-                if (setDeclaration !== undefined)
+                const mapDeclaration = this.mapDeclarations.find(mapDeclaration => mapDeclaration.is(lastExpressionValue));
+                if (mapDeclaration !== undefined)
                 {
-                    setDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new SetOperation('read', sourceCodeInfo));
+                    mapDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new MapOperation('read', sourceCodeInfo));
                 }
                 else
                 {
                     const location = sandbox.iidToLocation(iid);
-                    console.warn(`Warning: set ${lastExpressionValue} read at ${location} is not in 'setDeclarations'`);
+                    console.warn(`Warning: map ${lastExpressionValue} read at ${location} is not in 'mapDeclarations'`);
                 }
             }
         };
@@ -110,8 +110,8 @@ class SetAsyncRace extends Analysis
 
     private onAnalysisExit()
     {
-        console.log(toJSON(this.setDeclarations));
+        console.log(toJSON(this.mapDeclarations));
     }
 }
 
-export default SetAsyncRace;
+export default MapAsyncRace;

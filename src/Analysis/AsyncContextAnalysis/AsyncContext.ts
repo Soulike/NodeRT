@@ -8,6 +8,7 @@ import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import EventEmitter from 'events';
 import Analysis from '../../Type/Analysis';
+import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -17,6 +18,7 @@ class AsyncContext extends Analysis
 {
     public functionEnter: Hooks['functionEnter'] | undefined;
     public invokeFunPre: Hooks['invokeFunPre'] | undefined;
+    public endExpression: Hooks['endExpression'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
@@ -104,6 +106,11 @@ class AsyncContext extends Analysis
                 const callback = args[1] as Function;
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListenerOnce', currentCallbackFunction, register));
             }
+        };
+
+        this.endExpression = (iid, type, value) =>
+        {
+            LastExpressionValueContainer.setLastExpressionValue(value);
         };
     }
 

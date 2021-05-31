@@ -42,6 +42,7 @@ class ReferenceAsyncRace extends Analysis
         };
 
         // TODO: 解决迭代器问题
+        // TODO: 内置 API
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
             const referenceFieldDeclaration = this.findOrAddReferenceFieldDeclaration(offset, base);
