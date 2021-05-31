@@ -1,21 +1,20 @@
 // DO NOT INSTRUMENT
-import AsyncAnalysis from '../Class/AsyncAnalysis';
+
 import Sandbox from '../../Type/Sandbox';
 import Hooks from '../../Type/Hooks';
 import ReferenceFieldDeclaration from './Class/ReferenceFieldDeclaration';
-import {asyncApiInvokeFunPreGenerator, functionEnterGenerator} from '../HookGenerator';
 import {isReferenceType, toJSON} from '../Util';
 import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import ReferenceFieldOperation from './Class/ReferenceFieldOperation';
+import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import Analysis from '../../Type/Analysis';
 
-class ReferenceAsyncRace extends AsyncAnalysis
+class ReferenceAsyncRace extends Analysis
 {
     public write: Hooks['write'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public getField: Hooks['getField'] | undefined;
-    public functionEnter: Hooks['functionEnter'] | undefined;
-    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
 
     private readonly referenceFieldDeclarations: ReferenceFieldDeclaration[];
 
@@ -55,7 +54,7 @@ class ReferenceAsyncRace extends AsyncAnalysis
 
             const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
 
-            const currentCallbackFunction = this.getCurrentCallbackFunction();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const newOperation = new ReferenceFieldOperation('read', val, sourceCodeInfo);
             const operations = referenceFieldDeclaration.operations.get(currentCallbackFunction);
             if (operations === undefined)
@@ -79,7 +78,7 @@ class ReferenceAsyncRace extends AsyncAnalysis
 
             const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
 
-            const currentCallbackFunction = this.getCurrentCallbackFunction();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const newOperation = new ReferenceFieldOperation('write', val, sourceCodeInfo);
             const operations = referenceFieldDeclaration.operations.get(currentCallbackFunction);
             if (operations === undefined)
@@ -91,10 +90,6 @@ class ReferenceAsyncRace extends AsyncAnalysis
                 operations.push(newOperation);
             }
         };
-
-        this.functionEnter = functionEnterGenerator(this);
-
-        this.invokeFunPre = asyncApiInvokeFunPreGenerator(this);
     }
 
     private onAnalysisExit()
@@ -114,7 +109,7 @@ class ReferenceAsyncRace extends AsyncAnalysis
             if (!foundInReferenceFieldDeclarations) // prevent circular reference
             {
                 const sandbox = this.getSandbox();
-                const currentCallbackFunction = this.getCurrentCallbackFunction();
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const {
                     name: fileName,
                     range,

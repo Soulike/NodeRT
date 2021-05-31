@@ -7,16 +7,14 @@ import VariableOperation from './Class/VariableOperation';
 import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import Sandbox from '../../Type/Sandbox';
-import {asyncApiInvokeFunPreGenerator, functionEnterGenerator} from '../HookGenerator';
-import AsyncAnalysis from '../Class/AsyncAnalysis';
+import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import Analysis from '../../Type/Analysis';
 
-class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
+class PrimitiveAsyncRaceAnalysis extends Analysis
 {
     public declare: Hooks['declare'] | undefined;
     public read: Hooks['read'] | undefined;
     public write: Hooks['write'] | undefined;
-    public functionEnter: Hooks['functionEnter'] | undefined;
-    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
 
     private readonly variableDeclarations: VariableDeclaration[];
 
@@ -42,7 +40,7 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
             if (type !== 'const')
             {
                 const sandbox = this.getSandbox();
-                const currentCallbackFunction = this.getCurrentCallbackFunction();
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const {variableDeclarations} = this;
                 const {
                     name: fileName,
@@ -54,11 +52,10 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
             }
         };
 
-        // TODO: getField 和 putField 是否会在访问全局变量时也会被触发
         this.read = (iid, name, val, isGlobal, isScriptLocal) =>
         {
             const sandbox = this.getSandbox();
-            const currentCallbackFunction = this.getCurrentCallbackFunction();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const {variableDeclarations} = this;
             const {
                 name: fileName,
@@ -106,7 +103,7 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
         this.write = (iid, name, val, lhs, isGlobal, isScriptLocal) =>
         {
             const sandbox = this.getSandbox();
-            const currentCallbackFunction = this.getCurrentCallbackFunction();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const {variableDeclarations} = this;
             const {
                 name: fileName,
@@ -150,10 +147,6 @@ class PrimitiveAsyncRaceAnalysis extends AsyncAnalysis
                 }
             }
         };
-
-        this.functionEnter = functionEnterGenerator(this);
-
-        this.invokeFunPre = asyncApiInvokeFunPreGenerator(this);
     }
 }
 

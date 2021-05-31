@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 import Sandbox from './Sandbox';
 
-class Analysis
+abstract class Analysis
 {
     private readonly sandbox: Sandbox;
 
-    constructor(sandbox: Sandbox)
+    protected constructor(sandbox: Sandbox)
     {
         this.sandbox = sandbox;
     }
@@ -14,6 +14,8 @@ class Analysis
     {
         return this.sandbox;
     }
+
+    protected abstract registerHooks(): void;
 }
 
 export default Analysis;
