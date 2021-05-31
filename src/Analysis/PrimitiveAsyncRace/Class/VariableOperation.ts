@@ -1,8 +1,9 @@
 // DO NOT INSTRUMENT
 
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
+import ResourceOperation from '../../Interface/ResourceOperation';
 
-class VariableOperation
+class VariableOperation implements ResourceOperation
 {
     public readonly type: 'read' | 'write';
     public readonly value: unknown;

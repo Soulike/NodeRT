@@ -2,8 +2,9 @@
 
 import CallbackFunction from '../../Class/CallbackFunction';
 import ReferenceFieldOperation from './ReferenceFieldOperation';
+import ResourceDeclaration from '../../Interface/ResourceDeclaration';
 
-class ReferenceFieldDeclaration
+class ReferenceFieldDeclaration implements ResourceDeclaration
 {
     public readonly name: unknown;
     public readonly base: object;

@@ -3,8 +3,9 @@
 import CallbackFunction from '../../Class/CallbackFunction';
 import VariableOperation from './VariableOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
+import ResourceDeclaration from '../../Interface/ResourceDeclaration';
 
-class VariableDeclaration
+class VariableDeclaration implements ResourceDeclaration
 {
     public readonly name: string;
     public readonly asyncScope: CallbackFunction;
