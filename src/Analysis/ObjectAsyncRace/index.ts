@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import Sandbox from '../../Type/Sandbox';
-import ReferenceAsyncRace from './ReferenceAsyncRace';
+import ObjectAsyncRace from './ObjectAsyncRace';
 
 declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {
-    sandbox.analysis = new ReferenceAsyncRace(sandbox);
+    sandbox.analysis = new ObjectAsyncRace(sandbox);
 })(J$);

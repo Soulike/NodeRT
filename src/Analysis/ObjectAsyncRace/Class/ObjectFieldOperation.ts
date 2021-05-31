@@ -3,7 +3,7 @@
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 import ResourceOperation from '../../Interface/ResourceOperation';
 
-class ReferenceFieldOperation implements ResourceOperation
+class ObjectFieldOperation implements ResourceOperation
 {
     public readonly type: 'read' | 'write';
     public readonly value: unknown;
@@ -17,4 +17,4 @@ class ReferenceFieldOperation implements ResourceOperation
     }
 }
 
-export default ReferenceFieldOperation;
+export default ObjectFieldOperation;

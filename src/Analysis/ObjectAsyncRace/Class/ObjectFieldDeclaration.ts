@@ -1,14 +1,14 @@
 // DO NOT INSTRUMENT
 
 import CallbackFunction from '../../Class/CallbackFunction';
-import ReferenceFieldOperation from './ReferenceFieldOperation';
+import ObjectFieldOperation from './ObjectFieldOperation';
 import ResourceDeclaration from '../../Interface/ResourceDeclaration';
 
-class ReferenceFieldDeclaration implements ResourceDeclaration
+class ObjectFieldDeclaration implements ResourceDeclaration
 {
     public readonly name: unknown;
     public readonly base: object;
-    public readonly operations: Map<CallbackFunction, ReferenceFieldOperation[]>;
+    public readonly operations: Map<CallbackFunction, ObjectFieldOperation[]>;
 
     constructor(name: unknown, base: object)
     {
@@ -18,7 +18,7 @@ class ReferenceFieldDeclaration implements ResourceDeclaration
     }
 
     /**
-     * Whether the access to the field <code>name</code> of <code>base</code> is logged by this <code>ReferenceFieldDeclaration</code>
+     * Whether the access to the field <code>name</code> of <code>base</code> is logged by this <code>ObjectFieldDeclaration</code>
      * */
     public is(name: unknown, base: object): boolean
     {
@@ -26,4 +26,4 @@ class ReferenceFieldDeclaration implements ResourceDeclaration
     }
 }
 
-export default ReferenceFieldDeclaration;
+export default ObjectFieldDeclaration;

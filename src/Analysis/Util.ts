@@ -46,11 +46,11 @@ export function toJSON(object: unknown): string
 
 }
 
-export function isReferenceType(value: unknown): boolean
+export function isObject(value: unknown): boolean
 {
     if (value === null)
     {
         return false;
     }
-    return ((typeof value === 'function') || (typeof value === 'object'));
+    return ((typeof value === 'function') || (typeof value === 'object')) && !Array.isArray(value);
 }
