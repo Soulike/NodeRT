@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import Range from './Range';
 
 class SourceCodeInfo

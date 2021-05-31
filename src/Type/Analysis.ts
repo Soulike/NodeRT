@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import Sandbox from './Sandbox';
 
 abstract class Analysis

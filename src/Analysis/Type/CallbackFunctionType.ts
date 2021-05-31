@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 type CallbackFunctionType =
     'global'
     | 'immediate'

@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import CallbackFunctionType from '../Type/CallbackFunctionType';
 import SourceCodeInfo from './SourceCodeInfo';
 

@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 
 class ReferenceFieldOperation

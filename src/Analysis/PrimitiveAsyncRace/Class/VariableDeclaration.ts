@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import CallbackFunction from '../../Class/CallbackFunction';
 import VariableOperation from './VariableOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';

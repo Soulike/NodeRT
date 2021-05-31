@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import SourceObject from './SourceObject';
 import Analysis from './Analysis';
 

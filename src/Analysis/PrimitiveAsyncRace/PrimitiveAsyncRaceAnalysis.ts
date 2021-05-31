@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import CallbackFunction from '../Class/CallbackFunction';
 import VariableDeclaration from './Class/VariableDeclaration';
 import Hooks from '../../Type/Hooks';

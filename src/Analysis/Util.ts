@@ -1,4 +1,5 @@
 // DO NOT INSTRUMENT
+
 import fs from 'fs';
 
 export function printSync(content: string): void
