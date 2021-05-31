@@ -20,6 +20,13 @@ export function toJSON(object: unknown): string
                     value: Array.from(value.entries()), // or with spread: value: [...value]
                 };
             }
+            else if (value instanceof Set)
+            {
+                return {
+                    dataType: 'Set',
+                    value: Array.from(value.entries()), // or with spread: value: [...value]
+                };
+            }
             else if (typeof value === 'function')
             {
                 return `[Function ${value.name ? value.name : 'anonymous'}]`;

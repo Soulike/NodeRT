@@ -119,6 +119,40 @@ interface Hooks
      * an object is returned.
      * */
     invokeFunPre: (iid: number, f: Function, base: object, args: unknown[], isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { f: Function, base: object, args: unknown[], skip: boolean } | void
+
+    /**
+     * This callback is called after a function, method, or constructor invocation.
+     *
+     * @param iid - Static unique instruction identifier of this callback
+     * @param f - The function object that was invoked
+     * @param base - The receiver object for the function <tt>f</tt>
+     * @param args - The array of arguments passed to <tt>f</tt>
+     * @param result - The value returned by the invocation
+     * @param isConstructor - True if <tt>f</tt> is invoked as a constructor
+     * @param isMethod - True if <tt>f</tt> is invoked as a method
+     * @param functionIid - The iid (i.e. the unique instruction identifier) where the function was created
+     * @param functionSid - The sid (i.e. the unique script identifier) where the function was created
+     * {@link Hooks#functionEnter} when the function f is executed.  <tt>functionIid</tt> can be treated as the
+     * static identifier of the function <tt>f</tt>.  Note that a given function code block can create several function
+     * objects, but each such object has a common <tt>functionIid</tt>, which is the iid that is passed to
+     * {@link Hooks#functionEnter} when the function executes.
+     * @returns {{result: *}| undefined} - If an object is returned, the return value of the invoked function is
+     * replaced with the value stored in the <tt>result</tt> property of the object.  This enables one to change the
+     * value that is returned by the actual function invocation.
+     * */
+    invokeFun: (iid: number, f: Function, base: unknown, args: unknown[], result: unknown, isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { result: unknown } | void
+
+    /**
+     *  `forin` or `forof` support
+     *  the object being iterated can be known by checking the last expression's result (via `endExpression`)
+     * */
+    forObject: (iid: number, isForIn: boolean) => void
+
+    /**
+     * @param iid source code location id
+     * @param type Graal.js internal AST type of the expression
+     * */
+    endExpression: (iid: number, type: string, value: unknown) => void
 }
 
 export default Hooks;

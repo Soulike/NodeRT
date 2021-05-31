@@ -42,7 +42,6 @@ class ReferenceAsyncRace extends Analysis
         };
 
         // TODO: 解决迭代器问题
-        // TODO: 解决 Set 和 Map 等内置对象问题
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
             const referenceFieldDeclaration = this.findOrAddReferenceFieldDeclaration(offset, base);

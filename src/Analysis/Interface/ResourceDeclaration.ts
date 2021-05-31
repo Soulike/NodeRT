@@ -1,9 +1,8 @@
 import CallbackFunction from '../Class/CallbackFunction';
 import ResourceOperation from './ResourceOperation';
 
-interface ResourceDeclaration
+interface ResourceDeclaration   // TODO: 封装和属性私有化
 {
-    readonly name: unknown;
     readonly operations: Map<CallbackFunction, ResourceOperation[]>;
 }
 
