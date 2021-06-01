@@ -99,6 +99,13 @@ class ObjectFieldAsyncRace extends Analysis
                     fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', object[key], sourceCodeInfo));
                 });
             }
+            else if (f === Object.create || ((f === Object || f === Function) && isConstructor))
+            {
+                const objectFieldDeclarations = this.getObjectFieldDeclarations(
+                    result as { [key: string]: unknown },   // // restricted by isObject()
+                    iid);
+                this.objectFieldDeclarations.push(...objectFieldDeclarations);
+            }
         };
     }
 

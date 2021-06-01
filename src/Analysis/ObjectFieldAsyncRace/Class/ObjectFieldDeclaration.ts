@@ -6,11 +6,11 @@ import ResourceDeclaration from '../../Class/ResourceDeclaration';
 
 class ObjectFieldDeclaration extends ResourceDeclaration
 {
-    private readonly name: unknown;
+    private readonly name: string | Symbol;
     private readonly base: object;
     private readonly operations: Map<CallbackFunction, ObjectFieldOperation[]>;
 
-    constructor(name: unknown, base: object)
+    constructor(name: string | Symbol, base: object)
     {
         super();
         this.name = name;
