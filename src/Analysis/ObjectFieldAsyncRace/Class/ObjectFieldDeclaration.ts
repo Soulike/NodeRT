@@ -24,6 +24,19 @@ class ObjectFieldDeclaration implements ResourceDeclaration
     {
         return name === this.name && base === this.base;
     }
+
+    public appendOperation(currentCallbackFunction: CallbackFunction, objectFieldOperation: ObjectFieldOperation)
+    {
+        const objectFieldOperations = this.operations.get(currentCallbackFunction);
+        if (objectFieldOperations === undefined)
+        {
+            this.operations.set(currentCallbackFunction, [objectFieldOperation]);
+        }
+        else
+        {
+            objectFieldOperations.push(objectFieldOperation);
+        }
+    }
 }
 
 export default ObjectFieldDeclaration;

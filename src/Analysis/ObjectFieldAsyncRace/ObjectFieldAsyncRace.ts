@@ -3,18 +3,19 @@
 import Sandbox from '../../Type/Sandbox';
 import Hooks from '../../Type/Hooks';
 import ObjectFieldDeclaration from './Class/ObjectFieldDeclaration';
-import {isObject, toJSON} from '../Util';
+import {getSourceCodeInfoFromIid, isObject, toJSON} from '../Util';
 import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import ObjectFieldOperation from './Class/ObjectFieldOperation';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Analysis from '../../Type/Analysis';
 
-class ObjectAsyncRace extends Analysis
+class ObjectFieldAsyncRace extends Analysis
 {
-    public write: Hooks['write'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public getField: Hooks['getField'] | undefined;
+    public invokeFun: Hooks['invokeFun'] | undefined;
+    public literal: Hooks['literal'] | undefined;
 
     private readonly objectFieldDeclarations: ObjectFieldDeclaration[];
 
@@ -30,9 +31,9 @@ class ObjectAsyncRace extends Analysis
 
     protected override registerHooks()
     {
-        this.write = (iid, name, val, lhs, isGlobal, isScriptLocal) =>
+        this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
         {
-            if (isObject(val))
+            if (literalType === 'ObjectLiteral')
             {
                 const objectFieldDeclarations = this.getObjectFieldDeclarations(
                     val as { [key: string]: unknown },   // // restricted by isObject()
@@ -41,31 +42,17 @@ class ObjectAsyncRace extends Analysis
             }
         };
 
-        // TODO: 内置 API
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
             if (isObject(base))
             {
                 const objectFieldDeclaration = this.findOrAddObjectFieldDeclaration(offset, base);
                 const sandbox = this.getSandbox();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
-
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const newOperation = new ObjectFieldOperation('read', val, sourceCodeInfo);
-                const operations = objectFieldDeclaration.operations.get(currentCallbackFunction);
-                if (operations === undefined)
-                {
-                    objectFieldDeclaration.operations.set(currentCallbackFunction, [newOperation]);
-                }
-                else
-                {
-                    operations.push(newOperation);
-                }
+                objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
             }
         };
 
@@ -75,24 +62,42 @@ class ObjectAsyncRace extends Analysis
             {
                 const objectFieldDeclaration = this.findOrAddObjectFieldDeclaration(offset, base);
                 const sandbox = this.getSandbox();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
-
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const newOperation = new ObjectFieldOperation('write', val, sourceCodeInfo);
-                const operations = objectFieldDeclaration.operations.get(currentCallbackFunction);
-                if (operations === undefined)
+                objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
+            }
+        };
+
+        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        {
+            const sandbox = this.getSandbox();
+            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+
+            if (f === Object.assign)
+            {
+                const [target, source] = args as [{ [key: string]: unknown }, { [key: string]: unknown }];
+                const sourceKeys = Object.keys(source);
+                sourceKeys.forEach(key =>
                 {
-                    objectFieldDeclaration.operations.set(currentCallbackFunction, [newOperation]);
-                }
-                else
+                    const sourceFieldDeclaration = this.findOrAddObjectFieldDeclaration(key, source);
+                    sourceFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', source[key], sourceCodeInfo));
+
+                    const targetFieldDeclaration = this.findOrAddObjectFieldDeclaration(key, target);
+                    targetFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', source[key], sourceCodeInfo));
+                });
+            }
+            else if (f === Object.entries || f === Object.values)
+            {
+                const [object] = args as [{ [key: string]: unknown }];
+                const keys = Object.keys(object);
+                keys.forEach(key =>
                 {
-                    operations.push(newOperation);
-                }
+                    const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
+                    fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', object[key], sourceCodeInfo));
+                });
             }
         };
     }
@@ -155,4 +160,4 @@ class ObjectAsyncRace extends Analysis
     }
 }
 
-export default ObjectAsyncRace;
+export default ObjectFieldAsyncRace;

@@ -1,6 +1,7 @@
 // DO NOT INSTRUMENT
 
 import DeclareType from './DeclareType';
+import LiteralType from './LiteralType';
 
 interface Hooks
 {
@@ -153,6 +154,20 @@ interface Hooks
      * @param type Graal.js internal AST type of the expression
      * */
     endExpression: (iid: number, type: string, value: unknown) => void
+
+    /**
+     * This callback is called after the creation of a literal. A literal can be a function
+     * literal, an object literal, an array literal, a number, a string, a boolean, a regular
+     * expression, `null`, `NaN`, `Infinity`, or `undefined`.
+     *
+     * @param iid - Static unique instruction identifier of this callback
+     * @param val - The literal value
+     * @param fakeHasGetterSetter is a placeholder to be consistent with Jalangi's API.
+     * The value provided in the callback is always undefined while
+     * the actual value should be computed lazily via `J$.adapter.hasGetterSetter(code)`
+     * @param literalType is a new argument provided by NodeProf showing the type of literal
+     * */
+    literal: (iid: number, val: unknown, /* hasGetterSetter should be computed lazily */ fakeHasGetterSetter: undefined, literalType: LiteralType) => void
 }
 
 export default Hooks;
