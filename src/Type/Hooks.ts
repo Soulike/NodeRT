@@ -150,8 +150,16 @@ interface Hooks
     forObject: (iid: number, isForIn: boolean) => void
 
     /**
+     * This callback is called before an expression
+     * @param iid source code location id
+     * @param type type of the expression, TODO: use some standard type names, e.g., ESTree
+     **/
+    startExpression: (iid: number, type: string) => void
+
+    /**
      * @param iid source code location id
      * @param type Graal.js internal AST type of the expression
+     * @param value value of the expression
      * */
     endExpression: (iid: number, type: string, value: unknown) => void
 
@@ -168,6 +176,18 @@ interface Hooks
      * @param literalType is a new argument provided by NodeProf showing the type of literal
      * */
     literal: (iid: number, val: unknown, /* hasGetterSetter should be computed lazily */ fakeHasGetterSetter: undefined, literalType: LiteralType) => void
+
+    /**
+     * This callback is called after a unary operation. Unary operations include  +, -, ~, !, typeof, void.
+     *
+     * @param {number} iid - Static unique instruction identifier of this callback
+     * @param {string} op - Operation to be performed
+     * @param {*} left - Left operand
+     * @param {*} result - The result of the unary operation
+     * @returns {{result: *}|undefined} - If an object is returned, the result of the unary operation is
+     * replaced with the value stored in the <tt>result</tt> property of the object.
+     * */
+    unary: (iid: number, op: string, left: unknown, result: unknown) => { result: unknown } | void
 }
 
 export default Hooks;
