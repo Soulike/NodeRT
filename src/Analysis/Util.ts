@@ -58,6 +58,15 @@ export function isObject(value: unknown): boolean
     return ((typeof value === 'function') || (typeof value === 'object')) && !Array.isArray(value);
 }
 
+export function isPrimitive(value: unknown): boolean
+{
+    if (value === null || value === undefined)
+    {
+        return false;
+    }
+    return !(Object(value) === value);
+}
+
 export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
 {
     const {
