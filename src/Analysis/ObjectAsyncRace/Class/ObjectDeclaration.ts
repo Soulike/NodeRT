@@ -6,10 +6,10 @@ import ObjectOperation from './ObjectOperation';
 
 class ObjectDeclaration extends ResourceDeclaration
 {
-    private readonly object: object | Function;
+    private readonly object: object | Function | Array<any>;
     private readonly operations: Map<CallbackFunction, ObjectOperation[]>;
 
-    constructor(object: object | Function)
+    constructor(object: object | Function | Array<any>)
     {
         super();
         this.object = object;

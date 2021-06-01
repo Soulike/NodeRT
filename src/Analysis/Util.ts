@@ -51,11 +51,16 @@ export function toJSON(object: unknown): string
 
 export function isObject(value: unknown): boolean
 {
+    return isReference(value) && !Array.isArray(value);
+}
+
+export function isReference(value: unknown): boolean
+{
     if (value === null)
     {
         return false;
     }
-    return ((typeof value === 'function') || (typeof value === 'object')) && !Array.isArray(value);
+    return ((typeof value === 'function') || (typeof value === 'object'));
 }
 
 export function isPrimitive(value: unknown): boolean

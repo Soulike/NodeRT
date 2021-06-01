@@ -30,9 +30,9 @@ class ObjectAsyncRace extends Analysis
     {
         this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
         {
-            if (literalType === 'ObjectLiteral')
+            if (literalType === 'ObjectLiteral' || literalType === 'ArrayLiteral')
             {
-                const newObjectDeclaration = this.findOrAddObjectDeclaration(val as object | Function);
+                const newObjectDeclaration = this.findOrAddObjectDeclaration(val as object | Function | Array<any>);
                 newObjectDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
@@ -62,9 +62,9 @@ class ObjectAsyncRace extends Analysis
                     }
                 }
             }
-            else if (f === Function)
+            else if (f === Function || f === Array)
             {
-                const objectDeclaration = this.findOrAddObjectDeclaration(result as Function);
+                const objectDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any>);
                 objectDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
