@@ -1,16 +1,17 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../Interface/ResourceDeclaration';
 import CallbackFunction from '../../Class/CallbackFunction';
 import MapOperation from './MapOperation';
+import ResourceDeclaration from '../../Class/ResourceDeclaration';
 
-class MapDeclaration implements ResourceDeclaration
+class MapDeclaration extends ResourceDeclaration
 {
-    public readonly map: Map<unknown, unknown>;
-    public readonly operations: Map<CallbackFunction, MapOperation[]>;
+    private readonly map: Map<unknown, unknown>;
+    private readonly operations: Map<CallbackFunction, MapOperation[]>;
 
     constructor(map: Map<unknown, unknown>)
     {
+        super();
         this.map = map;
         this.operations = new Map();
     }
@@ -31,6 +32,11 @@ class MapDeclaration implements ResourceDeclaration
         {
             mapOperations.push(mapOperation);
         }
+    }
+
+    public getOperations()
+    {
+        return new Map(this.operations);
     }
 }
 

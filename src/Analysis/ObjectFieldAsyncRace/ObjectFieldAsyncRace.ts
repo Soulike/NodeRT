@@ -128,7 +128,7 @@ class ObjectFieldAsyncRace extends Analysis
 
                 const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
                 const objectFieldDeclaration = new ObjectFieldDeclaration(key, object);
-                objectFieldDeclaration.operations.set(currentCallbackFunction, [new ObjectFieldOperation('write', value, sourceCodeInfo)]);
+                objectFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', value, sourceCodeInfo));
                 objectFieldDeclarations.push(objectFieldDeclaration);
             }
 

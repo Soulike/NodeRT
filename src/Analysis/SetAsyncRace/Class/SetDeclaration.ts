@@ -1,16 +1,17 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../Interface/ResourceDeclaration';
 import CallbackFunction from '../../Class/CallbackFunction';
 import SetOperation from './SetOperation';
+import ResourceDeclaration from '../../Class/ResourceDeclaration';
 
-class SetDeclaration implements ResourceDeclaration
+class SetDeclaration extends ResourceDeclaration
 {
     public readonly set: Set<unknown>;
     public readonly operations: Map<CallbackFunction, SetOperation[]>;
 
     constructor(set: Set<unknown>)
     {
+        super();
         this.set = set;
         this.operations = new Map();
     }
@@ -31,6 +32,11 @@ class SetDeclaration implements ResourceDeclaration
         {
             setOperations.push(setOperation);
         }
+    }
+
+    public getOperations(): Map<CallbackFunction, SetOperation[]>
+    {
+        return new Map(this.operations);
     }
 }
 

@@ -67,7 +67,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             if (isGlobal)
             {
                 const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);
-                declaration.operations.set(currentCallbackFunction, [new VariableOperation('read', val, sourceCodeInfo)]);
+                declaration.appendOperation(currentCallbackFunction, new VariableOperation('read', val, sourceCodeInfo));
                 variableDeclarations.push(declaration);
             }
             else
@@ -80,15 +80,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
                     if (variableDeclaration.name === name && currentCallbackFunction.isInAsyncScope(variableDeclaration.asyncScope))
                     {
                         const newOperation = new VariableOperation('read', val, sourceCodeInfo);
-                        const operationsOfCurrentCallback = variableDeclaration.operations.get(currentCallbackFunction);
-                        if (operationsOfCurrentCallback === undefined)
-                        {
-                            variableDeclaration.operations.set(currentCallbackFunction, [newOperation]);
-                        }
-                        else
-                        {
-                            operationsOfCurrentCallback.push(newOperation);
-                        }
+                        variableDeclaration.appendOperation(currentCallbackFunction, newOperation);
                         found = true;
                         break;
                     }
@@ -115,7 +107,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             if (isGlobal)
             {
                 const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);
-                declaration.operations.set(currentCallbackFunction, [new VariableOperation('write', val, sourceCodeInfo)]);
+                declaration.appendOperation(currentCallbackFunction, new VariableOperation('write', val, sourceCodeInfo));
                 variableDeclarations.push(declaration);
             }
             else
@@ -128,15 +120,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
                     {
                         const newOperation = new VariableOperation('write', val, sourceCodeInfo);
                         // append the operation to current callback
-                        const operationsOfCurrentCallback = variableDeclaration.operations.get(currentCallbackFunction);
-                        if (operationsOfCurrentCallback === undefined)
-                        {
-                            variableDeclaration.operations.set(currentCallbackFunction, [newOperation]);
-                        }
-                        else
-                        {
-                            operationsOfCurrentCallback.push(newOperation);
-                        }
+                        variableDeclaration.appendOperation(currentCallbackFunction, newOperation);
                         found = true;
                         break;
                     }

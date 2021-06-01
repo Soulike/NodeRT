@@ -1,17 +1,13 @@
 // DO NOT INSTRUMENT
 
-import ResourceOperation from '../../Interface/ResourceOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
+import ResourceOperation from '../../Class/ResourceOperation';
 
-class MapOperation implements ResourceOperation
+class MapOperation extends ResourceOperation
 {
-    public readonly type: 'read' | 'write';
-    public readonly sourceCodeInfo: SourceCodeInfo;
-
     constructor(type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo)
     {
-        this.type = type;
-        this.sourceCodeInfo = sourceCodeInfo;
+        super(type, sourceCodeInfo);
     }
 }
 

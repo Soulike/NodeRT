@@ -2,16 +2,17 @@
 
 import CallbackFunction from '../../Class/CallbackFunction';
 import ObjectFieldOperation from './ObjectFieldOperation';
-import ResourceDeclaration from '../../Interface/ResourceDeclaration';
+import ResourceDeclaration from '../../Class/ResourceDeclaration';
 
-class ObjectFieldDeclaration implements ResourceDeclaration
+class ObjectFieldDeclaration extends ResourceDeclaration
 {
-    public readonly name: unknown;
-    public readonly base: object;
-    public readonly operations: Map<CallbackFunction, ObjectFieldOperation[]>;
+    private readonly name: unknown;
+    private readonly base: object;
+    private readonly operations: Map<CallbackFunction, ObjectFieldOperation[]>;
 
     constructor(name: unknown, base: object)
     {
+        super();
         this.name = name;
         this.base = base;
         this.operations = new Map();
@@ -36,6 +37,11 @@ class ObjectFieldDeclaration implements ResourceDeclaration
         {
             objectFieldOperations.push(objectFieldOperation);
         }
+    }
+
+    public getOperations()
+    {
+        return new Map(this.operations);
     }
 }
 

@@ -1,19 +1,16 @@
 // DO NOT INSTRUMENT
 
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
-import ResourceOperation from '../../Interface/ResourceOperation';
+import ResourceOperation from '../../Class/ResourceOperation';
 
-class VariableOperation implements ResourceOperation
+class VariableOperation extends ResourceOperation
 {
-    public readonly type: 'read' | 'write';
     public readonly value: unknown;
-    public readonly sourceCodeInfo: SourceCodeInfo;
 
     constructor(type: 'read' | 'write', value: unknown, sourceCodeInfo: SourceCodeInfo)
     {
-        this.type = type;
+        super(type, sourceCodeInfo);
         this.value = value;
-        this.sourceCodeInfo = sourceCodeInfo;
     }
 }
 
