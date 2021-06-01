@@ -3,23 +3,24 @@
 import Analysis from '../../Type/Analysis';
 import Hooks from '../../Type/Hooks';
 import Sandbox from '../../Type/Sandbox';
-import ObjectDeclaration from './Class/ObjectDeclaration';
-import ObjectOperation from './Class/ObjectOperation';
+import ReferenceMetaDeclaration from './Class/ReferenceMetaDeclaration';
+import ReferenceMetaOperation from './Class/ReferenceMetaOperation';
 import {getSourceCodeInfoFromIid, isPrimitive, toJSON} from '../Util';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import Reference from './Type/Reference';
 
-/**Focus on object descriptors and prototype*/
-class ObjectAsyncRace extends Analysis
+/**Focus on object (including Array & Function) descriptors and prototype*/
+class ReferenceMetaAsyncRace extends Analysis
 {
     public literal: Hooks['literal'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
 
-    private readonly objectDeclarations: ObjectDeclaration[];
+    private readonly referenceMetaDeclarations: ReferenceMetaDeclaration[];
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.objectDeclarations = [];
+        this.referenceMetaDeclarations = [];
 
         this.registerHooks();
 
@@ -32,10 +33,10 @@ class ObjectAsyncRace extends Analysis
         {
             if (literalType === 'ObjectLiteral' || literalType === 'ArrayLiteral')
             {
-                const newObjectDeclaration = this.findOrAddObjectDeclaration(val as object | Function | Array<any>);
-                newObjectDeclaration.appendOperation(
+                const newReferenceMetaDeclaration = this.findOrAddObjectDeclaration(val as Reference);
+                newReferenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                    new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
         };
 
@@ -45,36 +46,36 @@ class ObjectAsyncRace extends Analysis
             {
                 if (isConstructor)
                 {
-                    const objectDeclaration = this.findOrAddObjectDeclaration(result as object);
-                    objectDeclaration.appendOperation(
+                    const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
+                    referenceMetaDeclaration.appendOperation(
                         CallbackFunctionContext.getCurrentCallbackFunction(),
-                        new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                        new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
                 }
                 else
                 {
                     const [arg] = args;
                     if (isPrimitive(arg))
                     {
-                        const objectDeclaration = this.findOrAddObjectDeclaration(result as object);
-                        objectDeclaration.appendOperation(
+                        const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
+                        referenceMetaDeclaration.appendOperation(
                             CallbackFunctionContext.getCurrentCallbackFunction(),
-                            new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                            new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
                     }
                 }
             }
             else if (f === Function || f === Array)
             {
-                const objectDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any>);
-                objectDeclaration.appendOperation(
+                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any>);
+                referenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                    new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
             else if (f === Object.create)
             {
-                const objectDeclaration = this.findOrAddObjectDeclaration(result as object);
-                objectDeclaration.appendOperation(
+                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
+                referenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                    new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
             else if (f === Object.defineProperty || f === Object.defineProperties
                 || f === Object.freeze || f === Object.preventExtensions || f === Object.seal
@@ -84,7 +85,7 @@ class ObjectAsyncRace extends Analysis
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ObjectOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                    new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
             else if (f === Object.getOwnPropertyDescriptor || f === Object.getOwnPropertyDescriptors || f === Object.getOwnPropertySymbols || f === Object.getPrototypeOf
                 || f === Object.isExtensible || f === Object.isFrozen || f === Object.isSealed
@@ -94,31 +95,31 @@ class ObjectAsyncRace extends Analysis
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ObjectOperation('read', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                    new ReferenceMetaOperation('read', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
         };
     }
 
     private onAnalysisExit()
     {
-        console.log(toJSON(this.objectDeclarations));
+        console.log(toJSON(this.referenceMetaDeclarations));
     }
 
-    private findOrAddObjectDeclaration(object: ObjectDeclaration['object']): ObjectDeclaration
+    private findOrAddObjectDeclaration(object: ReferenceMetaDeclaration['reference']): ReferenceMetaDeclaration
     {
-        const objectDeclaration = this.objectDeclarations.find(
-            objectDeclaration => objectDeclaration.is(object));
-        if (objectDeclaration === undefined)
+        const referenceMetaDeclaration = this.referenceMetaDeclarations.find(
+            referenceMetaDeclaration => referenceMetaDeclaration.is(object));
+        if (referenceMetaDeclaration === undefined)
         {
-            const newObjectDeclaration = new ObjectDeclaration(object);
-            this.objectDeclarations.push(newObjectDeclaration);
+            const newObjectDeclaration = new ReferenceMetaDeclaration(object);
+            this.referenceMetaDeclarations.push(newObjectDeclaration);
             return newObjectDeclaration;
         }
         else
         {
-            return objectDeclaration;
+            return referenceMetaDeclaration;
         }
     }
 }
 
-export default ObjectAsyncRace;
+export default ReferenceMetaAsyncRace;

@@ -3,7 +3,7 @@
 import ResourceOperation from '../../Class/ResourceOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 
-class ObjectOperation extends ResourceOperation
+class ReferenceMetaOperation extends ResourceOperation
 {
     constructor(type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo)
     {
@@ -11,4 +11,4 @@ class ObjectOperation extends ResourceOperation
     }
 }
 
-export default ObjectOperation;
+export default ReferenceMetaOperation;
