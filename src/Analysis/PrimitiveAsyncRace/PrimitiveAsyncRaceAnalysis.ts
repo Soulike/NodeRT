@@ -38,19 +38,16 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
     {
         this.declare = (iid, name, type, kind) =>
         {
-            if (type !== 'const')
-            {
-                const sandbox = this.getSandbox();
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const {variableDeclarations} = this;
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
+            const sandbox = this.getSandbox();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+            const {variableDeclarations} = this;
+            const {
+                name: fileName,
+                range,
+            } = sandbox.iidToSourceObject(iid);
 
-                const scopeSourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
-                variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
-            }
+            const scopeSourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+            variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
         };
 
         this.read = (iid, name, val, isGlobal, isScriptLocal) =>

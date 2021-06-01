@@ -8,6 +8,7 @@ type CallbackFunctionType =
     | 'nextTick'
     | 'promiseThen'
     | 'eventListener'
-    | 'eventListenerOnce';
+    | 'eventListenerOnce'
+    | 'awaitContinue';
 
 export default CallbackFunctionType;

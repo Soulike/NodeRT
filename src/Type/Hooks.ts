@@ -188,6 +188,17 @@ interface Hooks
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
     unary: (iid: number, op: string, left: unknown, result: unknown) => { result: unknown } | void
+
+    /**
+     * @param iid - Static unique instruction identifier of this callback
+     * @param result - The value returned by the function
+     * @param exceptionVal - If this parameter is an object, the function
+     * execution has thrown an uncaught exception and the exception is being stored in the <tt>exception</tt>
+     * property of the parameter
+     * */
+    asyncFunctionExit: (iid: number, result: unknown, exceptionVal: { exception: unknown } | undefined) => void
+
+    awaitPre: (iid: number, promiseOrValAwaited: Promise<unknown> | unknown) => void;
 }
 
 export default Hooks;

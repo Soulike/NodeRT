@@ -9,6 +9,8 @@ import Range from '../Class/Range';
 import EventEmitter from 'events';
 import Analysis from '../../Type/Analysis';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {getSourceCodeInfoFromIid} from '../Util';
+import {strict as assert} from 'assert';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -17,13 +19,17 @@ import LastExpressionValueContainer from '../Singleton/LastExpressionValueContai
 class AsyncContext extends Analysis
 {
     public functionEnter: Hooks['functionEnter'] | undefined;
+    private static readonly AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
     public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public endExpression: Hooks['endExpression'] | undefined;
+    public asyncFunctionExit: Hooks['asyncFunctionExit'] | undefined;
+    public awaitPre: Hooks['awaitPre'] | undefined;
+    private readonly asyncFunctionCallStack: Function[];
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
+        this.asyncFunctionCallStack = [];
         this.registerHooks();
     }
 
@@ -31,6 +37,10 @@ class AsyncContext extends Analysis
     {
         this.functionEnter = (iid, f, dis, args) =>
         {
+            if (f instanceof AsyncContext.AsyncFunction) // is a async function, log it
+            {
+                this.asyncFunctionCallStack.push(f);
+            }
             const pendingCallbackFunctionsClone = CallbackFunctionContext.getPendingCallbackFunctionsClone();
             for (let i = pendingCallbackFunctionsClone.length - 1; i >= 0; i--)
             {
@@ -44,6 +54,11 @@ class AsyncContext extends Analysis
                     break;
                 }
             }
+        };
+
+        this.asyncFunctionExit = (iid, returnVal, wrappedExceptionVal) =>
+        {
+            this.asyncFunctionCallStack.pop();
         };
 
         this.invokeFunPre = (iid, f, base, args, isConstructor, isMethod, functionIid) =>
@@ -111,6 +126,18 @@ class AsyncContext extends Analysis
         this.endExpression = (iid, type, value) =>
         {
             LastExpressionValueContainer.setLastExpressionValue(value);
+        };
+
+        this.awaitPre = (iid, promiseOrValAwaited) =>
+        {
+            assert.ok(this.asyncFunctionCallStack.length > 0);
+
+            const sandbox = this.getSandbox();
+            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+            const register = getSourceCodeInfoFromIid(iid, sandbox);
+            const currentAsyncFunction = this.asyncFunctionCallStack[this.asyncFunctionCallStack.length - 1]!;    // ensured by assert
+            // when encountering `await`, the current function will be paused, and will be called later
+            CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(currentAsyncFunction, 'awaitContinue', currentCallbackFunction, register));
         };
     }
 
