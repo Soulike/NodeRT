@@ -4,15 +4,17 @@ import ResourceDeclaration from '../../Class/ResourceDeclaration';
 import CallbackFunction from '../../Class/CallbackFunction';
 import ResourceOperation from '../../Class/ResourceOperation';
 import ArrayOperation from './ArrayOperation';
+import {strict as assert} from 'assert';
 
 class ArrayDeclaration extends ResourceDeclaration
 {
-    private readonly array: unknown[];  // TODO: 类型检查
+    private readonly array: unknown[];
     private readonly operations: Map<CallbackFunction, ArrayOperation[]>;
 
     constructor(array: unknown[])
     {
         super();
+        assert.ok(Array.isArray(array));
         this.array = array;
         this.operations = new Map();
     }

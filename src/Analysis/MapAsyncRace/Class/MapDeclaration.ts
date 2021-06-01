@@ -3,6 +3,7 @@
 import CallbackFunction from '../../Class/CallbackFunction';
 import MapOperation from './MapOperation';
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import {strict as assert} from 'assert';
 
 class MapDeclaration extends ResourceDeclaration
 {
@@ -12,6 +13,7 @@ class MapDeclaration extends ResourceDeclaration
     constructor(map: Map<unknown, unknown>)
     {
         super();
+        assert.ok(map instanceof Map);
         this.map = map;
         this.operations = new Map();
     }

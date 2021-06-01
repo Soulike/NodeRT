@@ -3,6 +3,7 @@
 import CallbackFunction from '../../Class/CallbackFunction';
 import ObjectFieldOperation from './ObjectFieldOperation';
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import {strict as assert} from 'assert';
 
 class ObjectFieldDeclaration extends ResourceDeclaration
 {
@@ -13,6 +14,8 @@ class ObjectFieldDeclaration extends ResourceDeclaration
     constructor(name: string | Symbol, base: object)
     {
         super();
+        assert.ok(typeof name === 'string' || typeof name === 'symbol');
+        assert.ok(typeof base === 'object' && base !== null);
         this.name = name;
         this.base = base;
         this.operations = new Map();
