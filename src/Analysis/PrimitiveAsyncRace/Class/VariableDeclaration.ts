@@ -5,7 +5,7 @@ import VariableOperation from './VariableOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
 
-class VariableDeclaration extends ResourceDeclaration  // TODO: 完善变量匹配
+class VariableDeclaration extends ResourceDeclaration
 {
     public readonly name: string;
     public readonly asyncScope: CallbackFunction;
@@ -20,6 +20,11 @@ class VariableDeclaration extends ResourceDeclaration  // TODO: 完善变量匹�
         this.asyncScope = asyncScope;
         this.scopeSourceCodeInfo = scopeSourceCodeInfo;
         this.operations = new Map();
+    }
+
+    public is() // TODO: 完善变量匹配
+    {
+        return false;
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, variableOperation: VariableOperation)
