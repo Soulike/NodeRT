@@ -73,21 +73,25 @@ class AsyncContext extends Analysis
             if (f === setTimeout)
             {
                 const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'timeout', currentCallbackFunction, register));
             }
             else if (f === setImmediate)
             {
                 const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'immediate', currentCallbackFunction, register));
             }
             else if (f === setInterval)
             {
                 const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'interval', currentCallbackFunction, register));
             }
             else if (f === process.nextTick)
             {
                 const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'nextTick', currentCallbackFunction, register));
             }
             else if (f === Promise.prototype.then)
@@ -114,11 +118,13 @@ class AsyncContext extends Analysis
             else if (f === EventEmitter.prototype.on)
             {
                 const callback = args[1] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListener', currentCallbackFunction, register));
             }
             else if (f === EventEmitter.prototype.once)
             {
                 const callback = args[1] as Function;
+                assert.ok(typeof callback === 'function');
                 CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListenerOnce', currentCallbackFunction, register));
             }
         };

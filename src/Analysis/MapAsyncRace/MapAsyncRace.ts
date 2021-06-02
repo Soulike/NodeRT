@@ -8,13 +8,13 @@ import MapOperation from './Class/MapOperation';
 import SourceCodeInfo from '../Class/SourceCodeInfo';
 import Range from '../Class/Range';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import {toJSON} from '../Util';
+import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {strict as assert} from 'assert';
 
 class MapAsyncRace extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public endExpression: Hooks['endExpression'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
 
     private readonly mapDeclarations: MapDeclaration[];
@@ -37,18 +37,14 @@ class MapAsyncRace extends Analysis
             const writeMethods: Function[] = [Map.prototype.set, Map.prototype.delete, Map.prototype.clear];
             if (f === Map && isConstructor)
             {
+                assert.ok(result instanceof Map);
                 const mapDeclaration = new MapDeclaration(result as Map<unknown, unknown>);
                 this.mapDeclarations.push(mapDeclaration);
             }
             else if (base instanceof Map)
             {
                 const sandbox = this.getSandbox();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
-
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 let type: 'write' | 'read' | 'unknown' = 'unknown';
 

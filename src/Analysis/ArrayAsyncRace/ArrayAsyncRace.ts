@@ -8,6 +8,7 @@ import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import ArrayOperation from './Class/ArrayOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {strict as assert} from 'assert';
 
 /**Does not support spread expression now*/
 class ArrayAsyncRace extends Analysis
@@ -38,6 +39,7 @@ class ArrayAsyncRace extends Analysis
         {
             if (literalType === 'ArrayLiteral')
             {
+                assert.ok(Array.isArray(val));
                 const newArrayDeclaration = new ArrayDeclaration(val as Array<unknown>);
                 newArrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ArrayOperation('write', getSourceCodeInfoFromIid(iid, sandbox)));
@@ -49,7 +51,7 @@ class ArrayAsyncRace extends Analysis
         {
             if (Array.isArray(base))
             {
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base as Array<unknown>);
+                const arrayDeclaration = this.findOrAddArrayDeclaration(base);
                 arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ArrayOperation('read', getSourceCodeInfoFromIid(iid, sandbox)));
             }
@@ -59,7 +61,7 @@ class ArrayAsyncRace extends Analysis
         {
             if (Array.isArray(base))
             {
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base as Array<unknown>);
+                const arrayDeclaration = this.findOrAddArrayDeclaration(base);
                 arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ArrayOperation('write', getSourceCodeInfoFromIid(iid, sandbox)));
             }
@@ -71,6 +73,7 @@ class ArrayAsyncRace extends Analysis
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             if (f === Array || f === Array.of)
             {
+                assert.ok(Array.isArray(result));
                 const newArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
                 newArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
@@ -85,6 +88,7 @@ class ArrayAsyncRace extends Analysis
                     arrayDeclaration.appendOperation(currentCallbackFunction,
                         new ArrayOperation('read', sourceCodeInfo));
                 }
+                assert.ok(Array.isArray(result));
                 const newArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
                 newArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
@@ -93,14 +97,17 @@ class ArrayAsyncRace extends Analysis
             else if (f === Array.prototype.concat)
             {
                 const arg = args[0];
+                assert.ok(Array.isArray(arg));
                 const argArrayDeclaration = this.findOrAddArrayDeclaration(arg as unknown[]);
                 argArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('read', sourceCodeInfo));
 
+                assert.ok(Array.isArray(base));
                 const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 baseArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('read', sourceCodeInfo));
 
+                assert.ok(Array.isArray(result));
                 const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
                 resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
@@ -108,6 +115,7 @@ class ArrayAsyncRace extends Analysis
             }
             else if (f === Array.prototype.copyWithin)
             {
+                assert.ok(Array.isArray(base));
                 const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 arrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('read', sourceCodeInfo));
@@ -122,6 +130,7 @@ class ArrayAsyncRace extends Analysis
                 || f === Array.prototype.some || f === Array.prototype.toString || f === Array.prototype.toLocaleString
             )
             {
+                assert.ok(Array.isArray(base));
                 const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 arrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('read', sourceCodeInfo));
@@ -130,7 +139,7 @@ class ArrayAsyncRace extends Analysis
             {
                 if (Array.isArray(base))
                 {
-                    const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
+                    const arrayDeclaration = this.findOrAddArrayDeclaration(base);
                     arrayDeclaration.appendOperation(currentCallbackFunction,
                         new ArrayOperation('write', sourceCodeInfo));
                 }
@@ -138,6 +147,7 @@ class ArrayAsyncRace extends Analysis
             else if (f === Array.prototype.pop || f === Array.prototype.push || f === Array.prototype.shift
                 || f === Array.prototype.reverse || f === Array.prototype.sort || f === Array.prototype.unshift)
             {
+                assert.ok(Array.isArray(base));
                 const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 arrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
@@ -148,10 +158,12 @@ class ArrayAsyncRace extends Analysis
                 || f === Array.prototype.map
                 || f === Array.prototype.slice)
             {
+                assert.ok(Array.isArray(base));
                 const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 baseArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('read', sourceCodeInfo));
 
+                assert.ok(Array.isArray(result));
                 const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
                 resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
@@ -159,10 +171,12 @@ class ArrayAsyncRace extends Analysis
             }
             else if (f === Array.prototype.splice)
             {
+                assert.ok(Array.isArray(base));
                 const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
                 baseArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));
 
+                assert.ok(Array.isArray(result));
                 const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
                 resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
                     new ArrayOperation('write', sourceCodeInfo));

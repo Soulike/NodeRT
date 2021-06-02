@@ -3,10 +3,8 @@
 import CallbackFunction from '../Class/CallbackFunction';
 import VariableDeclaration from './Class/VariableDeclaration';
 import Hooks from '../../Type/Hooks';
-import {toJSON} from '../Util';
+import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import VariableOperation from './Class/VariableOperation';
-import SourceCodeInfo from '../Class/SourceCodeInfo';
-import Range from '../Class/Range';
 import Sandbox from '../../Type/Sandbox';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Analysis from '../../Type/Analysis';
@@ -41,12 +39,8 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             const sandbox = this.getSandbox();
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const {variableDeclarations} = this;
-            const {
-                name: fileName,
-                range,
-            } = sandbox.iidToSourceObject(iid);
 
-            const scopeSourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+            const scopeSourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
             variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
         };
 
@@ -55,12 +49,8 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             const sandbox = this.getSandbox();
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const {variableDeclarations} = this;
-            const {
-                name: fileName,
-                range,
-            } = sandbox.iidToSourceObject(iid);
 
-            const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
             if (isGlobal)
             {
                 const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);
@@ -95,12 +85,8 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             const sandbox = this.getSandbox();
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const {variableDeclarations} = this;
-            const {
-                name: fileName,
-                range,
-            } = sandbox.iidToSourceObject(iid);
 
-            const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
             if (isGlobal)
             {
                 const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);

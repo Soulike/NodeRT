@@ -4,7 +4,6 @@ import CallbackFunction from '../../Class/CallbackFunction';
 import VariableOperation from './VariableOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
-import {strict as assert} from 'assert';
 
 class VariableDeclaration extends ResourceDeclaration
 {
@@ -17,7 +16,6 @@ class VariableDeclaration extends ResourceDeclaration
     constructor(name: string, asyncScope: CallbackFunction, scopeSourceCodeInfo: SourceCodeInfo | null)
     {
         super();
-        assert.ok(typeof name === 'string');
         this.name = name;
         this.asyncScope = asyncScope;
         this.scopeSourceCodeInfo = scopeSourceCodeInfo;

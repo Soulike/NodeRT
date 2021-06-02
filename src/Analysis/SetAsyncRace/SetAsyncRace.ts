@@ -5,16 +5,14 @@ import Hooks from '../../Type/Hooks';
 import Sandbox from '../../Type/Sandbox';
 import SetDeclaration from './Class/SetDeclaration';
 import SetOperation from './Class/SetOperation';
-import SourceCodeInfo from '../Class/SourceCodeInfo';
-import Range from '../Class/Range';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import {toJSON} from '../Util';
+import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {strict as assert} from 'assert';
 
 class SetAsyncRace extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public endExpression: Hooks['endExpression'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
 
     private readonly setDeclarations: SetDeclaration[];
@@ -37,18 +35,15 @@ class SetAsyncRace extends Analysis
             const writeMethods: Function[] = [Set.prototype.add, Set.prototype.delete, Set.prototype.clear];
             if (f === Set && isConstructor)
             {
+                assert.ok(result instanceof Set);
                 const setDeclaration = new SetDeclaration(result as Set<unknown>);
                 this.setDeclarations.push(setDeclaration);
             }
             else if (base instanceof Set)
             {
                 const sandbox = this.getSandbox();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
 
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 let type: 'write' | 'read' | 'unknown' = 'unknown';
 
@@ -87,12 +82,8 @@ class SetAsyncRace extends Analysis
             if (!isForIn && lastExpressionValue instanceof Set)
             {
                 const sandbox = this.getSandbox();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
 
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const setDeclaration = this.setDeclarations.find(setDeclaration => setDeclaration.is(lastExpressionValue));
                 if (setDeclaration !== undefined)

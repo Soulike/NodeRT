@@ -4,7 +4,6 @@ import ResourceDeclaration from '../../Class/ResourceDeclaration';
 import CallbackFunction from '../../Class/CallbackFunction';
 import ReferenceMetaOperation from './ReferenceMetaOperation';
 import Reference from '../Type/Reference';
-import {strict as assert} from 'assert';
 
 class ReferenceMetaDeclaration extends ResourceDeclaration
 {
@@ -14,7 +13,6 @@ class ReferenceMetaDeclaration extends ResourceDeclaration
     constructor(reference: Reference)
     {
         super();
-        assert.ok(typeof reference !== null && (typeof reference === 'function' || typeof reference === 'object' || Array.isArray(reference)));
         this.reference = reference;
         this.operations = new Map();
     }

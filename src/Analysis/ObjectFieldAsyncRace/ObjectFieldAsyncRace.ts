@@ -4,11 +4,10 @@ import Sandbox from '../../Type/Sandbox';
 import Hooks from '../../Type/Hooks';
 import ObjectFieldDeclaration from './Class/ObjectFieldDeclaration';
 import {getSourceCodeInfoFromIid, isObject, toJSON} from '../Util';
-import SourceCodeInfo from '../Class/SourceCodeInfo';
-import Range from '../Class/Range';
 import ObjectFieldOperation from './Class/ObjectFieldOperation';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Analysis from '../../Type/Analysis';
+import {strict as assert} from 'assert';
 
 class ObjectFieldAsyncRace extends Analysis
 {
@@ -35,8 +34,9 @@ class ObjectFieldAsyncRace extends Analysis
         {
             if (literalType === 'ObjectLiteral')
             {
+                assert.ok(isObject(val));
                 const objectFieldDeclarations = this.getObjectFieldDeclarations(
-                    val as { [key: string]: unknown },   // // restricted by isObject()
+                    val as { [key: string]: unknown },
                     iid);
                 this.objectFieldDeclarations.push(...objectFieldDeclarations);
             }
@@ -79,6 +79,7 @@ class ObjectFieldAsyncRace extends Analysis
             if (f === Object.assign)
             {
                 const [target, source] = args as [{ [key: string]: unknown }, { [key: string]: unknown }];
+                assert.ok(isObject(target) && isObject(source));
                 const sourceKeys = Object.keys(source);
                 sourceKeys.forEach(key =>
                 {
@@ -92,6 +93,7 @@ class ObjectFieldAsyncRace extends Analysis
             else if (f === Object.entries || f === Object.values)
             {
                 const [object] = args as [{ [key: string]: unknown }];
+                assert.ok(isObject(object));
                 const keys = Object.keys(object);
                 keys.forEach(key =>
                 {
@@ -101,13 +103,17 @@ class ObjectFieldAsyncRace extends Analysis
             }
             else if (f === Object.create || ((f === Object || f === Function) && isConstructor))
             {
+                assert.ok(isObject(result));
                 const objectFieldDeclarations = this.getObjectFieldDeclarations(
-                    result as { [key: string]: unknown },   // // restricted by isObject()
+                    result as { [key: string]: unknown },
                     iid);
                 this.objectFieldDeclarations.push(...objectFieldDeclarations);
             }
             else if (f === Object.defineProperty)
             {
+                assert.ok(isObject(args[0]));
+                assert.ok(typeof args[1] === 'string');
+                assert.ok(isObject(args[2]));
                 const object = args[0] as object;
                 const key = args[1] as string;
                 const value = args[2] as object;
@@ -118,6 +124,8 @@ class ObjectFieldAsyncRace extends Analysis
             {
                 const object = args[0] as object;
                 const props = args[1] as { [key: string]: unknown };
+                assert.ok(isObject(object));
+                assert.ok(isObject(props));
                 Object.keys(props).forEach(key =>
                 {
                     const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
@@ -126,6 +134,8 @@ class ObjectFieldAsyncRace extends Analysis
             }
             else if (f === Object.getOwnPropertyDescriptor)
             {
+                assert.ok(isObject(args[0]));
+                assert.ok(typeof args[1] === 'string');
                 const object = args[0] as object;
                 const key = args[1] as string;
                 const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
@@ -133,6 +143,7 @@ class ObjectFieldAsyncRace extends Analysis
             }
             else if (f === Object.getOwnPropertyDescriptors)
             {
+                assert.ok(isObject(args[0]));
                 const object = args[0] as object;
                 Object.keys(object).forEach(key =>
                 {
@@ -163,12 +174,8 @@ class ObjectFieldAsyncRace extends Analysis
             {
                 const sandbox = this.getSandbox();
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const {
-                    name: fileName,
-                    range,
-                } = sandbox.iidToSourceObject(iid);
 
-                const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 const objectFieldDeclaration = new ObjectFieldDeclaration(key, object);
                 objectFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', value, false, sourceCodeInfo));
                 objectFieldDeclarations.push(objectFieldDeclaration);

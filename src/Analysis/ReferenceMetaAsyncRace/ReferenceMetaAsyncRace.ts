@@ -5,9 +5,10 @@ import Hooks from '../../Type/Hooks';
 import Sandbox from '../../Type/Sandbox';
 import ReferenceMetaDeclaration from './Class/ReferenceMetaDeclaration';
 import ReferenceMetaOperation from './Class/ReferenceMetaOperation';
-import {getSourceCodeInfoFromIid, isPrimitive, toJSON} from '../Util';
+import {getSourceCodeInfoFromIid, isObject, isPrimitive, isReference, toJSON} from '../Util';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Reference from './Type/Reference';
+import {strict as assert} from 'assert';
 
 /**Focus on object (including Array & Function) descriptors and prototype*/
 class ReferenceMetaAsyncRace extends Analysis
@@ -33,6 +34,7 @@ class ReferenceMetaAsyncRace extends Analysis
         {
             if (literalType === 'ObjectLiteral' || literalType === 'ArrayLiteral')
             {
+                assert.ok(isReference(val));
                 const newReferenceMetaDeclaration = this.findOrAddObjectDeclaration(val as Reference);
                 newReferenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
@@ -46,6 +48,7 @@ class ReferenceMetaAsyncRace extends Analysis
             {
                 if (isConstructor)
                 {
+                    assert.ok(isObject(result));
                     const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
                     referenceMetaDeclaration.appendOperation(
                         CallbackFunctionContext.getCurrentCallbackFunction(),
@@ -56,6 +59,7 @@ class ReferenceMetaAsyncRace extends Analysis
                     const [arg] = args;
                     if (isPrimitive(arg))
                     {
+                        assert.ok(isObject(result));
                         const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
                         referenceMetaDeclaration.appendOperation(
                             CallbackFunctionContext.getCurrentCallbackFunction(),
@@ -65,7 +69,8 @@ class ReferenceMetaAsyncRace extends Analysis
             }
             else if (f === Function || f === Array || f === Object.create)
             {
-                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any> | object);
+                assert.ok(isReference(result));
+                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Reference);
                 referenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
@@ -74,6 +79,7 @@ class ReferenceMetaAsyncRace extends Analysis
                 || f === Object.setPrototypeOf)
             {
                 const [object] = args as [{ [key: string]: unknown }, ...unknown[]];
+                assert.ok(isReference(object));
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
@@ -83,6 +89,7 @@ class ReferenceMetaAsyncRace extends Analysis
                 || f === Object.isExtensible || f === Object.isFrozen || f === Object.isSealed)
             {
                 const [object] = args as [{ [key: string]: unknown }, ...unknown[]];
+                assert.ok(isReference(object));
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
