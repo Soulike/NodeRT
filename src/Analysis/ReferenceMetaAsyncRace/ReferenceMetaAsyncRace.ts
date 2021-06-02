@@ -63,22 +63,14 @@ class ReferenceMetaAsyncRace extends Analysis
                     }
                 }
             }
-            else if (f === Function || f === Array)
+            else if (f === Function || f === Array || f === Object.create)
             {
-                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any>);
+                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Function | Array<any> | object);
                 referenceMetaDeclaration.appendOperation(
                     CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
-            else if (f === Object.create)
-            {
-                const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
-                referenceMetaDeclaration.appendOperation(
-                    CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
-            }
-            else if (f === Object.defineProperty || f === Object.defineProperties
-                || f === Object.freeze || f === Object.preventExtensions || f === Object.seal
+            else if (f === Object.freeze || f === Object.preventExtensions || f === Object.seal
                 || f === Object.setPrototypeOf)
             {
                 const [object] = args as [{ [key: string]: unknown }, ...unknown[]];
@@ -87,9 +79,8 @@ class ReferenceMetaAsyncRace extends Analysis
                     CallbackFunctionContext.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
-            else if (f === Object.getOwnPropertyDescriptor || f === Object.getOwnPropertyDescriptors || f === Object.getOwnPropertySymbols || f === Object.getPrototypeOf
-                || f === Object.isExtensible || f === Object.isFrozen || f === Object.isSealed
-                || f === Object.prototype.isPrototypeOf)
+            else if (f === Object.getPrototypeOf || f === Object.prototype.isPrototypeOf
+                || f === Object.isExtensible || f === Object.isFrozen || f === Object.isSealed)
             {
                 const [object] = args as [{ [key: string]: unknown }, ...unknown[]];
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);

@@ -51,7 +51,7 @@ class ObjectFieldAsyncRace extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const newOperation = new ObjectFieldOperation('read', val, sourceCodeInfo);
+                const newOperation = new ObjectFieldOperation('read', val, false, sourceCodeInfo);
                 objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
             }
         };
@@ -65,7 +65,7 @@ class ObjectFieldAsyncRace extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const newOperation = new ObjectFieldOperation('write', val, sourceCodeInfo);
+                const newOperation = new ObjectFieldOperation('write', val, false, sourceCodeInfo);
                 objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
             }
         };
@@ -83,10 +83,10 @@ class ObjectFieldAsyncRace extends Analysis
                 sourceKeys.forEach(key =>
                 {
                     const sourceFieldDeclaration = this.findOrAddObjectFieldDeclaration(key, source);
-                    sourceFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', source[key], sourceCodeInfo));
+                    sourceFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', source[key], false, sourceCodeInfo));
 
                     const targetFieldDeclaration = this.findOrAddObjectFieldDeclaration(key, target);
-                    targetFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', source[key], sourceCodeInfo));
+                    targetFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', source[key], false, sourceCodeInfo));
                 });
             }
             else if (f === Object.entries || f === Object.values)
@@ -96,7 +96,7 @@ class ObjectFieldAsyncRace extends Analysis
                 keys.forEach(key =>
                 {
                     const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
-                    fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', object[key], sourceCodeInfo));
+                    fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', object[key], false, sourceCodeInfo));
                 });
             }
             else if (f === Object.create || ((f === Object || f === Function) && isConstructor))
@@ -105,6 +105,41 @@ class ObjectFieldAsyncRace extends Analysis
                     result as { [key: string]: unknown },   // // restricted by isObject()
                     iid);
                 this.objectFieldDeclarations.push(...objectFieldDeclarations);
+            }
+            else if (f === Object.defineProperty)
+            {
+                const object = args[0] as object;
+                const key = args[1] as string;
+                const value = args[2] as object;
+                const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
+                fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', value, true, sourceCodeInfo));
+            }
+            else if (f === Object.defineProperties)
+            {
+                const object = args[0] as object;
+                const props = args[1] as { [key: string]: unknown };
+                Object.keys(props).forEach(key =>
+                {
+                    const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
+                    fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', props[key], true, sourceCodeInfo));
+                });
+            }
+            else if (f === Object.getOwnPropertyDescriptor)
+            {
+                const object = args[0] as object;
+                const key = args[1] as string;
+                const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
+                fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read', result, true, sourceCodeInfo));
+            }
+            else if (f === Object.getOwnPropertyDescriptors)
+            {
+                const object = args[0] as object;
+                Object.keys(object).forEach(key =>
+                {
+                    const fieldDeclaration = this.findOrAddObjectFieldDeclaration(key, object);
+                    fieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('read',
+                        (result as { [key: string]: object })[key], true, sourceCodeInfo));
+                });
             }
         };
     }
@@ -135,7 +170,7 @@ class ObjectFieldAsyncRace extends Analysis
 
                 const sourceCodeInfo = new SourceCodeInfo(fileName, new Range(range[0], range[1]));
                 const objectFieldDeclaration = new ObjectFieldDeclaration(key, object);
-                objectFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', value, sourceCodeInfo));
+                objectFieldDeclaration.appendOperation(currentCallbackFunction, new ObjectFieldOperation('write', value, false, sourceCodeInfo));
                 objectFieldDeclarations.push(objectFieldDeclaration);
             }
 

@@ -6,11 +6,14 @@ import ResourceOperation from '../../Class/ResourceOperation';
 class ObjectFieldOperation extends ResourceOperation
 {
     public readonly value: unknown;
+    /** The value is a property meta, e.g. `{value: 1, writable: false}` */
+    public readonly isMeta: boolean;
 
-    constructor(type: 'read' | 'write', value: unknown, sourceCodeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', value: unknown, isMeta: boolean, sourceCodeInfo: SourceCodeInfo)
     {
         super(type, sourceCodeInfo);
         this.value = value;
+        this.isMeta = isMeta;
     }
 }
 
