@@ -26,10 +26,16 @@ class AsyncContext extends Analysis
     public awaitPre: Hooks['awaitPre'] | undefined;
     private readonly asyncFunctionCallStack: Function[];
 
+    private currentPromiseThenChain: CallbackFunction[];
+    private currentPromiseRejectChain: CallbackFunction[];
+
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
         this.asyncFunctionCallStack = [];
+
+        this.currentPromiseThenChain = [];
+        this.currentPromiseRejectChain = [];
         this.registerHooks();
     }
 
@@ -70,62 +76,97 @@ class AsyncContext extends Analysis
                 range,
             } = sandbox.iidToSourceObject(iid);
             const register = new SourceCodeInfo(name, new Range(range[0], range[1]));
-            if (f === setTimeout)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'timeout', currentCallbackFunction, register));
-            }
-            else if (f === setImmediate)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'immediate', currentCallbackFunction, register));
-            }
-            else if (f === setInterval)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'interval', currentCallbackFunction, register));
-            }
-            else if (f === process.nextTick)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'nextTick', currentCallbackFunction, register));
-            }
-            else if (f === Promise.prototype.then)
+
+            if (f === Promise.prototype.then)
             {
                 const resolve = args[0];
                 const reject = args[1];
                 if (typeof resolve === 'function')
                 {
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, register));
+                    const lastPromiseThen = this.currentPromiseThenChain.length === 0 ?
+                        currentCallbackFunction :
+                        this.currentPromiseThenChain[this.currentPromiseThenChain.length - 1]!;
+                    const newPromiseThen = new CallbackFunction(resolve, 'promiseThen', lastPromiseThen, register);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(newPromiseThen);
+                    this.currentPromiseThenChain.push(newPromiseThen);
                 }
                 if (typeof reject === 'function')
                 {
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, register));
+                    const lastPromiseReject = this.currentPromiseRejectChain.length === 0 ?
+                        currentCallbackFunction :
+                        this.currentPromiseRejectChain[this.currentPromiseRejectChain.length - 1]!;
+                    const newPromiseReject = new CallbackFunction(reject, 'promiseThen', lastPromiseReject, register);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(newPromiseReject);
+                    this.currentPromiseThenChain.push(newPromiseReject);
                 }
             }
-            else if (f === Promise.prototype.catch || f === Promise.prototype.finally)
+            else if (f === Promise.prototype.catch)
             {
                 const callback = args[1];
                 if (typeof callback === 'function')
                 {
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'promiseThen', currentCallbackFunction, register));
+                    const lastPromiseReject = this.currentPromiseRejectChain.length === 0 ?
+                        currentCallbackFunction :
+                        this.currentPromiseRejectChain[this.currentPromiseRejectChain.length - 1]!;
+                    const newPromiseReject = new CallbackFunction(callback, 'promiseThen', lastPromiseReject, register);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(newPromiseReject);
+                    this.currentPromiseThenChain.push(newPromiseReject);
                 }
             }
-            else if (f === EventEmitter.prototype.on)
+            else if (f === Promise.prototype.finally)
             {
-                const callback = args[1] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListener', currentCallbackFunction, register));
+                const callback = args[1];
+                if (typeof callback === 'function')
+                {
+                    const lastPromiseThen = this.currentPromiseThenChain.length === 0 ?
+                        currentCallbackFunction :
+                        this.currentPromiseThenChain[this.currentPromiseThenChain.length - 1]!;
+                    const newPromiseThen = new CallbackFunction(callback, 'promiseThen', lastPromiseThen, register);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(newPromiseThen);
+                    this.currentPromiseThenChain.push(newPromiseThen);
+                }
             }
-            else if (f === EventEmitter.prototype.once)
+            else
             {
-                const callback = args[1] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListenerOnce', currentCallbackFunction, register));
+                this.currentPromiseThenChain = [];
+                this.currentPromiseRejectChain = [];
+
+                if (f === setTimeout)
+                {
+                    const callback = args[0] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'timeout', currentCallbackFunction, register));
+                }
+                else if (f === setImmediate)
+                {
+                    const callback = args[0] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'immediate', currentCallbackFunction, register));
+                }
+                else if (f === setInterval)
+                {
+                    const callback = args[0] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'interval', currentCallbackFunction, register));
+                }
+                else if (f === process.nextTick)
+                {
+                    const callback = args[0] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'nextTick', currentCallbackFunction, register));
+                }
+                else if (f === EventEmitter.prototype.on)
+                {
+                    const callback = args[1] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListener', currentCallbackFunction, register));
+                }
+                else if (f === EventEmitter.prototype.once)
+                {
+                    const callback = args[1] as Function;
+                    assert.ok(typeof callback === 'function');
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListenerOnce', currentCallbackFunction, register));
+                }
             }
         };
 
