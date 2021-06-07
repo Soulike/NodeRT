@@ -34,6 +34,10 @@ export function toJSON(object: unknown): string
             {
                 return `[Function ${value.name ? value.name : 'anonymous'}]`;
             }
+            else if (value instanceof Promise)
+            {
+                return `[Promise]`;
+            }
             else
             {
                 return value;
