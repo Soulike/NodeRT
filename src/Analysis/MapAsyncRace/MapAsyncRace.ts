@@ -72,6 +72,7 @@ class MapAsyncRace extends Analysis
                 }
                 else
                 {
+                    const location = sandbox.iidToLocation(iid);
                     console.warn(`Warning: map ${base} is performed unknown method at ${location}`);
                 }
             }

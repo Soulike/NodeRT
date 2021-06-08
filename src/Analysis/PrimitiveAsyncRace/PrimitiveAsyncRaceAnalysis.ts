@@ -1,118 +1,61 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../Class/CallbackFunction';
-import VariableDeclaration from './Class/VariableDeclaration';
 import Hooks from '../../Type/Hooks';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
+import {getSourceCodeInfoFromIid} from '../Util';
 import VariableOperation from './Class/VariableOperation';
 import Sandbox from '../../Type/Sandbox';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Analysis from '../../Type/Analysis';
+import ScopeLogger from '../Singleton/ScopeLogger';
 
 class PrimitiveAsyncRaceAnalysis extends Analysis
 {
-    public declare: Hooks['declare'] | undefined;
     public read: Hooks['read'] | undefined;
     public write: Hooks['write'] | undefined;
-
-    private readonly variableDeclarations: VariableDeclaration[];
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.variableDeclarations = [];
-
         this.registerHooks();
-
-        process.on('exit', () => this.onAnalysisExit());
-    }
-
-    private onAnalysisExit()
-    {
-        console.log(toJSON(this.variableDeclarations));
     }
 
     protected override registerHooks()
     {
-        this.declare = (iid, name, type, kind) =>
-        {
-            const sandbox = this.getSandbox();
-            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-            const {variableDeclarations} = this;
-
-            const scopeSourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-            variableDeclarations.push(new VariableDeclaration(name, currentCallbackFunction, scopeSourceCodeInfo));
-        };
-
         this.read = (iid, name, val, isGlobal, isScriptLocal) =>
         {
+            const currentScope = ScopeLogger.getCurrentScope();
+            const variableDeclaration = currentScope.findVariableDeclaration(name);
             const sandbox = this.getSandbox();
-            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-            const {variableDeclarations} = this;
-
-            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-            if (isGlobal)
+            if (variableDeclaration === null)
             {
-                const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);
-                declaration.appendOperation(currentCallbackFunction, new VariableOperation('read', val, sourceCodeInfo));
-                variableDeclarations.push(declaration);
+                const location = sandbox.iidToLocation(iid);
+                console.warn(`Warning: variable ${name} read at ${location} is not logged'`);
             }
             else
             {
-                let found = false;
-
-                for (let i = variableDeclarations.length - 1; i >= 0; i--)
-                {
-                    const variableDeclaration = variableDeclarations[i]!;
-                    if (variableDeclaration.name === name && currentCallbackFunction.isInAsyncScope(variableDeclaration.asyncScope))
-                    {
-                        const newOperation = new VariableOperation('read', val, sourceCodeInfo);
-                        variableDeclaration.appendOperation(currentCallbackFunction, newOperation);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    const location = sandbox.iidToLocation(iid);
-                    console.warn(`Warning: variable ${name} read at ${location} is not in 'variableDeclares'`);
-                }
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+                variableDeclaration.appendOperation(currentCallbackFunction,
+                    new VariableOperation('read', val, sourceCodeInfo));
             }
         };
 
         this.write = (iid, name, val, lhs, isGlobal, isScriptLocal) =>
         {
+            const currentScope = ScopeLogger.getCurrentScope();
+            const variableDeclaration = currentScope.findVariableDeclaration(name);
             const sandbox = this.getSandbox();
-            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-            const {variableDeclarations} = this;
-
-            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-            if (isGlobal)
+            if (variableDeclaration === null)
             {
-                const declaration = new VariableDeclaration(name, CallbackFunction.GLOBAL, null);
-                declaration.appendOperation(currentCallbackFunction, new VariableOperation('write', val, sourceCodeInfo));
-                variableDeclarations.push(declaration);
+                const location = sandbox.iidToLocation(iid);
+                console.warn(`Warning: variable ${name} written at ${location} is not logged'`);
             }
             else
             {
-                let found = false;
-                for (let i = this.variableDeclarations.length - 1; i >= 0; i--)
-                {
-                    const variableDeclaration = variableDeclarations[i]!;
-                    if (variableDeclaration.name === name && currentCallbackFunction.isInAsyncScope(variableDeclaration.asyncScope))
-                    {
-                        const newOperation = new VariableOperation('write', val, sourceCodeInfo);
-                        // append the operation to current callback
-                        variableDeclaration.appendOperation(currentCallbackFunction, newOperation);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    const location = sandbox.iidToLocation(iid);
-                    console.warn(`Warning: variable ${name} read at ${location} is not in 'variableDeclares'`);
-                }
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+                variableDeclaration.appendOperation(currentCallbackFunction,
+                    new VariableOperation('write', val, sourceCodeInfo));
             }
         };
     }

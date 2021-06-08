@@ -1,3 +1,5 @@
+// DO NOT INSTRUMENT
+
 import ScopeType from '../Type/ScopeType';
 import VariableDeclaration from '../PrimitiveAsyncRace/Class/VariableDeclaration';
 import FunctionDeclaration from './FunctionDeclaration';
@@ -28,7 +30,7 @@ class Scope
      * */
     public findVariableDeclaration(variableName: string): VariableDeclaration | null
     {
-        for (let i = this.variableDeclarations.length; i >= 0; i--)
+        for (let i = this.variableDeclarations.length - 1; i >= 0; i--)
         {
             const variableDeclaration = this.variableDeclarations[i]!;
             if (variableDeclaration.name === variableName)
@@ -46,12 +48,17 @@ class Scope
         }
     }
 
+    public addVariableDeclaration(variableDeclaration: VariableDeclaration)
+    {
+        this.variableDeclarations.push(variableDeclaration);
+    }
+
     /**
      * Find `func` in `this.functionDeclarations`. If fails, try to find it from `parentScope.findFunctionDeclaration()`
      * */
     public findFunctionDeclaration(func: Function): FunctionDeclaration | null
     {
-        for (let i = this.functionDeclarations.length; i >= 0; i--)
+        for (let i = this.functionDeclarations.length - 1; i >= 0; i--)
         {
             const functionDeclaration = this.functionDeclarations[i]!;
             if (functionDeclaration.isFunction(func))
@@ -69,6 +76,11 @@ class Scope
         }
     }
 
+    public addFunctionDeclaration(functionDeclaration: FunctionDeclaration)
+    {
+        this.functionDeclarations.push(functionDeclaration);
+    }
+
     public getParentScope()
     {
         return this.parentScope;
@@ -79,11 +91,11 @@ class Scope
      * */
     public toJSON()
     {
-        return JSON.stringify({
+        return {
             ...this,
             variableDeclarations: '[Array<VariableDeclaration>]',
             functionDeclarations: '[Array<FunctionDeclaration>]',
-        });
+        };
     }
 }
 
