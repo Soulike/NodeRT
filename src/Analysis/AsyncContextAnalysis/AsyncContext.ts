@@ -4,12 +4,14 @@ import Hooks from '../../Type/Hooks';
 import Sandbox from '../../Type/Sandbox';
 import CallbackFunction from '../Class/CallbackFunction';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import EventEmitter from 'events';
 import Analysis from '../../Type/Analysis';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 import {getSourceCodeInfoFromIid} from '../Util';
 import {strict as assert} from 'assert';
-import PromiseTree from '../Type/PromiseTree';
+import ProcessModule from './Module/ProcessModule';
+import TimerModule from './Module/TimerModule';
+import EventsModule from './Module/EventsModule';
+import PromiseModule from './Module/PromiseModule';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -67,42 +69,9 @@ class AsyncContext extends Analysis
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const register = getSourceCodeInfoFromIid(iid, sandbox);
 
-            if (f === setTimeout)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'timeout', currentCallbackFunction, null, null, register));
-            }
-            else if (f === setImmediate)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'immediate', currentCallbackFunction, null, null, register));
-            }
-            else if (f === setInterval)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'interval', currentCallbackFunction, null, null, register));
-            }
-            else if (f === process.nextTick)
-            {
-                const callback = args[0] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'nextTick', currentCallbackFunction, null, null, register));
-            }
-            else if (f === EventEmitter.prototype.on)
-            {
-                const callback = args[1] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListener', currentCallbackFunction, null, null, register));
-            }
-            else if (f === EventEmitter.prototype.once)
-            {
-                const callback = args[1] as Function;
-                assert.ok(typeof callback === 'function');
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, 'eventListenerOnce', currentCallbackFunction, null, null, register));
-            }
+            ProcessModule.runHooks(f, args, currentCallbackFunction, register);
+            TimerModule.runHooks(f, args, currentCallbackFunction, register);
+            EventsModule.runHooks(f, args, currentCallbackFunction, register);
         };
 
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
@@ -111,70 +80,7 @@ class AsyncContext extends Analysis
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             const register = getSourceCodeInfoFromIid(iid, sandbox);
 
-            if (f === Promise.prototype.then)
-            {
-                assert.ok(base instanceof Promise);
-                assert.ok(result instanceof Promise);
-
-                const registerPromise = base as PromiseTree;
-                const resultPromise = result as PromiseTree;
-
-                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-                resultPromise.parent = registerPromise;
-
-                const resolve = args[0];
-                const reject = args[1];
-
-                if (typeof resolve === 'function')
-                {
-                    const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, register);
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
-                }
-
-                if (typeof reject === 'function')
-                {
-                    const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, register);
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
-                }
-            }
-            else if (f === Promise.prototype.catch)
-            {
-                assert.ok(base instanceof Promise);
-                assert.ok(result instanceof Promise);
-
-                const registerPromise = base as PromiseTree;
-                const resultPromise = result as PromiseTree;
-
-                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-                resultPromise.parent = registerPromise;
-
-                const reject = args[0];
-
-                if (typeof reject === 'function')
-                {
-                    const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, register);
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
-                }
-            }
-            else if (f === Promise.prototype.finally)
-            {
-                assert.ok(base instanceof Promise);
-                assert.ok(result instanceof Promise);
-
-                const registerPromise = base as PromiseTree;
-                const resultPromise = result as PromiseTree;
-
-                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-                resultPromise.parent = registerPromise;
-
-                const resolve = args[0];
-
-                if (typeof resolve === 'function')
-                {
-                    const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, register);
-                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
-                }
-            }
+            PromiseModule.runHooks(f, base, args, result, currentCallbackFunction, register);
         };
 
         this.endExpression = (iid, type, value) =>

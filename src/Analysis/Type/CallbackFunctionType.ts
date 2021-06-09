@@ -1,14 +1,17 @@
 // DO NOT INSTRUMENT
 
+import TimerCallbackFunctionType from './TimerCallbackFunctionType';
+import ProcessCallbackFunctionType from './ProcessCallbackFunctionType';
+import EventEmitterCallbackFunctionType from './EventEmitterCallbackFunctionType';
+import PromiseCallbackFunctionType from './PromiseCallbackFunctionType';
+
 type CallbackFunctionType =
     'global'
-    | 'immediate'
-    | 'timeout'
-    | 'interval'
-    | 'nextTick'
-    | 'promiseThen'
-    | 'eventListener'
-    | 'eventListenerOnce'
-    | 'awaitContinue';
+    | 'childProcess'
+    | 'awaitContinue'
+    | TimerCallbackFunctionType
+    | ProcessCallbackFunctionType
+    | EventEmitterCallbackFunctionType
+    | PromiseCallbackFunctionType;
 
 export default CallbackFunctionType;
