@@ -71,6 +71,7 @@ class SetAsyncRace extends Analysis
                 }
                 else
                 {
+                    const location = sandbox.iidToLocation(iid);
                     console.warn(`Warning: set ${base} is performed unknown method at ${location}`);
                 }
             }
