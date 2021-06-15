@@ -11,22 +11,25 @@ class EventsModule
 {
     public static runHooks(f: Function, args: unknown[], currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        let type: null | EventEmitterCallbackFunctionType = null;
+        if (args.length > 1)
+        {
+            let type: null | EventEmitterCallbackFunctionType = null;
 
-        if (f === EventEmitter.prototype.on || f === EventEmitter.prototype.addListener || f === EventEmitter.prototype.prependListener)
-        {
-            type = 'eventListener';
-        }
-        else if (f === EventEmitter.prototype.once || f === EventEmitter.prototype.prependOnceListener)
-        {
-            type = 'eventListenerOnce';
-        }
+            if (f === EventEmitter.prototype.on || f === EventEmitter.prototype.addListener || f === EventEmitter.prototype.prependListener)
+            {
+                type = 'eventListener';
+            }
+            else if (f === EventEmitter.prototype.once || f === EventEmitter.prototype.prependOnceListener)
+            {
+                type = 'eventListenerOnce';
+            }
 
-        if (type !== null)
-        {
-            const callback = args[1] as Function;
-            assert.ok(typeof callback === 'function');
-            CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            if (type !== null)
+            {
+                const callback = args[1] as Function;
+                assert.ok(typeof callback === 'function');
+                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            }
         }
     }
 }

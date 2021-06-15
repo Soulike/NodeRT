@@ -10,25 +10,28 @@ class TimerModule
 {
     public static runHooks(f: Function, args: unknown[], currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        let type: null | TimerCallbackFunctionType = null;
-        if (f === setTimeout)
+        if (args.length > 0)
         {
-            type = 'timeout';
-        }
-        else if (f === setImmediate)
-        {
-            type = 'immediate';
-        }
-        else if (f === setInterval)
-        {
-            type = 'interval';
-        }
+            let type: null | TimerCallbackFunctionType = null;
+            if (f === setTimeout)
+            {
+                type = 'timeout';
+            }
+            else if (f === setImmediate)
+            {
+                type = 'immediate';
+            }
+            else if (f === setInterval)
+            {
+                type = 'interval';
+            }
 
-        if (type !== null)
-        {
-            const callback = args[0] as Function;
-            assert.ok(typeof callback === 'function');
-            CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            if (type !== null)
+            {
+                const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
+                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            }
         }
     }
 }

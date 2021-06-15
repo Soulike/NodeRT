@@ -11,22 +11,25 @@ class ClusterModule
 {
     public static runHooks(f: Function, args: unknown[], currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        let type: null | ClusterCallbackFunctionType = null;
+        if (args.length > 0)
+        {
+            let type: null | ClusterCallbackFunctionType = null;
 
-        if (f === cluster.Worker.prototype.send)
-        {
-            type = 'clusterSend';
-        }
-        if (f === cluster.disconnect)
-        {
-            type = 'clusterDisconnect';
-        }
+            if (f === cluster.Worker.prototype.send)
+            {
+                type = 'clusterSend';
+            }
+            if (f === cluster.disconnect)
+            {
+                type = 'clusterDisconnect';
+            }
 
-        if (type !== null && args.length > 0)
-        {
-            const callback = args[args.length - 1] as Function;
-            assert.ok(typeof callback === 'function');
-            CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            if (type !== null)
+            {
+                const callback = args[args.length - 1] as Function;
+                assert.ok(typeof callback === 'function');
+                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            }
         }
     }
 }

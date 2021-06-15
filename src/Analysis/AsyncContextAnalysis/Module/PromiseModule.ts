@@ -10,68 +10,71 @@ class PromiseModule
 {
     public static runHooks(f: Function, base: unknown, args: unknown[], result: unknown, currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        if (f === Promise.prototype.then)
+        if (args.length > 0)
         {
-            assert.ok(base instanceof Promise);
-            assert.ok(result instanceof Promise);
-
-            const registerPromise = base as PromiseTree;
-            const resultPromise = result as PromiseTree;
-
-            registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-            resultPromise.parent = registerPromise;
-
-            const resolve = args[0];
-            const reject = args[1];
-
-            if (typeof resolve === 'function')
+            if (f === Promise.prototype.then)
             {
-                const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
-                CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                assert.ok(base instanceof Promise);
+                assert.ok(result instanceof Promise);
+
+                const registerPromise = base as PromiseTree;
+                const resultPromise = result as PromiseTree;
+
+                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
+                resultPromise.parent = registerPromise;
+
+                const resolve = args[0];
+                const reject = args[1];
+
+                if (typeof resolve === 'function')
+                {
+                    const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                }
+
+                if (typeof reject === 'function')
+                {
+                    const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                }
             }
-
-            if (typeof reject === 'function')
+            else if (f === Promise.prototype.catch)
             {
-                const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
-                CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                assert.ok(base instanceof Promise);
+                assert.ok(result instanceof Promise);
+
+                const registerPromise = base as PromiseTree;
+                const resultPromise = result as PromiseTree;
+
+                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
+                resultPromise.parent = registerPromise;
+
+                const reject = args[0];
+
+                if (typeof reject === 'function')
+                {
+                    const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                }
             }
-        }
-        else if (f === Promise.prototype.catch)
-        {
-            assert.ok(base instanceof Promise);
-            assert.ok(result instanceof Promise);
-
-            const registerPromise = base as PromiseTree;
-            const resultPromise = result as PromiseTree;
-
-            registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-            resultPromise.parent = registerPromise;
-
-            const reject = args[0];
-
-            if (typeof reject === 'function')
+            else if (f === Promise.prototype.finally)
             {
-                const callback = new CallbackFunction(reject, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
-                CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
-            }
-        }
-        else if (f === Promise.prototype.finally)
-        {
-            assert.ok(base instanceof Promise);
-            assert.ok(result instanceof Promise);
+                assert.ok(base instanceof Promise);
+                assert.ok(result instanceof Promise);
 
-            const registerPromise = base as PromiseTree;
-            const resultPromise = result as PromiseTree;
+                const registerPromise = base as PromiseTree;
+                const resultPromise = result as PromiseTree;
 
-            registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
-            resultPromise.parent = registerPromise;
+                registerPromise.children === undefined ? registerPromise.children = [resultPromise] : registerPromise.children.push(resultPromise);
+                resultPromise.parent = registerPromise;
 
-            const resolve = args[0];
+                const resolve = args[0];
 
-            if (typeof resolve === 'function')
-            {
-                const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
-                CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                if (typeof resolve === 'function')
+                {
+                    const callback = new CallbackFunction(resolve, 'promiseThen', currentCallbackFunction, registerPromise, resultPromise, sourceCodeInfo);
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(callback);
+                }
             }
         }
     }

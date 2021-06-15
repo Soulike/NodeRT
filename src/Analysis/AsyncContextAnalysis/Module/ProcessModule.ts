@@ -10,17 +10,20 @@ class ProcessModule
 {
     public static runHooks(f: Function, args: unknown[], currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        let type: null | ProcessCallbackFunctionType = null;
-        if (f === process.nextTick)
+        if (args.length > 0)
         {
-            type = 'nextTick';
-        }
+            let type: null | ProcessCallbackFunctionType = null;
+            if (f === process.nextTick)
+            {
+                type = 'nextTick';
+            }
 
-        if (type !== null)
-        {
-            const callback = args[0] as Function;
-            assert.ok(typeof callback === 'function');
-            CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            if (type !== null)
+            {
+                const callback = args[0] as Function;
+                assert.ok(typeof callback === 'function');
+                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+            }
         }
     }
 }

@@ -10,35 +10,38 @@ class DgramModule
 {
     public static runHooks(f: Function, args: unknown[], currentCallbackFunction: CallbackFunction, sourceCodeInfo: SourceCodeInfo)
     {
-        let type: null | DgramCallbackFunctionType = null;
+        if (args.length > 0)
+        {
+            let type: null | DgramCallbackFunctionType = null;
 
-        if (f === dgram.Socket.prototype.bind)
-        {
-            type = 'dgramBind';
-        }
-        else if (f === dgram.Socket.prototype.close)
-        {
-            type = 'dgramClose';
-        }
-        else if (f === dgram.Socket.prototype.connect)
-        {
-            type = 'dgramConnect';
-        }
-        else if (f === dgram.Socket.prototype.send)
-        {
-            type = 'dgramSend';
-        }
-        else if (f === dgram.createSocket)
-        {
-            type = 'dgramCreateSocket';
-        }
-
-        if (type !== null && args.length > 0)
-        {
-            const callback = args[args.length - 1];
-            if (typeof callback === 'function' || callback instanceof Function)
+            if (f === dgram.Socket.prototype.bind)
             {
-                CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+                type = 'dgramBind';
+            }
+            else if (f === dgram.Socket.prototype.close)
+            {
+                type = 'dgramClose';
+            }
+            else if (f === dgram.Socket.prototype.connect)
+            {
+                type = 'dgramConnect';
+            }
+            else if (f === dgram.Socket.prototype.send)
+            {
+                type = 'dgramSend';
+            }
+            else if (f === dgram.createSocket)
+            {
+                type = 'dgramCreateSocket';
+            }
+
+            if (type !== null)
+            {
+                const callback = args[args.length - 1];
+                if (typeof callback === 'function' || callback instanceof Function)
+                {
+                    CallbackFunctionContext.pushToPendingCallbackFunctions(new CallbackFunction(callback, type, currentCallbackFunction, null, null, sourceCodeInfo));
+                }
             }
         }
     }
