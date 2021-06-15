@@ -15,11 +15,11 @@ class ClusterModule
         {
             let type: null | ClusterCallbackFunctionType = null;
 
-            if (f === cluster.worker.send)
+            if (f === cluster.Worker.prototype.send)
             {
                 type = 'clusterSend';
             }
-            else if (f === cluster.disconnect)
+            if (f === cluster.disconnect)
             {
                 type = 'clusterDisconnect';
             }
