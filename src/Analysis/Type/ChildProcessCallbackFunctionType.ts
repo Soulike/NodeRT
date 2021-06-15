@@ -1,5 +1,5 @@
 // DO NOT INSTRUMENT
 
-type ChildProcessCallbackFunctionType = 'childProcess';
+type ChildProcessCallbackFunctionType = 'childProcess' | 'childProcessSend';
 
 export default ChildProcessCallbackFunctionType;

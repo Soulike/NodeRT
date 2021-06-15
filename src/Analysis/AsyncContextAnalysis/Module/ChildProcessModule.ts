@@ -13,9 +13,14 @@ class ChildProcessModule
         if (args.length > 1)
         {
             let type: null | ChildProcessCallbackFunctionType = null;
-            if (f === childProcess.exec || f === childProcess.execFile) // lack of ChildProcess.send()
+            const subprocess = childProcess.spawn('echo 1', {shell: true, windowsHide: true});  // for getting ChildProcess.send()
+            if (f === childProcess.exec || f === childProcess.execFile)
             {
                 type = 'childProcess';
+            }
+            else if (f === subprocess.send)
+            {
+                type = 'childProcessSend';
             }
 
             if (type !== null)
