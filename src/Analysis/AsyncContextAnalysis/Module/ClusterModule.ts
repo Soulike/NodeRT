@@ -22,7 +22,7 @@ class ClusterModule
             type = 'clusterDisconnect';
         }
 
-        if (type !== null)
+        if (type !== null && args.length > 0)
         {
             const callback = args[args.length - 1] as Function;
             assert.ok(typeof callback === 'function');
