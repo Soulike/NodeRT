@@ -6,6 +6,7 @@ import EventEmitterCallbackFunctionType from './EventEmitterCallbackFunctionType
 import PromiseCallbackFunctionType from './PromiseCallbackFunctionType';
 import ChildProcessCallbackFunctionType from './ChildProcessCallbackFunctionType';
 import ClusterCallbackFunctionType from './ClusterCallbackFunctionType';
+import CryptoCallbackFunctionType from './CryptoCallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -15,6 +16,7 @@ type CallbackFunctionType =
     | EventEmitterCallbackFunctionType
     | PromiseCallbackFunctionType
     | ChildProcessCallbackFunctionType
-    | ClusterCallbackFunctionType;
+    | ClusterCallbackFunctionType
+    | CryptoCallbackFunctionType;
 
 export default CallbackFunctionType;
