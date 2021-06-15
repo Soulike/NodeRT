@@ -10,6 +10,7 @@ import CryptoCallbackFunctionType from './CryptoCallbackFunctionType';
 import DgramCallbackFunctionType from './DgramCallbackFunctionType';
 import DnsCallbackFunctionType from './DnsCallbackFunctionType';
 import FsCallbackFunctionType from './FsCallbackFunctionType';
+import HttpCallbackFunctionType from './HttpCallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -23,6 +24,7 @@ type CallbackFunctionType =
     | CryptoCallbackFunctionType
     | DgramCallbackFunctionType
     | DnsCallbackFunctionType
-    | FsCallbackFunctionType;
+    | FsCallbackFunctionType
+    | HttpCallbackFunctionType;
 
 export default CallbackFunctionType;

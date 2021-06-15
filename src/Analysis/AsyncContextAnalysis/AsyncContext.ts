@@ -18,6 +18,7 @@ import CryptoModule from './Module/CryptoModule';
 import DgramModule from './Module/DgramModule';
 import DnsModule from './Module/DnsModule';
 import FsModule from './Module/FsModule';
+import HttpModule from './Module/HttpModule';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -84,6 +85,7 @@ class AsyncContext extends Analysis
             DgramModule.runHooks(f, args, currentCallbackFunction, register);
             DnsModule.runHooks(f, args, currentCallbackFunction, register);
             FsModule.runHooks(f, args, currentCallbackFunction, register);
+            HttpModule.runHooks(f, args, currentCallbackFunction, register);
         };
 
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
