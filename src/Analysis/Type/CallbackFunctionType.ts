@@ -5,6 +5,7 @@ import ProcessCallbackFunctionType from './ProcessCallbackFunctionType';
 import EventEmitterCallbackFunctionType from './EventEmitterCallbackFunctionType';
 import PromiseCallbackFunctionType from './PromiseCallbackFunctionType';
 import ChildProcessCallbackFunctionType from './ChildProcessCallbackFunctionType';
+import ClusterCallbackFunctionType from './ClusterCallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -13,6 +14,7 @@ type CallbackFunctionType =
     | ProcessCallbackFunctionType
     | EventEmitterCallbackFunctionType
     | PromiseCallbackFunctionType
-    | ChildProcessCallbackFunctionType;
+    | ChildProcessCallbackFunctionType
+    | ClusterCallbackFunctionType;
 
 export default CallbackFunctionType;

@@ -13,6 +13,7 @@ import TimerModule from './Module/TimerModule';
 import EventsModule from './Module/EventsModule';
 import PromiseModule from './Module/PromiseModule';
 import ChildProcessModule from './Module/ChildProcessModule';
+import ClusterModule from './Module/ClusterModule';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -74,6 +75,7 @@ class AsyncContext extends Analysis
             TimerModule.runHooks(f, args, currentCallbackFunction, register);
             EventsModule.runHooks(f, args, currentCallbackFunction, register);
             ChildProcessModule.runHooks(f, args, currentCallbackFunction, register);
+            ClusterModule.runHooks(f, args, currentCallbackFunction, register);
         };
 
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
