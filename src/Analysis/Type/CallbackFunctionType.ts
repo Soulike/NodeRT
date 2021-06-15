@@ -7,6 +7,7 @@ import PromiseCallbackFunctionType from './PromiseCallbackFunctionType';
 import ChildProcessCallbackFunctionType from './ChildProcessCallbackFunctionType';
 import ClusterCallbackFunctionType from './ClusterCallbackFunctionType';
 import CryptoCallbackFunctionType from './CryptoCallbackFunctionType';
+import DgramCallbackFunctionType from './DgramCallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -17,6 +18,7 @@ type CallbackFunctionType =
     | PromiseCallbackFunctionType
     | ChildProcessCallbackFunctionType
     | ClusterCallbackFunctionType
-    | CryptoCallbackFunctionType;
+    | CryptoCallbackFunctionType
+    | DgramCallbackFunctionType;
 
 export default CallbackFunctionType;
