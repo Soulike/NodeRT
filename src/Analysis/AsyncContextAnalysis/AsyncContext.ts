@@ -17,6 +17,7 @@ import ClusterModule from './Module/ClusterModule';
 import CryptoModule from './Module/CryptoModule';
 import DgramModule from './Module/DgramModule';
 import DnsModule from './Module/DnsModule';
+import FsModule from './Module/FsModule';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -82,6 +83,7 @@ class AsyncContext extends Analysis
             CryptoModule.runHooks(f, args, currentCallbackFunction, register);
             DgramModule.runHooks(f, args, currentCallbackFunction, register);
             DnsModule.runHooks(f, args, currentCallbackFunction, register);
+            FsModule.runHooks(f, args, currentCallbackFunction, register);
         };
 
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
@@ -115,7 +117,8 @@ class AsyncContext extends Analysis
     {
         const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
         // may be called again, put the callback back to `pendingCallbackFunctions`
-        if (currentCallbackFunction.type === 'interval' || currentCallbackFunction.type === 'eventListener')
+        if (currentCallbackFunction.type === 'interval' || currentCallbackFunction.type === 'eventListener'
+            || currentCallbackFunction.type === 'fsWatch')
         {
             const {
                 func,
