@@ -8,6 +8,7 @@ import ChildProcessCallbackFunctionType from './ChildProcessCallbackFunctionType
 import ClusterCallbackFunctionType from './ClusterCallbackFunctionType';
 import CryptoCallbackFunctionType from './CryptoCallbackFunctionType';
 import DgramCallbackFunctionType from './DgramCallbackFunctionType';
+import DnsCallbackFunctionType from './DnsCallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -19,6 +20,7 @@ type CallbackFunctionType =
     | ChildProcessCallbackFunctionType
     | ClusterCallbackFunctionType
     | CryptoCallbackFunctionType
-    | DgramCallbackFunctionType;
+    | DgramCallbackFunctionType
+    | DnsCallbackFunctionType;
 
 export default CallbackFunctionType;

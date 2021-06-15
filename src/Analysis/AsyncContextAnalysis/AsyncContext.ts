@@ -16,6 +16,7 @@ import ChildProcessModule from './Module/ChildProcessModule';
 import ClusterModule from './Module/ClusterModule';
 import CryptoModule from './Module/CryptoModule';
 import DgramModule from './Module/DgramModule';
+import DnsModule from './Module/DnsModule';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
@@ -80,6 +81,7 @@ class AsyncContext extends Analysis
             ClusterModule.runHooks(f, args, currentCallbackFunction, register);
             CryptoModule.runHooks(f, args, currentCallbackFunction, register);
             DgramModule.runHooks(f, args, currentCallbackFunction, register);
+            DnsModule.runHooks(f, args, currentCallbackFunction, register);
         };
 
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
