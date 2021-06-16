@@ -1,27 +1,21 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunctionType from '../Type/CallbackFunctionType';
 import SourceCodeInfo from './SourceCodeInfo';
 
 class CallbackFunction
 {
-    public static readonly GLOBAL = new CallbackFunction(null, 'global', null, null, null, null);
+    public static readonly GLOBAL = new CallbackFunction(null, 1, null, null);
 
     public readonly func: Function | null;
-    public readonly type: CallbackFunctionType;
+    public readonly asyncId: number;
     public asyncScope: CallbackFunction | null;    // null for global
-    /* if a.registerPromise === b.resultPromise then we have b.then(a) */
-    public readonly registerPromise: Promise<unknown> | null;
-    public readonly resultPromise: Promise<unknown> | null;
     public readonly registerCodeInfo: SourceCodeInfo | null;
 
-    constructor(func: Function | null, type: CallbackFunctionType, asyncScope: CallbackFunction | null, registerPromise: Promise<unknown> | null, resultPromise: Promise<unknown> | null, registerCodeInfo: SourceCodeInfo | null)
+    constructor(func: Function | null, asyncId: number, asyncScope: CallbackFunction | null, registerCodeInfo: SourceCodeInfo | null)
     {
         this.func = func;
-        this.type = type;
+        this.asyncId = asyncId;
         this.asyncScope = asyncScope; // 被创建时所在的 scope
-        this.registerPromise = registerPromise;
-        this.resultPromise = resultPromise;
         this.registerCodeInfo = registerCodeInfo;   // 本 callback 是被什么地方的代码注册执行的
     }
 
