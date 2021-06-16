@@ -11,6 +11,7 @@ import DgramCallbackFunctionType from './DgramCallbackFunctionType';
 import DnsCallbackFunctionType from './DnsCallbackFunctionType';
 import FsCallbackFunctionType from './FsCallbackFunctionType';
 import HttpCallbackFunctionType from './HttpCallbackFunctionType';
+import Http2CallbackFunctionType from './Http2CallbackFunctionType';
 
 type CallbackFunctionType =
     'global'
@@ -25,6 +26,7 @@ type CallbackFunctionType =
     | DgramCallbackFunctionType
     | DnsCallbackFunctionType
     | FsCallbackFunctionType
-    | HttpCallbackFunctionType;
+    | HttpCallbackFunctionType
+    | Http2CallbackFunctionType;
 
 export default CallbackFunctionType;
