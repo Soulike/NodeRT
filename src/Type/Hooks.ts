@@ -198,6 +198,8 @@ interface Hooks
      * */
     asyncFunctionExit: (iid: number, result: unknown, exceptionVal: { exception: unknown } | undefined) => void
 
+    asyncFunctionEnter: (iid: number) => void
+
     awaitPre: (iid: number, promiseOrValAwaited: Promise<unknown> | unknown) => void;
 }
 

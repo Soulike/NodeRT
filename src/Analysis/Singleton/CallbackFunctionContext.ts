@@ -9,7 +9,6 @@ import CallbackFunction from '../Class/CallbackFunction';
 class CallbackFunctionContext
 {
     private static currentCallbackFunction: CallbackFunction = CallbackFunction.GLOBAL;
-    private static pendingCallbackFunctions: CallbackFunction[] = []; // TODO: clean dead callbacks
 
     public static getCurrentCallbackFunction(): Readonly<CallbackFunction>
     {
@@ -19,23 +18,6 @@ class CallbackFunctionContext
     public static setCurrentCallbackFunction(callbackFunction: CallbackFunction)
     {
         CallbackFunctionContext.currentCallbackFunction = callbackFunction;
-    }
-
-    public static getPendingCallbackFunctionsClone()
-    {
-        return Array.from(CallbackFunctionContext.pendingCallbackFunctions);
-    }
-
-    public static pushToPendingCallbackFunctions(callbackFunction: CallbackFunction)
-    {
-        CallbackFunctionContext.pendingCallbackFunctions.push(callbackFunction);
-    }
-
-    public static removeFromPendingCallbackFunctions(index: number)
-    {
-        CallbackFunctionContext.pendingCallbackFunctions = [
-            ...CallbackFunctionContext.pendingCallbackFunctions.slice(0, index),
-            ...CallbackFunctionContext.pendingCallbackFunctions.slice(index + 1)];
     }
 }
 
