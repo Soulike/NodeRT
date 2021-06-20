@@ -83,6 +83,8 @@ class AsyncContext extends Analysis
     // must be an arrow function to fix `this`
     private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number, resource: object) =>
     {
+        assert.ok(asyncId !== 0);
+        assert.ok(triggerAsyncId !== 0);
         const triggerAsyncFunction = this.asyncIdToFunctionCall.get(triggerAsyncId);
         assert.ok(triggerAsyncFunction !== undefined);
         const placeholderAsyncFunction = new CallbackFunction(null, asyncId, type, triggerAsyncFunction, null);
@@ -93,9 +95,11 @@ class AsyncContext extends Analysis
     private asyncHookBefore = (asyncId: number) =>
     {
         this.asyncContextChanged = true;
+        assert.ok(asyncId !== 0);
         assert.ok(asyncId === async_hooks.executionAsyncId());
         this.lastAsyncId = asyncId;
-        this.lastTriggerAsyncId = async_hooks.triggerAsyncId();
+        assert.ok(async_hooks.triggerAsyncId() !== 0);
+        this.lastTriggerAsyncId = async_hooks.triggerAsyncId(); // TODO: async 下有可能是 0？是 GraalVM 的 BUG？
     };
 }
 
