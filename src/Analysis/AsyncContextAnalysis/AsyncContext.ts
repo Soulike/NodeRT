@@ -53,11 +53,10 @@ class AsyncContext extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                assert.ok(asyncId !== 0);
-
                 let triggerAsyncFunction: CallbackFunction | null | undefined = this.asyncIdToFunctionCall.get(triggerAsyncId);
                 assert.ok(triggerAsyncFunction !== undefined);
 
+                // skip asyncIds without related function calls until global or unknown
                 while (triggerAsyncFunction.func === null
                 && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
                 && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
@@ -83,22 +82,25 @@ class AsyncContext extends Analysis
     // must be an arrow function to fix `this`
     private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number, resource: object) =>
     {
-        assert.ok(asyncId !== 0);
-        assert.ok(triggerAsyncId !== 0);
-        const triggerAsyncFunction = this.asyncIdToFunctionCall.get(triggerAsyncId);
-        assert.ok(triggerAsyncFunction !== undefined);
-        const placeholderAsyncFunction = new CallbackFunction(null, asyncId, type, triggerAsyncFunction, null);
-        this.asyncIdToFunctionCall.set(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
+        let triggerAsyncFunction = this.asyncIdToFunctionCall.get(triggerAsyncId);
+        if (triggerAsyncFunction === undefined)
+        {
+            console.warn(`undefined triggerAsyncFunction with triggerAsyncId ${triggerAsyncId}`);
+            triggerAsyncFunction = CallbackFunction.UNKNOWN;
+        }
+        if (asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID && asyncId !== CallbackFunction.GLOBAL_ASYNC_ID)
+        {
+            const placeholderAsyncFunction = new CallbackFunction(null, asyncId, type, triggerAsyncFunction, null);
+            this.asyncIdToFunctionCall.set(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
+        }
     };
 
     // must be an arrow function to fix `this`
     private asyncHookBefore = (asyncId: number) =>
     {
         this.asyncContextChanged = true;
-        assert.ok(asyncId !== 0);
         assert.ok(asyncId === async_hooks.executionAsyncId());
         this.lastAsyncId = asyncId;
-        assert.ok(async_hooks.triggerAsyncId() !== 0);
         this.lastTriggerAsyncId = async_hooks.triggerAsyncId(); // TODO: async 下有可能是 0？是 GraalVM 的 BUG？
     };
 }

@@ -201,6 +201,16 @@ interface Hooks
     asyncFunctionEnter: (iid: number) => void
 
     awaitPre: (iid: number, promiseOrValAwaited: Promise<unknown> | unknown) => void;
+
+    /**
+     * Callbacks triggered before and after a statement.
+     * Note that callback behavior may depend on Graal.js internals and NodeProf cannot guarantee that type values will
+     * remain stable over time.
+     *
+     * @param iid source code location id
+     * @param type Graal.js internal AST type of the statement
+     **/
+    startStatement: (iid: number, type: string) => void
 }
 
 export default Hooks;
