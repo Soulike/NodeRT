@@ -1,48 +1,63 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../../Class/CallbackFunction';
 import VariableOperation from './VariableOperation';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import Scope from './Scope';
+import CallbackFunction from '../../Class/CallbackFunction';
 
 class VariableDeclaration extends ResourceDeclaration
 {
+    public readonly iid: number;
     public readonly name: string;
-    public readonly asyncScope: CallbackFunction;
-    /**the sourceCodeInfo of function in which the declaration is made*/
-    public readonly scopeSourceCodeInfo: SourceCodeInfo | null;  // null for variables in globalThis
-    private readonly operations: Map<CallbackFunction, VariableOperation[]>;
+    public readonly type: 'function' | 'var';
+    public readonly sourceCodeInfo: SourceCodeInfo | null;  // null for global
 
-    constructor(name: string, asyncScope: CallbackFunction, scopeSourceCodeInfo: SourceCodeInfo | null)
+    private readonly callbackFunctionToOperations: Map<CallbackFunction, VariableOperation[]>;
+    private scope: Scope | null;    // null for pending ones
+
+    constructor(iid: number, name: string, type: 'function' | 'var', scope: Scope | null, sourceCodeInfo: SourceCodeInfo | null)
     {
         super();
+        this.iid = iid;
         this.name = name;
-        this.asyncScope = asyncScope;
-        this.scopeSourceCodeInfo = scopeSourceCodeInfo;
-        this.operations = new Map();
+        this.type = type;
+        this.scope = scope;
+        this.callbackFunctionToOperations = new Map();
+        this.sourceCodeInfo = sourceCodeInfo;
     }
 
-    public is() // TODO: 完善变量匹配
+    public getScope()
     {
-        return false;
+        return this.scope;
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, variableOperation: VariableOperation)
+    public setScope(scope: Scope)
     {
-        const variableOperations = this.operations.get(currentCallbackFunction);
-        if (variableOperations === undefined)
+        this.scope = scope;
+    }
+
+    public appendOperation(currentCallbackFunction: CallbackFunction, variableOperation: VariableOperation): void
+    {
+        const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        if (operations === undefined)
         {
-            this.operations.set(currentCallbackFunction, [variableOperation]);
+            this.callbackFunctionToOperations.set(currentCallbackFunction, [variableOperation]);
         }
         else
         {
-            variableOperations.push(variableOperation);
+            operations.push(variableOperation);
         }
     }
 
-    public getOperations()
+    public getOperations(): ReadonlyMap<CallbackFunction, VariableOperation[]>
     {
-        return new Map(this.operations);
+        return this.callbackFunctionToOperations;
+    }
+
+    public is(name: string): boolean
+    {
+        return name === this.name;
     }
 }
 
