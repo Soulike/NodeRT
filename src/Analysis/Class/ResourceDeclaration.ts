@@ -9,7 +9,7 @@ abstract class ResourceDeclaration
 
     public abstract appendOperation(currentCallbackFunction: CallbackFunction, resourceOperation: ResourceOperation): void;
 
-    public abstract getOperations(): Map<CallbackFunction, ResourceOperation[]>;
+    public abstract getOperations(): ReadonlyMap<CallbackFunction, ResourceOperation[]>;
 }
 
 export default ResourceDeclaration;
