@@ -4,7 +4,7 @@ import CallbackFunction from '../Class/CallbackFunction';
 
 /**
  * Global shared static class that logs callback function context information.
- * Should only be written by <code>AsyncContextAnalysis</code>
+ * Should only be written by <code>AsyncContextLogger</code>
  * */
 class CallbackFunctionContext
 {

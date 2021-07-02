@@ -10,7 +10,7 @@ import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
-class SetAsyncRace extends Analysis
+class SetOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
@@ -106,4 +106,4 @@ class SetAsyncRace extends Analysis
     }
 }
 
-export default SetAsyncRace;
+export default SetOperationLogger;

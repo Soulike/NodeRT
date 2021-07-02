@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import Sandbox from '../../Type/Sandbox';
-import SetAsyncRace from './SetAsyncRace';
+import AsyncContextLogger from './AsyncContextLogger';
 
 declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {
-    sandbox.analysis = new SetAsyncRace(sandbox);
+    sandbox.analysis = new AsyncContextLogger(sandbox);
 })(J$);

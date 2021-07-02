@@ -12,7 +12,7 @@ import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
-class MapAsyncRace extends Analysis
+class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
@@ -111,4 +111,4 @@ class MapAsyncRace extends Analysis
     }
 }
 
-export default MapAsyncRace;
+export default MapOperationLogger;

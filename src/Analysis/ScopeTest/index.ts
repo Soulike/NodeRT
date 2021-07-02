@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import Sandbox from '../../Type/Sandbox';
-import ObjectFieldAsyncRace from './ObjectFieldAsyncRace';
+import ScopeTest from './ScopeTest';
 
 declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {
-    sandbox.analysis = new ObjectFieldAsyncRace(sandbox);
+    sandbox.analysis = new ScopeTest(sandbox);
 })(J$);

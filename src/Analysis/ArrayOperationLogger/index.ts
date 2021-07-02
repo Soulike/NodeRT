@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import Sandbox from '../../Type/Sandbox';
-import AsyncContext from './AsyncContext';
+import ArrayOperationLogger from './ArrayOperationLogger';
 
 declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {
-    sandbox.analysis = new AsyncContext(sandbox);
+    sandbox.analysis = new ArrayOperationLogger(sandbox);
 })(J$);

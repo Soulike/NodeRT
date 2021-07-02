@@ -2,7 +2,7 @@
 
 /**
  * Global shared static class that logs information from `endExpression` hook.
- * Should only be written by <code>AsyncContextAnalysis</code>
+ * Should only be written by <code>AsyncContextLogger</code>
  * */
 class LastExpressionValueContainer
 {

@@ -11,7 +11,7 @@ import Reference from './Type/Reference';
 import {strict as assert} from 'assert';
 
 /**Focus on object (including Array & Function) descriptors and prototype*/
-class ReferenceMetaAsyncRace extends Analysis
+class ReferenceMetaOperationLogger extends Analysis
 {
     public literal: Hooks['literal'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
@@ -120,4 +120,4 @@ class ReferenceMetaAsyncRace extends Analysis
     }
 }
 
-export default ReferenceMetaAsyncRace;
+export default ReferenceMetaOperationLogger;

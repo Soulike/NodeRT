@@ -1,6 +1,6 @@
 // DO NOT INSTRUMENT
 
-import VariableDeclaration from './Class/VariableDeclaration';
+import PrimitiveDeclaration from './Class/PrimitiveDeclaration';
 import Hooks from '../../Type/Hooks';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 import Sandbox from '../../Type/Sandbox';
@@ -9,10 +9,10 @@ import Scope from './Class/Scope';
 import {strict as assert} from 'assert';
 import {GLOBAL_IID} from './CONSTANT';
 import ScopeStack from './Class/ScopeStack';
-import VariableOperation from './Class/VariableOperation';
+import PrimitiveOperation from './Class/PrimitiveOperation';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 
-class PrimitiveAsyncRaceAnalysis extends Analysis
+class PrimitiveOperationLogger extends Analysis
 {
     public declare: Hooks['declare'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
@@ -23,8 +23,8 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
     public write: Hooks['write'] | undefined;
 
     private readonly scopeStack: ScopeStack;
-    private readonly pendingVariableDeclarations: VariableDeclaration[];
-    private readonly variableDeclarations: VariableDeclaration[];
+    private readonly pendingVariableDeclarations: PrimitiveDeclaration[];
+    private readonly variableDeclarations: PrimitiveDeclaration[];
 
     constructor(sandbox: Sandbox)
     {
@@ -51,7 +51,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const declaration = new VariableDeclaration(iid, val.name, 'function', currentScope, sourceCodeInfo);
+                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, sourceCodeInfo);
                 this.variableDeclarations.push(declaration);
                 currentScope.declarations.push(declaration);
             }
@@ -71,7 +71,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
             }
             else
             {
-                let functionDeclaration: VariableDeclaration | null = null;
+                let functionDeclaration: PrimitiveDeclaration | null = null;
                 for (const declaration of this.variableDeclarations)
                 {
                     if (declaration.type === 'function' && declaration.iid === iid)
@@ -116,7 +116,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const declaration = new VariableDeclaration(iid, name, 'var', null, sourceCodeInfo);
+                const declaration = new PrimitiveDeclaration(iid, name, 'var', null, sourceCodeInfo);
                 this.variableDeclarations.push(declaration);
                 this.pendingVariableDeclarations.push(declaration);
             }
@@ -152,8 +152,8 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
         {
             if (isGlobal)
             {
-                const newDeclaration = new VariableDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE, sourceCodeInfo);
-                newDeclaration.appendOperation(currentCallbackFunction, new VariableOperation(type, val, sourceCodeInfo));
+                const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE, sourceCodeInfo);
+                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
                 this.variableDeclarations.push(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -165,7 +165,7 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
                     const pendingDeclaration = this.pendingVariableDeclarations[i]!;
                     if (pendingDeclaration.name === name)
                     {
-                        pendingDeclaration.appendOperation(currentCallbackFunction, new VariableOperation(type, val, sourceCodeInfo));
+                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
                         found = true;
                         break;
                     }
@@ -180,9 +180,9 @@ class PrimitiveAsyncRaceAnalysis extends Analysis
         }
         else
         {
-            declaration.appendOperation(currentCallbackFunction, new VariableOperation(type, val, sourceCodeInfo));
+            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
         }
     }
 }
 
-export default PrimitiveAsyncRaceAnalysis;
+export default PrimitiveOperationLogger;

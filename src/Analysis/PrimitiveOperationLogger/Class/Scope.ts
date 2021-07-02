@@ -1,6 +1,6 @@
 // DO NOT INSTRUMENT
 
-import VariableDeclaration from './VariableDeclaration';
+import PrimitiveDeclaration from './PrimitiveDeclaration';
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 
 type ScopeType = 'block' | 'function';
@@ -12,10 +12,10 @@ class Scope
     public readonly type: ScopeType;
     public readonly name: string | null;
     public readonly parent: Scope | null;	// null for global
-    public readonly declarations: VariableDeclaration[];
+    public readonly declarations: PrimitiveDeclaration[];
     public readonly sourceCodeInfo: SourceCodeInfo | null;  // null for global
 
-    constructor(type: ScopeType, name: string | null, parent: Scope | null, declarations: VariableDeclaration[], sourceCodeInfo: SourceCodeInfo | null)
+    constructor(type: ScopeType, name: string | null, parent: Scope | null, declarations: PrimitiveDeclaration[], sourceCodeInfo: SourceCodeInfo | null)
     {
         this.type = type;
         this.name = name;
@@ -24,7 +24,7 @@ class Scope
         this.sourceCodeInfo = sourceCodeInfo;
     }
 
-    public getDeclarationByName(name: string): VariableDeclaration | null
+    public getDeclarationByName(name: string): PrimitiveDeclaration | null
     {
         for (let i = this.declarations.length - 1; i >= 0; i--)
         {
@@ -43,7 +43,7 @@ class Scope
         }
     }
 
-    public getDeclarationByIid(iid: number): VariableDeclaration | null
+    public getDeclarationByIid(iid: number): PrimitiveDeclaration | null
     {
         for (const declaration of this.declarations)
         {

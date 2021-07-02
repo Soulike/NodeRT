@@ -9,7 +9,7 @@ import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import Analysis from '../../Type/Analysis';
 import {strict as assert} from 'assert';
 
-class ObjectFieldAsyncRace extends Analysis
+class ObjectFieldOperationLogger extends Analysis
 {
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public getField: Hooks['getField'] | undefined;
@@ -209,4 +209,4 @@ class ObjectFieldAsyncRace extends Analysis
     }
 }
 
-export default ObjectFieldAsyncRace;
+export default ObjectFieldOperationLogger;

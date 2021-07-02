@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import Sandbox from '../../Type/Sandbox';
-import MapAsyncRace from './MapAsyncRace';
+import SetOperationLogger from './SetOperationLogger';
 
 declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {
-    sandbox.analysis = new MapAsyncRace(sandbox);
+    sandbox.analysis = new SetOperationLogger(sandbox);
 })(J$);

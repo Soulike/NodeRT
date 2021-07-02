@@ -11,7 +11,7 @@ import LastExpressionValueContainer from '../Singleton/LastExpressionValueContai
 import {strict as assert} from 'assert';
 
 /**Does not support spread expression now*/
-class ArrayAsyncRace extends Analysis
+class ArrayOperationLogger extends Analysis
 {
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
@@ -229,4 +229,4 @@ class ArrayAsyncRace extends Analysis
     }
 }
 
-export default ArrayAsyncRace;
+export default ArrayOperationLogger;

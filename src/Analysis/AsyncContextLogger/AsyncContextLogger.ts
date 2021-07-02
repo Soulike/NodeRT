@@ -11,9 +11,9 @@ import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
- * Should be run prior to other analysis. i.e. `--analysis AsyncContext --analysis otherAnalysis`
+ * Should be run prior to other analysis. i.e. `--analysis AsyncContextLogger --analysis otherAnalysis`
  * */
-class AsyncContext extends Analysis
+class AsyncContextLogger extends Analysis
 {
     public functionEnter: Hooks['functionEnter'] | undefined;
 
@@ -105,4 +105,4 @@ class AsyncContext extends Analysis
     };
 }
 
-export default AsyncContext;
+export default AsyncContextLogger;

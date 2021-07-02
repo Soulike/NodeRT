@@ -3,7 +3,7 @@
 import SourceCodeInfo from '../../Class/SourceCodeInfo';
 import ResourceOperation from '../../Class/ResourceOperation';
 
-class VariableOperation extends ResourceOperation
+class PrimitiveOperation extends ResourceOperation
 {
     public readonly value: unknown;
 
@@ -14,4 +14,4 @@ class VariableOperation extends ResourceOperation
     }
 }
 
-export default VariableOperation;
+export default PrimitiveOperation;
