@@ -18,9 +18,10 @@ class FileOperationLogger extends Analysis
     public invokeFun: Hooks['invokeFun'] | undefined;
 
     private readonly fileDeclarations: FileDeclaration[];
+    private readonly fileHandles: Set<FileHandle>;
+
     private readonly filePathToFileDeclaration: Map<string | Buffer, FileDeclaration>;
     private readonly fileHandleToFileDeclaration: Map<FileHandle, FileDeclaration>;
-    private readonly fileHandles: Set<FileHandle>;
 
     private readonly readApis: ReadonlySet<Function>;
     private readonly writeApis: ReadonlySet<Function>;
@@ -147,29 +148,8 @@ class FileOperationLogger extends Analysis
                     assert.ok(typeof args[0] === 'string' || args[0] instanceof Buffer || args[0] instanceof URL);
                     this.fileHandles.add(fileHandle);
                     const filePath = args[0] as string | Buffer | URL;
-                    if (filePath instanceof Buffer)
-                    {
-                        const newFileDeclaration = new FileDeclaration(filePath);
-                        this.fileDeclarations.push(newFileDeclaration);
-                        this.fileHandleToFileDeclaration.set(fileHandle, newFileDeclaration);
-                        this.filePathToFileDeclaration.set(filePath, newFileDeclaration);
-                    }
-                    else
-                    {
-                        const realFilePath = typeof filePath === 'string' ? filePath : filePath.href;
-                        const fileDeclaration = this.filePathToFileDeclaration.get(realFilePath);
-                        if (fileDeclaration === undefined)
-                        {
-                            const newFileDeclaration = new FileDeclaration(realFilePath);
-                            this.fileDeclarations.push(newFileDeclaration);
-                            this.fileHandleToFileDeclaration.set(fileHandle, newFileDeclaration);
-                            this.filePathToFileDeclaration.set(realFilePath, newFileDeclaration);
-                        }
-                        else
-                        {
-                            this.fileHandleToFileDeclaration.set(fileHandle, fileDeclaration);
-                        }
-                    }
+                    const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
+                    this.fileHandleToFileDeclaration.set(fileHandle, fileDeclaration);
                 });
             }
             else if (this.fileHandles.has(base as FileHandle))
@@ -271,7 +251,7 @@ class FileOperationLogger extends Analysis
 
     private getFileDeclarationFromFilePath(filePath: PathLike | FileHandle): FileDeclaration
     {
-        if (filePath instanceof Buffer)
+        if (filePath instanceof Buffer || typeof filePath === 'string')
         {
             const fileDeclaration = this.filePathToFileDeclaration.get(filePath);
             if (fileDeclaration === undefined)
@@ -295,21 +275,6 @@ class FileOperationLogger extends Analysis
                 const newFileDeclaration = new FileDeclaration(realFilePath);
                 this.fileDeclarations.push(newFileDeclaration);
                 this.filePathToFileDeclaration.set(realFilePath, newFileDeclaration);
-                return newFileDeclaration;
-            }
-            else
-            {
-                return fileDeclaration;
-            }
-        }
-        else if (typeof filePath === 'string')
-        {
-            const fileDeclaration = this.filePathToFileDeclaration.get(filePath);
-            if (fileDeclaration === undefined)
-            {
-                const newFileDeclaration = new FileDeclaration(filePath);
-                this.fileDeclarations.push(newFileDeclaration);
-                this.filePathToFileDeclaration.set(filePath, newFileDeclaration);
                 return newFileDeclaration;
             }
             else
