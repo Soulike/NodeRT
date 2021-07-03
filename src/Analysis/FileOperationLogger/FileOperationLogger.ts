@@ -12,10 +12,10 @@ import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import FileOperation from './Class/FileOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
 
-// TODO: fd 相关 API
 class FileOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public functionEnter: Hooks['functionEnter'] | undefined;
 
     private readonly fileDeclarations: FileDeclaration[];
     private readonly fileHandles: Set<FileHandle>;
@@ -23,9 +23,15 @@ class FileOperationLogger extends Analysis
     private readonly filePathToFileDeclaration: Map<string | Buffer, FileDeclaration>;
     private readonly fileHandleToFileDeclaration: Map<FileHandle, FileDeclaration>;
 
-    private readonly readApis: ReadonlySet<Function>;
-    private readonly writeApis: ReadonlySet<Function>;
-    private readonly readWriteApis: ReadonlySet<Function>;
+    private readonly fdToFileDeclaration: Map<number, FileDeclaration>;
+    private readonly callbackToFileDeclaration: Map<Function, FileDeclaration>;
+
+    private readonly readApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
+    private readonly writeApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
+    private readonly readWriteApis: ReadonlySet<(src: PathLike, dist: PathLike, ...rest: any[]) => any>;
+
+    private readonly fdReadApis: ReadonlySet<(fd: number, ...rest: any[]) => any>;
+    private readonly fdWriteApis: ReadonlySet<(fd: number, ...rest: any[]) => any>;
 
     constructor(sandbox: Sandbox)
     {
@@ -35,6 +41,8 @@ class FileOperationLogger extends Analysis
         this.filePathToFileDeclaration = new Map();
         this.fileHandleToFileDeclaration = new Map();
         this.fileHandles = new Set();
+        this.fdToFileDeclaration = new Map();
+        this.callbackToFileDeclaration = new Map();
 
         this.readApis = new Set([
             fsPromise.access,
@@ -55,7 +63,6 @@ class FileOperationLogger extends Analysis
             fs.readlink,
             fs.realpath,
             fs.stat,
-            fs.read,
 
             fs.accessSync,
             fs.existsSync,
@@ -65,7 +72,6 @@ class FileOperationLogger extends Analysis
             fs.readlinkSync,
             fs.realpathSync,
             fs.statSync,
-            fs.readSync,
         ]);
         this.writeApis = new Set([
             fsPromise.appendFile,
@@ -97,7 +103,6 @@ class FileOperationLogger extends Analysis
             fs.unlink,
             fs.utimes,
             fs.writeFile,
-            fs.write,
 
             fs.appendFileSync,
             fs.chmodSync,
@@ -112,7 +117,6 @@ class FileOperationLogger extends Analysis
             fs.unlinkSync,
             fs.utimesSync,
             fs.writeFileSync,
-            fs.writeSync,
         ]);
         this.readWriteApis = new Set([
             fsPromise.copyFile,
@@ -131,6 +135,34 @@ class FileOperationLogger extends Analysis
             fs.symlinkSync,
         ]);
 
+        this.fdReadApis = new Set([
+            fs.fstat,
+            fs.read,
+            fs.readv,
+
+            fs.fstatSync,
+            fs.readSync,
+            fs.readvSync,
+        ]);
+        this.fdWriteApis = new Set([
+            fs.close,
+            fs.fchmod,
+            fs.fchown,
+            fs.ftruncate,
+            fs.futimes,
+            fs.write,
+            fs.writev,
+
+            fs.closeSync,
+            fs.fchmodSync,
+            fs.fchownSync,
+            fs.ftruncateSync,
+            fs.futimesSync,
+            fs.writeSync,
+            fs.writevSync,
+        ]);
+
+
         this.registerHooks();
 
         process.on('exit', () => this.onAnalysisExit());
@@ -143,13 +175,14 @@ class FileOperationLogger extends Analysis
             if (f === fsPromise.open)
             {
                 assert.ok(result instanceof Promise);
-                result.then(fileHandle =>
+                result.then((fileHandle: FileHandle) =>
                 {
-                    assert.ok(typeof args[0] === 'string' || args[0] instanceof Buffer || args[0] instanceof URL);
                     this.fileHandles.add(fileHandle);
-                    const filePath = args[0] as string | Buffer | URL;
+                    const filePath = args[0];
+                    assert.ok(typeof filePath === 'string' || filePath instanceof Buffer || filePath instanceof URL);
                     const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
                     this.fileHandleToFileDeclaration.set(fileHandle, fileDeclaration);
+                    this.fdToFileDeclaration.set(fileHandle.fd, fileDeclaration);
                 });
             }
             else if (this.fileHandles.has(base as FileHandle))
@@ -188,6 +221,7 @@ class FileOperationLogger extends Analysis
                     fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('read', sourceCodeInfo));
                 }
             }
+            // @ts-ignore
             else if (this.readApis.has(f))
             {
                 const path = args[0] as PathLike | FileHandle;
@@ -197,6 +231,7 @@ class FileOperationLogger extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('read', sourceCodeInfo));
             }
+            // @ts-ignore
             else if (this.writeApis.has(f))
             {
                 const path = args[0] as PathLike | FileHandle;
@@ -206,6 +241,7 @@ class FileOperationLogger extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
             }
+            // @ts-ignore
             else if (this.readWriteApis.has(f))
             {
                 const srcPath = args[0] as PathLike | FileHandle;
@@ -240,6 +276,59 @@ class FileOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
+            }
+            else if (f === fs.open)
+            {
+                const filePath = args[0];
+                assert.ok(typeof filePath === 'string' || filePath instanceof Buffer || filePath instanceof URL);
+                const callback = args[args.length - 1];
+                assert.ok(typeof callback === 'function');
+                const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
+                this.callbackToFileDeclaration.set(callback, fileDeclaration);  // later processed in functionEnter()
+            }
+            // @ts-ignore
+            else if (this.fdReadApis.has(f))
+            {
+                const fd = args[0];
+                assert.ok(typeof fd === 'number');
+                const fileDeclaration = this.fdToFileDeclaration.get(fd);
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const sandbox = this.getSandbox();
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+                if (fileDeclaration !== undefined) // ignores undefined ones
+                {
+                    fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('read', sourceCodeInfo));
+                }
+            }
+            // @ts-ignore
+            else if (this.fdWriteApis.has(f))
+            {
+                const fd = args[0];
+                assert.ok(typeof fd === 'number');
+                const fileDeclaration = this.fdToFileDeclaration.get(fd);
+                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const sandbox = this.getSandbox();
+                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+                if (fileDeclaration !== undefined) // ignores undefined ones
+                {
+                    fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
+                }
+            }
+        };
+
+        this.functionEnter = (iid, f, dis, args) =>
+        {
+            // process fs.open() callback
+            const fileDeclaration = this.callbackToFileDeclaration.get(f);
+            if (fileDeclaration !== undefined)
+            {
+                const err = args[0];
+                const fd = args[1];
+                if (err === null)
+                {
+                    assert.ok(typeof fd === 'number');
+                    this.fdToFileDeclaration.set(fd, fileDeclaration);
+                }
             }
         };
     }
