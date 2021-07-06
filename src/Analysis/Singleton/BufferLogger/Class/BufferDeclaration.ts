@@ -6,10 +6,10 @@ import BufferOperation from './BufferOperation';
 
 class BufferDeclaration extends ResourceDeclaration
 {
-    private readonly buffer: Buffer;
+    private readonly buffer: Buffer | Uint8Array;
     private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
 
-    constructor(buffer: Buffer)
+    constructor(buffer: Buffer | Uint8Array)
     {
         super();
         this.buffer = buffer;
@@ -34,7 +34,7 @@ class BufferDeclaration extends ResourceDeclaration
         return this.callbackFunctionToOperations;
     }
 
-    public is(otherBuffer: Buffer): boolean
+    public is(otherBuffer: Buffer | Uint8Array): boolean
     {
         return this.buffer === otherBuffer;
     }

@@ -94,6 +94,16 @@ class ArrayOperationLogger extends Analysis
                     new ArrayOperation('write', sourceCodeInfo));
                 this.arrayDeclarations.push(newArrayDeclaration);
             }
+            else if (f === Buffer.from)
+            {
+                const array = args[0];
+                if (Array.isArray(array))
+                {
+                    const argArrayDeclaration = this.findOrAddArrayDeclaration(array);
+                    argArrayDeclaration.appendOperation(currentCallbackFunction,
+                        new ArrayOperation('read', sourceCodeInfo));
+                }
+            }
             else if (f === Array.prototype.concat)
             {
                 const arg = args[0];
