@@ -11,6 +11,7 @@ import {URL} from 'url';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import FileOperation from './Class/FileOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
+import LastParameter from '../Type/LastParameter';
 
 class FileOperationLogger extends Analysis
 {
@@ -175,11 +176,10 @@ class FileOperationLogger extends Analysis
             if (f === fsPromise.open)
             {
                 assert.ok(result instanceof Promise);
-                result.then((fileHandle: FileHandle) =>
+                (<ReturnType<typeof fsPromise.open>>result).then((fileHandle) =>
                 {
                     this.fileHandles.add(fileHandle);
-                    const filePath = args[0];
-                    assert.ok(typeof filePath === 'string' || filePath instanceof Buffer || filePath instanceof URL);
+                    const filePath = args[0] as Parameters<typeof fsPromise.open>[0];
                     const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
                     this.fileHandleToFileDeclaration.set(fileHandle, fileDeclaration);
                     this.fdToFileDeclaration.set(fileHandle.fd, fileDeclaration);
@@ -256,10 +256,8 @@ class FileOperationLogger extends Analysis
             }
             else if (f === fsPromise.mkdtemp)
             {
-                assert.ok(result instanceof Promise);
-                result.then(filePath =>
+                (<ReturnType<typeof fsPromise.mkdtemp>>result).then((filePath) =>
                 {
-                    assert.ok(typeof filePath === 'string');
                     const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
                     const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                     const sandbox = this.getSandbox();
@@ -269,8 +267,7 @@ class FileOperationLogger extends Analysis
             }
             else if (f === fs.mkdtempSync)
             {
-                const filePath = result;
-                assert.ok(typeof filePath === 'string');
+                const filePath = result as ReturnType<typeof fs.mkdtempSync>;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
@@ -279,10 +276,8 @@ class FileOperationLogger extends Analysis
             }
             else if (f === fs.open)
             {
-                const filePath = args[0];
-                assert.ok(typeof filePath === 'string' || filePath instanceof Buffer || filePath instanceof URL);
-                const callback = args[args.length - 1];
-                assert.ok(typeof callback === 'function');
+                const filePath = args[0] as Parameters<typeof fs.open>[0];
+                const callback = args[args.length - 1] as LastParameter<typeof fs.open>;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
                 this.callbackToFileDeclaration.set(callback, fileDeclaration);  // later processed in functionEnter()
             }

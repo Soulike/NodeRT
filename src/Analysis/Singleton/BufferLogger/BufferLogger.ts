@@ -20,6 +20,16 @@ class BufferLogger
             return bufferDeclaration;
         }
     }
+
+    public static addBufferDeclaration(buffer: Buffer): void
+    {
+        const bufferDeclaration = BufferLogger.bufferToBufferDeclaration.get(buffer);
+        if (bufferDeclaration === undefined)
+        {
+            const newBufferDeclaration = new BufferDeclaration(buffer);
+            this.bufferToBufferDeclaration.set(buffer, newBufferDeclaration);
+        }
+    }
 }
 
 export default BufferLogger;
