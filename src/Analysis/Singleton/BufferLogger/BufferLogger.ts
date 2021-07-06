@@ -2,6 +2,7 @@
 
 import BufferDeclaration from './Class/BufferDeclaration';
 
+// Since buffer is used in many modules, we need to log its declarations in a shared object
 class BufferLogger
 {
     private static bufferToBufferDeclaration: Map<Buffer, BufferDeclaration> = new Map();
