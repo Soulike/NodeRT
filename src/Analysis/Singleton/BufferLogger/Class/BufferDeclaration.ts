@@ -4,13 +4,15 @@ import ResourceDeclaration from '../../../Class/ResourceDeclaration';
 import CallbackFunction from '../../../Class/CallbackFunction';
 import BufferOperation from './BufferOperation';
 import BufferLike from '../../../Type/BufferLike';
+import ArrayBufferLike from '../../../Type/ArrayBufferLike';
+import {isArrayBufferLike} from '../../../Util';
 
 class BufferDeclaration extends ResourceDeclaration
 {
-    private readonly buffer: BufferLike;
+    private readonly buffer: ArrayBufferLike;
     private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
 
-    constructor(buffer: BufferLike)
+    constructor(buffer: ArrayBufferLike)
     {
         super();
         this.buffer = buffer;
@@ -37,7 +39,14 @@ class BufferDeclaration extends ResourceDeclaration
 
     public is(otherBuffer: BufferLike): boolean
     {
-        return this.buffer === otherBuffer;
+        if (isArrayBufferLike(otherBuffer))
+        {
+            return this.buffer === otherBuffer;
+        }
+        else
+        {
+            return this.buffer === otherBuffer.buffer;
+        }
     }
 }
 

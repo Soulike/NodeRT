@@ -85,3 +85,8 @@ export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
 
     return new SourceCodeInfo(fileName, new Range(range[0], range[1]));
 }
+
+export function isArrayBufferLike(other: any): other is ArrayBuffer | SharedArrayBuffer
+{
+    return other instanceof ArrayBuffer || other instanceof SharedArrayBuffer;
+}
