@@ -11,13 +11,16 @@ import {strict as assert} from 'assert';
 
 class BufferOperationLogger extends Analysis
 {
+    public invokeFun: Hooks['invokeFun'] | undefined;
+    public forObject: Hooks['forObject'] | undefined;
+    public getField: Hooks['getField'] | undefined;
+    public putFieldPre: Hooks['putFieldPre'] | undefined;
+
     private static readonly constructionApis: Set<(...args: any[]) => Buffer> = new Set([
         Buffer.alloc,
         Buffer.allocUnsafe,
         Buffer.allocUnsafeSlow,
     ]);
-    public invokeFun: Hooks['invokeFun'] | undefined;
-    public forObject: Hooks['forObject'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
@@ -38,11 +41,12 @@ class BufferOperationLogger extends Analysis
                 bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
                     new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
+            // TODO: 数组版本的处理
             else if (f === Buffer || f === Buffer.from)
             {
                 const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
-                if (Buffer.isBuffer(args[0]))
+                if (args[0] instanceof Uint8Array)
                 {
                     const readBuffer = args[0];
                     const readBufferDeclaration = BufferLogger.getBufferDeclaration(readBuffer);
@@ -93,6 +97,26 @@ class BufferOperationLogger extends Analysis
 
                 const bufferDeclaration = BufferLogger.getBufferDeclaration(lastExpressionValue);
                 bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new BufferOperation('read', sourceCodeInfo));
+            }
+        };
+
+        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        {
+            if (base instanceof Uint8Array)
+            {
+                const bufferDeclaration = BufferLogger.getBufferDeclaration(base);
+                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
+                    new BufferOperation('read', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+            }
+        };
+
+        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        {
+            if (base instanceof Uint8Array)
+            {
+                const bufferDeclaration = BufferLogger.getBufferDeclaration(base);
+                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
+                    new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
         };
     }
