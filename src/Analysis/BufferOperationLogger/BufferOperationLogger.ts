@@ -37,53 +37,35 @@ class BufferOperationLogger extends Analysis
             if (BufferOperationLogger.constructionApis.has(f))
             {
                 assert.ok(Buffer.isBuffer(result));
-                const bufferDeclaration = BufferLogger.getBufferDeclaration(result);
-                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                this.appendBufferOperation(result, 'write', iid);
             }
             // TODO: 数组版本的处理
             else if (f === Buffer || f === Buffer.from)
             {
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
                 if (args[0] instanceof Uint8Array)
                 {
                     const readBuffer = args[0];
-                    const readBufferDeclaration = BufferLogger.getBufferDeclaration(readBuffer);
-                    readBufferDeclaration.appendOperation(currentCallbackFunction,
-                        new BufferOperation('read', sourceCodeInfo));
+                    this.appendBufferOperation(readBuffer, 'read', iid);
                 }
                 assert.ok(Buffer.isBuffer(result));
-                const bufferDeclaration = BufferLogger.getBufferDeclaration(result);
-                bufferDeclaration.appendOperation(currentCallbackFunction,
-                    new BufferOperation('write', sourceCodeInfo));
+                this.appendBufferOperation(result, 'write', iid);
             }
             else if (f === Buffer.compare)
             {
                 const buffer1 = args[0] as Parameters<typeof Buffer.compare>[0];
                 const buffer2 = args[1] as Parameters<typeof Buffer.compare>[1];
-                const buffer1Declaration = BufferLogger.getBufferDeclaration(buffer1);
-                const buffer2Declaration = BufferLogger.getBufferDeclaration(buffer2);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
-                buffer1Declaration.appendOperation(currentCallbackFunction,
-                    new BufferOperation('read', sourceCodeInfo));
-                buffer2Declaration.appendOperation(currentCallbackFunction,
-                    new BufferOperation('read', sourceCodeInfo));
+                this.appendBufferOperation(buffer1, 'read', iid);
+                this.appendBufferOperation(buffer2, 'read', iid);
             }
             else if (f === Buffer.concat)
             {
                 const list = args[0] as Parameters<typeof Buffer.concat>[0];
                 const returnedBuffer = result as ReturnType<typeof Buffer.concat>;
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
                 for (const buffer of list)
                 {
-                    const bufferDeclaration = BufferLogger.getBufferDeclaration(buffer);
-                    bufferDeclaration.appendOperation(currentCallbackFunction, new BufferOperation('read', sourceCodeInfo));
+                    this.appendBufferOperation(buffer, 'read', iid);
                 }
-                const returnedBufferDeclaration = BufferLogger.getBufferDeclaration(returnedBuffer);
-                returnedBufferDeclaration.appendOperation(currentCallbackFunction, new BufferOperation('write', sourceCodeInfo));
+                this.appendBufferOperation(returnedBuffer, 'write', iid);
             }
         };
 
@@ -92,11 +74,7 @@ class BufferOperationLogger extends Analysis
             const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
-                const sandbox = this.getSandbox();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-
-                const bufferDeclaration = BufferLogger.getBufferDeclaration(lastExpressionValue);
-                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new BufferOperation('read', sourceCodeInfo));
+                this.appendBufferOperation(lastExpressionValue, 'read', iid);
             }
         };
 
@@ -104,9 +82,7 @@ class BufferOperationLogger extends Analysis
         {
             if (base instanceof Uint8Array)
             {
-                const bufferDeclaration = BufferLogger.getBufferDeclaration(base);
-                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new BufferOperation('read', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                this.appendBufferOperation(base, 'read', iid);
             }
         };
 
@@ -114,11 +90,16 @@ class BufferOperationLogger extends Analysis
         {
             if (base instanceof Uint8Array)
             {
-                const bufferDeclaration = BufferLogger.getBufferDeclaration(base);
-                bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                this.appendBufferOperation(base, 'write', iid);
             }
         };
+    }
+
+    private appendBufferOperation(buffer: Buffer | Uint8Array, type: 'read' | 'write', iid: number)
+    {
+        const bufferDeclaration = BufferLogger.getBufferDeclaration(buffer);
+        bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
+            new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
     }
 }
 
