@@ -22,6 +22,62 @@ class BufferOperationLogger extends Analysis
         Buffer.allocUnsafeSlow,
     ]);
 
+    private static readonly readOnlyApis: Set<(...args: any[]) => any> = new Set([
+        Buffer.prototype.readBigInt64BE,
+        Buffer.prototype.readBigInt64LE,
+        Buffer.prototype.readBigUInt64BE,
+        Buffer.prototype.readBigUInt64LE,
+        Buffer.prototype.readDoubleBE,
+        Buffer.prototype.readDoubleLE,
+        Buffer.prototype.readFloatBE,
+        Buffer.prototype.readFloatLE,
+        Buffer.prototype.readInt8,
+        Buffer.prototype.readInt16BE,
+        Buffer.prototype.readInt16LE,
+        Buffer.prototype.readInt32BE,
+        Buffer.prototype.readInt32LE,
+        Buffer.prototype.readIntBE,
+        Buffer.prototype.readIntLE,
+        Buffer.prototype.readUInt8,
+        Buffer.prototype.readUInt16BE,
+        Buffer.prototype.readUInt16LE,
+        Buffer.prototype.readUInt32BE,
+        Buffer.prototype.readUInt32LE,
+        Buffer.prototype.readUIntBE,
+        Buffer.prototype.readUIntLE,
+        Buffer.prototype.toJSON,
+        Buffer.prototype.toString,
+    ]);
+
+    private static readonly writeOnlyApis: Set<(...args: any[]) => any> = new Set([
+        Buffer.prototype.swap16,
+        Buffer.prototype.swap32,
+        Buffer.prototype.swap64,
+        Buffer.prototype.write,
+        Buffer.prototype.writeBigInt64BE,
+        Buffer.prototype.writeBigInt64LE,
+        Buffer.prototype.writeBigUInt64BE,
+        Buffer.prototype.writeBigUInt64LE,
+        Buffer.prototype.writeDoubleBE,
+        Buffer.prototype.writeDoubleLE,
+        Buffer.prototype.writeFloatBE,
+        Buffer.prototype.writeFloatLE,
+        Buffer.prototype.writeInt8,
+        Buffer.prototype.writeInt16BE,
+        Buffer.prototype.writeInt16LE,
+        Buffer.prototype.writeInt32BE,
+        Buffer.prototype.writeInt32LE,
+        Buffer.prototype.writeIntBE,
+        Buffer.prototype.writeIntLE,
+        Buffer.prototype.writeUInt8,
+        Buffer.prototype.writeUInt16BE,
+        Buffer.prototype.writeUInt16LE,
+        Buffer.prototype.writeUInt32BE,
+        Buffer.prototype.writeUInt32LE,
+        Buffer.prototype.writeUIntBE,
+        Buffer.prototype.writeUIntLE,
+    ]);
+
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
@@ -66,6 +122,59 @@ class BufferOperationLogger extends Analysis
                     this.appendBufferOperation(buffer, 'read', iid);
                 }
                 this.appendBufferOperation(returnedBuffer, 'write', iid);
+            }
+            else if (f === Buffer.prototype.compare || f === Buffer.prototype.equals)
+            {
+                const sourceBuffer = base as Buffer;
+                const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.compare | typeof Buffer.prototype.equals>[0];
+                this.appendBufferOperation(sourceBuffer, 'read', iid);
+                this.appendBufferOperation(targetBuffer, 'read', iid);
+            }
+            else if (f === Buffer.prototype.copy)
+            {
+                const sourceBuffer = base as Buffer;
+                const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.copy>[0];
+                this.appendBufferOperation(sourceBuffer, 'read', iid);
+                this.appendBufferOperation(targetBuffer, 'write', iid);
+            }
+            else if (f === Buffer.prototype.fill)
+            {
+                if (args[0] instanceof Uint8Array)
+                {
+                    const readBuffer = args[0];
+                    this.appendBufferOperation(readBuffer, 'read', iid);
+                }
+                assert.ok(Buffer.isBuffer(base));
+                this.appendBufferOperation(base, 'write', iid);
+            }
+            else if (f === Buffer.prototype.includes || f === Buffer.prototype.indexOf || f === Buffer.prototype.lastIndexOf)
+            {
+                if (args[0] instanceof Uint8Array)
+                {
+                    const readBuffer = args[0];
+                    this.appendBufferOperation(readBuffer, 'read', iid);
+                }
+                assert.ok(Buffer.isBuffer(base));
+                this.appendBufferOperation(base, 'read', iid);
+            }
+            // @ts-ignore
+            else if (BufferOperationLogger.readOnlyApis.has(f))
+            {
+                assert.ok(Buffer.isBuffer(base));
+                this.appendBufferOperation(base, 'read', iid);
+            }
+            else if (f === Buffer.prototype.subarray || f === Buffer.prototype.slice) // not precise, since base & result share memory
+            {
+                assert.ok(Buffer.isBuffer(base));
+                this.appendBufferOperation(base, 'read', iid);
+                const returnedBuffer = result as ReturnType<typeof Buffer.prototype.subarray>;
+                this.appendBufferOperation(returnedBuffer, 'write', iid);
+            }
+            // @ts-ignore
+            else if (BufferOperationLogger.writeOnlyApis.has(f))
+            {
+                assert.ok(Buffer.isBuffer(base));
+                this.appendBufferOperation(base, 'write', iid);
             }
         };
 
