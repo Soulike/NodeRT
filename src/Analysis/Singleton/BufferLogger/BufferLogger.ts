@@ -1,13 +1,14 @@
 // DO NOT INSTRUMENT
 
 import BufferDeclaration from './Class/BufferDeclaration';
+import BufferLike from '../../Type/BufferLike';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 class BufferLogger
 {
-    private static bufferToBufferDeclaration: Map<Buffer | Uint8Array, BufferDeclaration> = new Map();
+    private static bufferToBufferDeclaration: Map<BufferLike, BufferDeclaration> = new Map();
 
-    public static getBufferDeclaration(buffer: Buffer | Uint8Array)
+    public static getBufferDeclaration(buffer: BufferLike)
     {
         const bufferDeclaration = BufferLogger.bufferToBufferDeclaration.get(buffer);
         if (bufferDeclaration === undefined)
@@ -22,7 +23,7 @@ class BufferLogger
         }
     }
 
-    public static addBufferDeclaration(buffer: Buffer | Uint8Array): void
+    public static addBufferDeclaration(buffer: BufferLike): void
     {
         const bufferDeclaration = BufferLogger.bufferToBufferDeclaration.get(buffer);
         if (bufferDeclaration === undefined)

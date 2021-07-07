@@ -9,6 +9,7 @@ import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import BufferLogger, {BufferOperation} from '../Singleton/BufferLogger';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
+import BufferLike from '../Type/BufferLike';
 
 class BufferOperationLogger extends Analysis
 {
@@ -18,7 +19,6 @@ class BufferOperationLogger extends Analysis
     public putFieldPre: Hooks['putFieldPre'] | undefined;
 
     private static readonly constructionApis: Set<(...args: any[]) => Buffer> = new Set([
-        Buffer.alloc,
         Buffer.allocUnsafe,
         Buffer.allocUnsafeSlow,
     ]);
@@ -88,8 +88,19 @@ class BufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
+        // TODO: Blob 以及其他 Buffer 类型的 Api
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
         {
+            if (f === Buffer.alloc)
+            {
+                assert.ok(Buffer.isBuffer(result));
+                this.appendBufferOperation(result, 'write', iid);
+                const fill = args[1] as Parameters<typeof Buffer.alloc>[1];
+                if (fill instanceof Uint8Array)
+                {
+                    this.appendBufferOperation(fill, 'read', iid);
+                }
+            }
             // @ts-ignore
             if (BufferOperationLogger.constructionApis.has(f))
             {
@@ -98,7 +109,7 @@ class BufferOperationLogger extends Analysis
             }
             else if (f === Buffer || f === Buffer.from)
             {
-                if (args[0] instanceof Uint8Array)
+                if (args[0] instanceof Uint8Array || args[0] instanceof ArrayBuffer || args[0] instanceof SharedArrayBuffer)
                 {
                     const readBuffer = args[0];
                     this.appendBufferOperation(readBuffer, 'read', iid);
@@ -212,7 +223,7 @@ class BufferOperationLogger extends Analysis
         };
     }
 
-    private appendBufferOperation(buffer: Buffer | Uint8Array, type: 'read' | 'write', iid: number)
+    private appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', iid: number)
     {
         const bufferDeclaration = BufferLogger.getBufferDeclaration(buffer);
         bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),

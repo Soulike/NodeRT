@@ -3,13 +3,14 @@
 import ResourceDeclaration from '../../../Class/ResourceDeclaration';
 import CallbackFunction from '../../../Class/CallbackFunction';
 import BufferOperation from './BufferOperation';
+import BufferLike from '../../../Type/BufferLike';
 
 class BufferDeclaration extends ResourceDeclaration
 {
-    private readonly buffer: Buffer | Uint8Array;
+    private readonly buffer: BufferLike;
     private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
 
-    constructor(buffer: Buffer | Uint8Array)
+    constructor(buffer: BufferLike)
     {
         super();
         this.buffer = buffer;
@@ -34,11 +35,10 @@ class BufferDeclaration extends ResourceDeclaration
         return this.callbackFunctionToOperations;
     }
 
-    public is(otherBuffer: Buffer | Uint8Array): boolean
+    public is(otherBuffer: BufferLike): boolean
     {
         return this.buffer === otherBuffer;
     }
-
 }
 
 export default BufferDeclaration;
