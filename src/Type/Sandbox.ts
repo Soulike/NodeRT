@@ -7,6 +7,8 @@ interface Sandbox
 {
     analysis: Analysis;
 
+    addAnalysis: (analysis: Analysis) => void;
+
     /**
      * Get the position string corresponding to iid
      *
