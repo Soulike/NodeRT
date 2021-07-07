@@ -8,6 +8,7 @@ import {getSourceCodeInfoFromIid} from '../Util';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import BufferLogger, {BufferOperation} from '../Singleton/BufferLogger';
 import {strict as assert} from 'assert';
+import buffer from 'buffer';
 
 class BufferOperationLogger extends Analysis
 {
@@ -175,6 +176,14 @@ class BufferOperationLogger extends Analysis
             {
                 assert.ok(Buffer.isBuffer(base));
                 this.appendBufferOperation(base, 'write', iid);
+            }
+            else if (f === buffer.transcode)
+            {
+                const sourceBuffer = args[0] as Parameters<typeof buffer.transcode>[0];
+                const returnedBuffer = result;
+                assert.ok(Buffer.isBuffer(returnedBuffer));
+                this.appendBufferOperation(sourceBuffer, 'read', iid);
+                this.appendBufferOperation(returnedBuffer, 'write', iid);
             }
         };
 
