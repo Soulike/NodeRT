@@ -94,7 +94,8 @@ class ArrayOperationLogger extends Analysis
                     new ArrayOperation('write', sourceCodeInfo));
                 this.arrayDeclarations.push(newArrayDeclaration);
             }
-            else if (f === Buffer.from)
+            // TODO: 数组记录独立出来
+            else if (f === Buffer || f === Buffer.from)
             {
                 const array = args[0];
                 if (Array.isArray(array))

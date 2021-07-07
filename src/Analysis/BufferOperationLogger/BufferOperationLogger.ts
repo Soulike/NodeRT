@@ -96,7 +96,6 @@ class BufferOperationLogger extends Analysis
                 assert.ok(Buffer.isBuffer(result));
                 this.appendBufferOperation(result, 'write', iid);
             }
-            // TODO: 数组版本的处理
             else if (f === Buffer || f === Buffer.from)
             {
                 if (args[0] instanceof Uint8Array)
