@@ -5,7 +5,7 @@ import CallbackFunction from '../../../Class/CallbackFunction';
 import BufferOperation from './BufferOperation';
 import BufferLike from '../../../Type/BufferLike';
 import ArrayBufferLike from '../../../Type/ArrayBufferLike';
-import {isArrayBufferLike} from '../../../Util';
+import util from 'util';
 
 class BufferDeclaration extends ResourceDeclaration
 {
@@ -39,7 +39,7 @@ class BufferDeclaration extends ResourceDeclaration
 
     public is(otherBuffer: BufferLike): boolean
     {
-        if (isArrayBufferLike(otherBuffer))
+        if (util.types.isAnyArrayBuffer(otherBuffer))
         {
             return this.buffer === otherBuffer;
         }

@@ -2,7 +2,7 @@
 
 import BufferDeclaration from './Class/BufferDeclaration';
 import BufferLike from '../../Type/BufferLike';
-import {isArrayBufferLike} from '../../Util';
+import util from 'util';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 class BufferLogger
@@ -11,7 +11,7 @@ class BufferLogger
 
     public static getBufferDeclaration(buffer: BufferLike)
     {
-        const underArrayBuffer = isArrayBufferLike(buffer) ? buffer : buffer.buffer;
+        const underArrayBuffer = util.types.isAnyArrayBuffer(buffer) ? buffer : buffer.buffer;
         const bufferDeclaration = BufferLogger.bufferToBufferDeclaration.get(underArrayBuffer);
         if (bufferDeclaration === undefined)
         {

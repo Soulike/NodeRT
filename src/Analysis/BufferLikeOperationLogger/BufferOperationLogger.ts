@@ -3,20 +3,13 @@
 import Analysis from '../../Type/Analysis';
 import Sandbox from '../../Type/Sandbox';
 import Hooks from '../../Type/Hooks';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
-import {getSourceCodeInfoFromIid} from '../Util';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import BufferLogger, {BufferOperation} from '../Singleton/BufferLogger';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
-import BufferLike from '../Type/BufferLike';
+import {appendBufferOperation} from './Util';
 
 class BufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public forObject: Hooks['forObject'] | undefined;
-    public getField: Hooks['getField'] | undefined;
-    public putFieldPre: Hooks['putFieldPre'] | undefined;
 
     private static readonly constructionApis: Set<(...args: any[]) => Buffer> = new Set([
         Buffer.allocUnsafe,
@@ -86,9 +79,12 @@ class BufferOperationLogger extends Analysis
         this.registerHooks();
     }
 
+    private appendBufferOperation = appendBufferOperation.bind(this);
+
     protected override registerHooks(): void
     {
-        // TODO: Blob 以及其他 Buffer 类型的 Api
+        // No need to log put/getField() here since Buffer is a subtype of TypedArray (Uint8Array)
+        // also their share the same iterator so no need for forObject()
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
         {
             if (f === Buffer.alloc)
@@ -196,38 +192,6 @@ class BufferOperationLogger extends Analysis
                 this.appendBufferOperation(returnedBuffer, 'write', iid);
             }
         };
-
-        this.forObject = (iid, isForIn) =>
-        {
-            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
-            if (!isForIn && Buffer.isBuffer(lastExpressionValue))
-            {
-                this.appendBufferOperation(lastExpressionValue, 'read', iid);
-            }
-        };
-
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
-        {
-            if (base instanceof Uint8Array)
-            {
-                this.appendBufferOperation(base, 'read', iid);
-            }
-        };
-
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
-        {
-            if (base instanceof Uint8Array)
-            {
-                this.appendBufferOperation(base, 'write', iid);
-            }
-        };
-    }
-
-    private appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', iid: number)
-    {
-        const bufferDeclaration = BufferLogger.getBufferDeclaration(buffer);
-        bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-            new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
     }
 }
 
