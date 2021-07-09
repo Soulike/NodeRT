@@ -104,7 +104,6 @@ class TypedArrayOperationLogger extends Analysis
                 this.appendBufferOperation(base, 'read', iid);
                 this.appendBufferOperation(base, 'write', iid);
             }
-            // TODO: 迭代器支持
             else if (TypedArrayOperationLogger.instanceReadOnlyApis.has(f))
             {
                 assert.ok(util.types.isTypedArray(base));
