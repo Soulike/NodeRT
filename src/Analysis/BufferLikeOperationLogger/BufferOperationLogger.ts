@@ -132,58 +132,61 @@ class BufferOperationLogger extends Analysis
                 }
                 this.appendBufferOperation(returnedBuffer, 'write', iid);
             }
-            else if (f === Buffer.prototype.compare || f === Buffer.prototype.equals)
+            else if (Buffer.isBuffer(base))
             {
-                const sourceBuffer = base as Buffer;
-                const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.compare | typeof Buffer.prototype.equals>[0];
-                this.appendBufferOperation(sourceBuffer, 'read', iid);
-                this.appendBufferOperation(targetBuffer, 'read', iid);
-            }
-            else if (f === Buffer.prototype.copy)
-            {
-                const sourceBuffer = base as Buffer;
-                const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.copy>[0];
-                this.appendBufferOperation(sourceBuffer, 'read', iid);
-                this.appendBufferOperation(targetBuffer, 'write', iid);
-            }
-            else if (f === Buffer.prototype.fill)
-            {
-                if (args[0] instanceof Uint8Array)
+                if (f === Buffer.prototype.compare || f === Buffer.prototype.equals)
                 {
-                    const readBuffer = args[0];
-                    this.appendBufferOperation(readBuffer, 'read', iid);
+                    const sourceBuffer = base as Buffer;
+                    const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.compare | typeof Buffer.prototype.equals>[0];
+                    this.appendBufferOperation(sourceBuffer, 'read', iid);
+                    this.appendBufferOperation(targetBuffer, 'read', iid);
                 }
-                assert.ok(Buffer.isBuffer(base));
-                this.appendBufferOperation(base, 'write', iid);
-            }
-            else if (f === Buffer.prototype.includes || f === Buffer.prototype.indexOf || f === Buffer.prototype.lastIndexOf)
-            {
-                if (args[0] instanceof Uint8Array)
+                else if (f === Buffer.prototype.copy)
                 {
-                    const readBuffer = args[0];
-                    this.appendBufferOperation(readBuffer, 'read', iid);
+                    const sourceBuffer = base as Buffer;
+                    const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.copy>[0];
+                    this.appendBufferOperation(sourceBuffer, 'read', iid);
+                    this.appendBufferOperation(targetBuffer, 'write', iid);
                 }
-                assert.ok(Buffer.isBuffer(base));
-                this.appendBufferOperation(base, 'read', iid);
-            }
-            // @ts-ignore
-            else if (BufferOperationLogger.readOnlyApis.has(f))
-            {
-                assert.ok(Buffer.isBuffer(base));
-                this.appendBufferOperation(base, 'read', iid);
-            }
-            else if (f === Buffer.prototype.subarray || f === Buffer.prototype.slice) // not precise, since base & result share memory
-            {
-                assert.ok(Buffer.isBuffer(base));
-                this.appendBufferOperation(base, 'read', iid);
-                const returnedBuffer = result as ReturnType<typeof Buffer.prototype.subarray>;
-                this.appendBufferOperation(returnedBuffer, 'write', iid);
-            }
-            // @ts-ignore
-            else if (BufferOperationLogger.writeOnlyApis.has(f))
-            {
-                assert.ok(Buffer.isBuffer(base));
-                this.appendBufferOperation(base, 'write', iid);
+                else if (f === Buffer.prototype.fill)
+                {
+                    if (args[0] instanceof Uint8Array)
+                    {
+                        const readBuffer = args[0];
+                        this.appendBufferOperation(readBuffer, 'read', iid);
+                    }
+                    assert.ok(Buffer.isBuffer(base));
+                    this.appendBufferOperation(base, 'write', iid);
+                }
+                else if (f === Buffer.prototype.includes || f === Buffer.prototype.indexOf || f === Buffer.prototype.lastIndexOf)
+                {
+                    if (args[0] instanceof Uint8Array)
+                    {
+                        const readBuffer = args[0];
+                        this.appendBufferOperation(readBuffer, 'read', iid);
+                    }
+                    assert.ok(Buffer.isBuffer(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                }
+                // @ts-ignore
+                else if (BufferOperationLogger.readOnlyApis.has(f))
+                {
+                    assert.ok(Buffer.isBuffer(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                }
+                else if (f === Buffer.prototype.subarray || f === Buffer.prototype.slice) // not precise, since base & result share memory
+                {
+                    assert.ok(Buffer.isBuffer(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                    const returnedBuffer = result as ReturnType<typeof Buffer.prototype.subarray>;
+                    this.appendBufferOperation(returnedBuffer, 'write', iid);
+                }
+                // @ts-ignore
+                else if (BufferOperationLogger.writeOnlyApis.has(f))
+                {
+                    assert.ok(Buffer.isBuffer(base));
+                    this.appendBufferOperation(base, 'write', iid);
+                }
             }
             else if (f === buffer.transcode)
             {

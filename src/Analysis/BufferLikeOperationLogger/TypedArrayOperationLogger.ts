@@ -98,40 +98,43 @@ class TypedArrayOperationLogger extends Analysis
                 assert.ok(util.types.isTypedArray(result));
                 this.appendBufferOperation(result, 'write', iid);
             }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin)
+            else if (util.types.isTypedArray(base) || Buffer.isBuffer(base))  // including Buffer since these apis are not logged in Buffer part
             {
-                assert.ok(util.types.isTypedArray(base));
-                this.appendBufferOperation(base, 'read', iid);
-                this.appendBufferOperation(base, 'write', iid);
-            }
-            else if (TypedArrayOperationLogger.instanceReadOnlyApis.has(f))
-            {
-                assert.ok(util.types.isTypedArray(base));
-                this.appendBufferOperation(base, 'read', iid);
-            }
-            else if (TypedArrayOperationLogger.instanceWriteOnlyApis.has(f))
-            {
-                assert.ok(util.types.isTypedArray(base));
-                this.appendBufferOperation(base, 'write', iid);
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
-                || f === TypedArrayOperationLogger.typedArrayPrototype.map
-                || f === TypedArrayOperationLogger.typedArrayPrototype.slice
-                || f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
-            {
-                assert.ok(util.types.isTypedArray(base));
-                this.appendBufferOperation(base, 'read', iid);
-                assert.ok(util.types.isTypedArray(result));
-                this.appendBufferOperation(result, 'write', iid);
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)    // TODO: 数组读取记录
-            {
-                if (util.types.isTypedArray(args[0]))
+                if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin)
                 {
-                    this.appendBufferOperation(args[0], 'read', iid);
+                    assert.ok(util.types.isTypedArray(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                    this.appendBufferOperation(base, 'write', iid);
                 }
-                assert.ok(util.types.isTypedArray(base));
-                this.appendBufferOperation(base, 'write', iid);
+                else if (TypedArrayOperationLogger.instanceReadOnlyApis.has(f))
+                {
+                    assert.ok(util.types.isTypedArray(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                }
+                else if (TypedArrayOperationLogger.instanceWriteOnlyApis.has(f))
+                {
+                    assert.ok(util.types.isTypedArray(base));
+                    this.appendBufferOperation(base, 'write', iid);
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.map
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
+                {
+                    assert.ok(util.types.isTypedArray(base));
+                    this.appendBufferOperation(base, 'read', iid);
+                    assert.ok(util.types.isTypedArray(result));
+                    this.appendBufferOperation(result, 'write', iid);
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)    // TODO: 数组读取记录
+                {
+                    if (util.types.isTypedArray(args[0]))
+                    {
+                        this.appendBufferOperation(args[0], 'read', iid);
+                    }
+                    assert.ok(util.types.isTypedArray(base));
+                    this.appendBufferOperation(base, 'write', iid);
+                }
             }
         };
 
