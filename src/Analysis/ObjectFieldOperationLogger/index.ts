@@ -1,9 +1,7 @@
 // DO NOT INSTRUMENT
 
-import Sandbox from '../../Type/Sandbox';
+import {Sandbox} from '../../Type/nodeprof';
 import ObjectFieldOperationLogger from './ObjectFieldOperationLogger';
-
-declare const J$: Sandbox;
 
 (function (sandbox: Sandbox)
 {

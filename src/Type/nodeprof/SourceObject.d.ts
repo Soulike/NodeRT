@@ -1,6 +1,4 @@
-// DO NOT INSTRUMENT
-
-interface SourceObject
+export declare interface SourceObject
 {
     /**Absolute path of source file*/
     readonly name: string,
@@ -19,5 +17,3 @@ interface SourceObject
         }
     }
 }
-
-export default SourceObject;

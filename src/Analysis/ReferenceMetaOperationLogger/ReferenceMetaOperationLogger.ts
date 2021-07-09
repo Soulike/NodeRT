@@ -1,8 +1,6 @@
 // DO NOT INSTRUMENT
 
-import Analysis from '../../Type/Analysis';
-import Hooks from '../../Type/Hooks';
-import Sandbox from '../../Type/Sandbox';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import ReferenceMetaDeclaration from './Class/ReferenceMetaDeclaration';
 import ReferenceMetaOperation from './Class/ReferenceMetaOperation';
 import {getSourceCodeInfoFromIid, isObject, isPrimitive, isReference, toJSON} from '../Util';

@@ -1,12 +1,10 @@
 // DO NOT INSTRUMENT
 
-import Sandbox from '../../Type/Sandbox';
-import Hooks from '../../Type/Hooks';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import ObjectFieldDeclaration from './Class/ObjectFieldDeclaration';
 import {getSourceCodeInfoFromIid, isObject, toJSON} from '../Util';
 import ObjectFieldOperation from './Class/ObjectFieldOperation';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import Analysis from '../../Type/Analysis';
 import {strict as assert} from 'assert';
 
 class ObjectFieldOperationLogger extends Analysis

@@ -1,9 +1,7 @@
-// DO NOT INSTRUMENT
+import {SourceObject} from './SourceObject';
+import {Analysis} from './Analysis';
 
-import SourceObject from './SourceObject';
-import Analysis from './Analysis';
-
-interface Sandbox
+export declare interface Sandbox
 {
     analysis: Analysis;
 
@@ -32,5 +30,3 @@ interface Sandbox
      * */
     iidToCode: (iid: number) => string;
 }
-
-export default Sandbox;
