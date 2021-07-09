@@ -1,8 +1,6 @@
-// DO NOT INSTRUMENT
-
 import Sandbox from './Sandbox';
 
-abstract class Analysis
+export declare abstract class Analysis
 {
     private readonly sandbox: Sandbox;
 
@@ -18,5 +16,3 @@ abstract class Analysis
 
     protected abstract registerHooks(): void;
 }
-
-export default Analysis;

@@ -1,10 +1,8 @@
 // DO NOT INSTRUMENT
 
 import PrimitiveDeclaration from './Class/PrimitiveDeclaration';
-import Hooks from '../../Type/Hooks';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
-import Sandbox from '../../Type/Sandbox';
-import Analysis from '../../Type/Analysis';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import Scope from './Class/Scope';
 import {strict as assert} from 'assert';
 import {GLOBAL_IID} from './CONSTANT';

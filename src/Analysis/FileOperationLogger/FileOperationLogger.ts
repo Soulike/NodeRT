@@ -1,17 +1,14 @@
 // DO NOT INSTRUMENT
 
-import Analysis from '../../Type/Analysis';
-import Sandbox from '../../Type/Sandbox';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import FileDeclaration from './Class/FileDeclaration';
 import {FileHandle} from 'fs/promises';
-import Hooks from '../../Type/Hooks';
 import fs, {PathLike, promises as fsPromise} from 'fs';
 import {strict as assert} from 'assert';
 import {URL} from 'url';
 import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
 import FileOperation from './Class/FileOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../Util';
-import LastParameter from '../Type/LastParameter';
 
 class FileOperationLogger extends Analysis
 {

@@ -1,8 +1,6 @@
 // DO NOT INSTRUMENT
 
-import Analysis from '../../Type/Analysis';
-import Hooks from '../../Type/Hooks';
-import Sandbox from '../../Type/Sandbox';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import MapDeclaration from './Class/MapDeclaration';
 import MapOperation from './Class/MapOperation';
 import SourceCodeInfo from '../Class/SourceCodeInfo';

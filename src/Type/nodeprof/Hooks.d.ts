@@ -1,9 +1,7 @@
-// DO NOT INSTRUMENT
+import {DeclareType} from './DeclareType';
+import {LiteralType} from './LiteralType';
 
-import DeclareType from './DeclareType';
-import LiteralType from './LiteralType';
-
-interface Hooks
+export declare interface Hooks
 {
     /**
      * Declaration of a symbol
@@ -212,5 +210,3 @@ interface Hooks
      **/
     startStatement: (iid: number, type: string) => void
 }
-
-export default Hooks;

@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import fs from 'fs';
-import Sandbox from '../Type/Sandbox';
+import {Sandbox} from '../Type/nodeprof';
 import SourceCodeInfo from './Class/SourceCodeInfo';
 import Range from './Class/Range';
 
