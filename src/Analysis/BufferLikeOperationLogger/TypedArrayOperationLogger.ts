@@ -29,6 +29,31 @@ class TypedArrayOperationLogger extends Analysis
     private static readonly ofApis: Set<(...args: any[]) => TypedArray> = new Set(
         Array.from(TypedArrayOperationLogger.constructors.values()).map(constructor => constructor.of),
     );
+
+    private static typedArrayPrototype = Uint8Array.prototype;  // All TypedArrays share the same prototype
+
+    private static instanceReadOnlyApis: Set<Function> = new Set([
+        TypedArrayOperationLogger.typedArrayPrototype.every,
+        TypedArrayOperationLogger.typedArrayPrototype.find,
+        TypedArrayOperationLogger.typedArrayPrototype.findIndex,
+        TypedArrayOperationLogger.typedArrayPrototype.forEach,
+        TypedArrayOperationLogger.typedArrayPrototype.includes,
+        TypedArrayOperationLogger.typedArrayPrototype.indexOf,
+        TypedArrayOperationLogger.typedArrayPrototype.join,
+        TypedArrayOperationLogger.typedArrayPrototype.lastIndexOf,
+        TypedArrayOperationLogger.typedArrayPrototype.reduce,
+        TypedArrayOperationLogger.typedArrayPrototype.reduceRight,
+        TypedArrayOperationLogger.typedArrayPrototype.some,
+        TypedArrayOperationLogger.typedArrayPrototype.toLocaleString,
+        TypedArrayOperationLogger.typedArrayPrototype.toString,
+    ]);
+
+    private static instanceWriteOnlyApis: Set<Function> = new Set([
+        TypedArrayOperationLogger.typedArrayPrototype.fill,
+        TypedArrayOperationLogger.typedArrayPrototype.reverse,
+        TypedArrayOperationLogger.typedArrayPrototype.sort,
+    ]);
+
     public forObject: Hooks['forObject'] | undefined;
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
@@ -72,6 +97,42 @@ class TypedArrayOperationLogger extends Analysis
             {
                 assert.ok(util.types.isTypedArray(result));
                 this.appendBufferOperation(result, 'write', iid);
+            }
+            else if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin)
+            {
+                assert.ok(util.types.isTypedArray(base));
+                this.appendBufferOperation(base, 'read', iid);
+                this.appendBufferOperation(base, 'write', iid);
+            }
+            // TODO: 迭代器支持
+            else if (TypedArrayOperationLogger.instanceReadOnlyApis.has(f))
+            {
+                assert.ok(util.types.isTypedArray(base));
+                this.appendBufferOperation(base, 'read', iid);
+            }
+            else if (TypedArrayOperationLogger.instanceWriteOnlyApis.has(f))
+            {
+                assert.ok(util.types.isTypedArray(base));
+                this.appendBufferOperation(base, 'write', iid);
+            }
+            else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
+                || f === TypedArrayOperationLogger.typedArrayPrototype.map
+                || f === TypedArrayOperationLogger.typedArrayPrototype.slice
+                || f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
+            {
+                assert.ok(util.types.isTypedArray(base));
+                this.appendBufferOperation(base, 'read', iid);
+                assert.ok(util.types.isTypedArray(result));
+                this.appendBufferOperation(result, 'write', iid);
+            }
+            else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)    // TODO: 数组读取记录
+            {
+                if (util.types.isTypedArray(args[0]))
+                {
+                    this.appendBufferOperation(args[0], 'read', iid);
+                }
+                assert.ok(util.types.isTypedArray(base));
+                this.appendBufferOperation(base, 'write', iid);
             }
         };
 
