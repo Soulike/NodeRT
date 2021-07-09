@@ -1,6 +1,4 @@
-// DO NOT INSTRUMENT
-
-type LiteralType =
+export declare type LiteralType =
     'ObjectLiteral'
     | 'ArrayLiteral'
     | 'FunctionLiteral'
@@ -10,5 +8,3 @@ type LiteralType =
     | 'NullLiteral'
     | 'UndefinedLiteral'
     | 'RegExpLiteral'
-
-export default LiteralType;

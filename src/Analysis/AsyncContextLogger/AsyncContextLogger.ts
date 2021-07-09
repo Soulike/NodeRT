@@ -1,8 +1,6 @@
 // DO NOT INSTRUMENT
 
-import Hooks from '../../Type/Hooks';
-import Sandbox from '../../Type/Sandbox';
-import Analysis from '../../Type/Analysis';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
 import CallbackFunction from '../Class/CallbackFunction';
 import {strict as assert} from 'assert';

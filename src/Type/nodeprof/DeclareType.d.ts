@@ -1,0 +1,1 @@
+export declare type DeclareType = 'const' | 'let' | 'var';
