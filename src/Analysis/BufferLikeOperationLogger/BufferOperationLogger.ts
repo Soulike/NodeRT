@@ -6,10 +6,14 @@ import Hooks from '../../Type/Hooks';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
 import {appendBufferOperation} from './Util';
+import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 
 class BufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public forObject: Hooks['forObject'] | undefined;
+    public getField: Hooks['getField'] | undefined;
+    public putFieldPre: Hooks['putFieldPre'] | undefined;
 
     private static readonly constructionApis: Set<(...args: any[]) => Buffer> = new Set([
         Buffer.allocUnsafe,
@@ -83,8 +87,6 @@ class BufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        // No need to log put/getField() here since Buffer is a subtype of TypedArray (Uint8Array)
-        // also their share the same iterator so no need for forObject()
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
         {
             if (f === Buffer.alloc)
@@ -190,6 +192,31 @@ class BufferOperationLogger extends Analysis
                 assert.ok(Buffer.isBuffer(returnedBuffer));
                 this.appendBufferOperation(sourceBuffer, 'read', iid);
                 this.appendBufferOperation(returnedBuffer, 'write', iid);
+            }
+        };
+
+        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        {
+            if (Buffer.isBuffer(base))
+            {
+                this.appendBufferOperation(base, 'read', iid);
+            }
+        };
+
+        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        {
+            if (Buffer.isBuffer(base))
+            {
+                this.appendBufferOperation(base, 'write', iid);
+            }
+        };
+
+        this.forObject = (iid, isForIn) =>
+        {
+            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
+            if (!isForIn && Buffer.isBuffer(lastExpressionValue))
+            {
+                this.appendBufferOperation(lastExpressionValue, 'read', iid);
             }
         };
     }

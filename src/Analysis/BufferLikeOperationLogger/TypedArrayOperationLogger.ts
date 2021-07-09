@@ -137,7 +137,7 @@ class TypedArrayOperationLogger extends Analysis
 
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
-            if (util.types.isTypedArray(base))
+            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base))    // ignore Buffers, the same below
             {
                 this.appendBufferOperation(base, 'read', iid);
             }
@@ -145,7 +145,7 @@ class TypedArrayOperationLogger extends Analysis
 
         this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
         {
-            if (util.types.isTypedArray(base))
+            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base))
             {
                 this.appendBufferOperation(base, 'write', iid);
             }
@@ -154,7 +154,7 @@ class TypedArrayOperationLogger extends Analysis
         this.forObject = (iid, isForIn) =>
         {
             const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
-            if (!isForIn && util.types.isTypedArray(lastExpressionValue))
+            if (!isForIn && util.types.isTypedArray(lastExpressionValue) && !Buffer.isBuffer(lastExpressionValue))
             {
                 this.appendBufferOperation(lastExpressionValue, 'read', iid);
             }
