@@ -8,5 +8,5 @@ export function appendBufferOperation(this: Analysis, buffer: BufferLike, type: 
 {
     const bufferDeclaration = BufferLogger.getBufferDeclaration(buffer);
     bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-        new BufferOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+        new BufferOperation(type, getSourceCodeInfoFromIid(iid, this.getSandbox())));
 }
