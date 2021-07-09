@@ -1,9 +1,7 @@
 // DO NOT INSTRUMENT
 
-import Analysis from '../../Type/Analysis';
 import {appendBufferOperation} from './Util';
-import Hooks from '../../Type/Hooks';
-import Sandbox from '../../Type/Sandbox';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
 
 class DataViewOperationLogger extends Analysis

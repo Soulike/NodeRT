@@ -1,8 +1,6 @@
 // DO NOT INSTRUMENT
 
-import Analysis from '../../Type/Analysis';
-import Sandbox from '../../Type/Sandbox';
-import Hooks from '../../Type/Hooks';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
 import {appendBufferOperation} from './Util';
 import {strict as assert} from 'assert';
