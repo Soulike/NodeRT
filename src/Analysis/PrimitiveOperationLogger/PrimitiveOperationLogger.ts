@@ -38,7 +38,7 @@ class PrimitiveOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
+        this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
             if (literalType === 'FunctionLiteral')
             {
@@ -55,7 +55,7 @@ class PrimitiveOperationLogger extends Analysis
             }
         };
 
-        this.functionEnter = (iid, f, dis, args) =>
+        this.functionEnter = (iid) =>
         {
             if (iid === GLOBAL_IID)
             {
@@ -94,7 +94,7 @@ class PrimitiveOperationLogger extends Analysis
             }
         };
 
-        this.functionExit = (iid, returnVal, wrappedExceptionVal) =>
+        this.functionExit = () =>
         {
             assert.ok(!this.scopeStack.isEmpty());
             const poppedScope = this.scopeStack.pop();
@@ -107,7 +107,7 @@ class PrimitiveOperationLogger extends Analysis
             this.pendingVariableDeclarations.length = 0;
         };
 
-        this.declare = (iid, name, type, kind) =>
+        this.declare = (iid, name, _type, kind) =>
         {
             if (kind !== 'FunctionDeclaration')
             {
@@ -125,7 +125,7 @@ class PrimitiveOperationLogger extends Analysis
             this.onVariableOperation('read', iid, name, val, isGlobal);
         };
 
-        this.write = (iid, name, val, lhs, isGlobal) =>
+        this.write = (iid, name, val, _lhs, isGlobal) =>
         {
             this.onVariableOperation('write', iid, name, val, isGlobal);
         };

@@ -85,7 +85,7 @@ class BufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             if (f === Buffer.alloc)
             {
@@ -195,7 +195,7 @@ class BufferOperationLogger extends Analysis
             }
         };
 
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        this.getField = (iid, base, offset, _val, isComputed) =>
         {
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
@@ -203,7 +203,7 @@ class BufferOperationLogger extends Analysis
             }
         };
 
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        this.putFieldPre = (iid, base, offset, _val, isComputed) =>
         {
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {

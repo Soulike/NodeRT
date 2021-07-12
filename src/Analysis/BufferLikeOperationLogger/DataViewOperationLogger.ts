@@ -38,7 +38,7 @@ class DataViewOperationLogger extends Analysis
 
     protected registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, base) =>
         {
             if (util.types.isDataView(base))
             {

@@ -27,7 +27,7 @@ class SetOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod) =>
+        this.invokeFun = (iid, f, base, _args, result, isConstructor) =>
         {
             const readMethods: Function[] = [Set.prototype.entries, Set.prototype.forEach, Set.prototype.has, Set.prototype.keys, Set.prototype.values, Set.prototype[Symbol.iterator]];
             const writeMethods: Function[] = [Set.prototype.add, Set.prototype.delete, Set.prototype.clear];

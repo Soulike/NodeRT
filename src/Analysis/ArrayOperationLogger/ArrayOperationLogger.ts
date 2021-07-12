@@ -33,7 +33,7 @@ class ArrayOperationLogger extends Analysis
     {
         const sandbox = this.getSandbox();
 
-        this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
+        this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
             if (literalType === 'ArrayLiteral')
             {
@@ -45,7 +45,7 @@ class ArrayOperationLogger extends Analysis
             }
         };
 
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        this.getField = (iid, base) =>
         {
             if (Array.isArray(base))
             {
@@ -55,7 +55,7 @@ class ArrayOperationLogger extends Analysis
             }
         };
 
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        this.putFieldPre = (iid, base) =>
         {
             if (Array.isArray(base))
             {
@@ -65,7 +65,7 @@ class ArrayOperationLogger extends Analysis
             }
         };
 
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
             const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();

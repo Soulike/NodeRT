@@ -19,7 +19,7 @@ class ArrayBufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, base, _args, result) =>
         {
             if (f === ArrayBuffer)
             {

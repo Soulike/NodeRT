@@ -168,7 +168,7 @@ class FileOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             if (f === fsPromise.open)
             {
@@ -308,7 +308,7 @@ class FileOperationLogger extends Analysis
             }
         };
 
-        this.functionEnter = (iid, f, dis, args) =>
+        this.functionEnter = (_iid, f, _dis, args) =>
         {
             // process fs.open() callback
             const fileDeclaration = this.callbackToFileDeclaration.get(f);

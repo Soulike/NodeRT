@@ -28,7 +28,7 @@ class ReferenceMetaOperationLogger extends Analysis
 
     protected registerHooks()
     {
-        this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
+        this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
             if (literalType === 'ObjectLiteral' || literalType === 'ArrayLiteral')
             {
@@ -40,7 +40,7 @@ class ReferenceMetaOperationLogger extends Analysis
             }
         };
 
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, _base, args, result, isConstructor) =>
         {
             if (f === Object)
             {

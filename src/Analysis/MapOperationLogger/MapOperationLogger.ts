@@ -29,7 +29,7 @@ class MapOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod) =>
+        this.invokeFun = (iid, f, base, _args, result, isConstructor) =>
         {
             const readMethods: Function[] = [Map.prototype.get, Map.prototype.entries, Map.prototype.forEach, Map.prototype.has, Map.prototype.keys, Map.prototype.values, Map.prototype[Symbol.iterator]];
             const writeMethods: Function[] = [Map.prototype.set, Map.prototype.delete, Map.prototype.clear];

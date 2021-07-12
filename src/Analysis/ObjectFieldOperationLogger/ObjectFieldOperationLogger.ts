@@ -28,7 +28,7 @@ class ObjectFieldOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.literal = (iid, val, fakeHasGetterSetter, literalType) =>
+        this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
             if (literalType === 'ObjectLiteral')
             {
@@ -40,7 +40,7 @@ class ObjectFieldOperationLogger extends Analysis
             }
         };
 
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        this.getField = (iid, base, offset, val) =>
         {
             if (isObject(base))
             {
@@ -54,7 +54,7 @@ class ObjectFieldOperationLogger extends Analysis
             }
         };
 
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        this.putFieldPre = (iid, base, offset, val) =>
         {
             if (isObject(base))
             {
@@ -68,7 +68,7 @@ class ObjectFieldOperationLogger extends Analysis
             }
         };
 
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, _base, args, result, isConstructor) =>
         {
             const sandbox = this.getSandbox();
             const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);

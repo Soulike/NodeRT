@@ -41,7 +41,7 @@ class AsyncContextLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.functionEnter = (iid, f, dis, args) =>
+        this.functionEnter = (iid, f) =>
         {
             if (this.asyncContextChanged)
             {
@@ -78,7 +78,7 @@ class AsyncContextLogger extends Analysis
     }
 
     // must be an arrow function to fix `this`
-    private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number, resource: object) =>
+    private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number) =>
     {
         let triggerAsyncFunction = this.asyncIdToFunctionCall.get(triggerAsyncId);
         if (triggerAsyncFunction === undefined)

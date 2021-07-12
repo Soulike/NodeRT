@@ -68,7 +68,7 @@ class TypedArrayOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             // @ts-ignore
             if (TypedArrayOperationLogger.constructors.has(f))
@@ -136,7 +136,7 @@ class TypedArrayOperationLogger extends Analysis
             }
         };
 
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
+        this.getField = (iid, base, offset, _val, isComputed) =>
         {
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))    // ignore Buffers, the same below
             {
@@ -144,7 +144,7 @@ class TypedArrayOperationLogger extends Analysis
             }
         };
 
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
+        this.putFieldPre = (iid, base, offset, _val, isComputed) =>
         {
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
