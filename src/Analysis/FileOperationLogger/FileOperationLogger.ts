@@ -10,6 +10,7 @@ import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 import {FileOperation} from './Class/FileOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
 
+// TODO: 涉及 Buffer 和数组的 API 建模
 export class FileOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
@@ -22,7 +23,7 @@ export class FileOperationLogger extends Analysis
     private readonly fileHandleToFileDeclaration: Map<FileHandle, FileDeclaration>;
 
     private readonly fdToFileDeclaration: Map<number, FileDeclaration>;
-    private readonly callbackToFileDeclaration: Map<Function, FileDeclaration>;
+    private readonly callbackToFileDeclaration: Map<Function, { register: Function, fileDeclaration?: FileDeclaration }>;
 
     private readonly readApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
     private readonly writeApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
@@ -276,7 +277,7 @@ export class FileOperationLogger extends Analysis
                 const filePath = args[0] as Parameters<typeof fs.open>[0];
                 const callback = args[args.length - 1] as LastParameter<typeof fs.open>;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
-                this.callbackToFileDeclaration.set(callback, fileDeclaration);  // later processed in functionEnter()
+                this.callbackToFileDeclaration.set(callback, {register: f, fileDeclaration});  // later processed in functionEnter()
             }
             // @ts-ignore
             else if (this.fdReadApis.has(f))
@@ -310,16 +311,20 @@ export class FileOperationLogger extends Analysis
 
         this.functionEnter = (_iid, f, _dis, args) =>
         {
-            // process fs.open() callback
-            const fileDeclaration = this.callbackToFileDeclaration.get(f);
-            if (fileDeclaration !== undefined)
+            const info = this.callbackToFileDeclaration.get(f);
+            if (info !== undefined)
             {
-                const err = args[0];
-                const fd = args[1];
-                if (err === null)
+                const {register, fileDeclaration} = info;
+                if (register === fs.open)
                 {
-                    assert.ok(typeof fd === 'number');
-                    this.fdToFileDeclaration.set(fd, fileDeclaration);
+                    assert.ok(fileDeclaration !== undefined);
+                    const err = args[0];
+                    const fd = args[1];
+                    if (err === null)
+                    {
+                        assert.ok(typeof fd === 'number');
+                        this.fdToFileDeclaration.set(fd, fileDeclaration);
+                    }
                 }
             }
         };
