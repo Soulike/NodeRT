@@ -8,8 +8,6 @@ import {strict as assert} from 'assert';
 class ArrayBufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public getField: Hooks['getField'] | undefined;
-    public putFieldPre: Hooks['putFieldPre'] | undefined;
     private readonly appendBufferOperation = appendBufferOperation.bind(this);
 
     constructor(sandbox: Sandbox)

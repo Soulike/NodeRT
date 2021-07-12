@@ -27,8 +27,6 @@ class DataViewOperationLogger extends Analysis
         DataView.prototype.setFloat64,
     ]);
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public getField: Hooks['getField'] | undefined;
-    public putFieldPre: Hooks['putFieldPre'] | undefined;
     private readonly appendBufferOperation = appendBufferOperation.bind(this);
 
     constructor(sandbox: Sandbox)
