@@ -92,6 +92,17 @@ class ArrayOperationLogger extends Analysis
                     new ArrayOperation('write', sourceCodeInfo));
                 this.arrayDeclarations.push(newArrayDeclaration);
             }
+            // TODO: 数组记录独立出来
+            else if (f === Buffer || f === Buffer.from)
+            {
+                const array = args[0];
+                if (Array.isArray(array))
+                {
+                    const argArrayDeclaration = this.findOrAddArrayDeclaration(array);
+                    argArrayDeclaration.appendOperation(currentCallbackFunction,
+                        new ArrayOperation('read', sourceCodeInfo));
+                }
+            }
             else if (f === Array.prototype.concat)
             {
                 const arg = args[0];

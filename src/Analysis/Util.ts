@@ -4,6 +4,8 @@ import fs from 'fs';
 import {Sandbox} from '../Type/nodeprof';
 import SourceCodeInfo from './Class/SourceCodeInfo';
 import Range from './Class/Range';
+import BufferLike from './Type/BufferLike';
+import util from 'util';
 
 export function printSync(content: string): void
 {
@@ -84,4 +86,10 @@ export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
     } = sandbox.iidToSourceObject(iid);
 
     return new SourceCodeInfo(fileName, new Range(range[0], range[1]));
+}
+
+export function isBufferLike(other: any): other is BufferLike
+{
+    return util.types.isAnyArrayBuffer(other) || util.types.isArrayBufferView(other)
+        || util.types.isTypedArray(other) || Buffer.isBuffer(other);
 }

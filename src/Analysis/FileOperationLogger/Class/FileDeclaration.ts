@@ -3,7 +3,7 @@
 import ResourceDeclaration from '../../Class/ResourceDeclaration';
 import CallbackFunction from '../../Class/CallbackFunction';
 import FileOperation from './FileOperation';
-import BufferLogger, {BufferDeclaration, BufferOperation} from '../../Singleton/BufferLogger';
+import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../../LogStore/BufferLogStore';
 import {strict as assert} from 'assert';
 
 class FileDeclaration extends ResourceDeclaration
@@ -20,7 +20,7 @@ class FileDeclaration extends ResourceDeclaration
 
         if (this.filePath instanceof Buffer)
         {
-            this.bufferDeclaration = BufferLogger.getBufferDeclaration(this.filePath);
+            this.bufferDeclaration = BufferLogStore.getBufferDeclaration(this.filePath);
         }
         else
         {
