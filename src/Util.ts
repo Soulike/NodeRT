@@ -93,3 +93,8 @@ export function isBufferLike(other: any): other is BufferLike
     return util.types.isAnyArrayBuffer(other) || util.types.isArrayBufferView(other)
         || util.types.isTypedArray(other) || Buffer.isBuffer(other);
 }
+
+export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boolean
+{
+    return isComputed && !(typeof offset === 'symbol') && !Number.isNaN(Number.parseInt(offset as string));
+}

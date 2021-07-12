@@ -1,10 +1,9 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {ArrayDeclaration} from './Class/ArrayDeclaration';
+import {ArrayLogStore, ArrayOperation} from '../../LogStore/ArrayLogStore';
 import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
-import {ArrayOperation} from './Class/ArrayOperation';
-import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
+import {getSourceCodeInfoFromIid, isArrayAccess} from '../../Util';
 import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
@@ -17,16 +16,11 @@ export class ArrayOperationLogger extends Analysis
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
 
-    private readonly arrayDeclarations: ArrayDeclaration[];
-
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.arrayDeclarations = [];
 
         this.registerHooks();
-
-        process.on('exit', () => this.onAnalysisExit());
     }
 
     protected override registerHooks()
@@ -38,98 +32,60 @@ export class ArrayOperationLogger extends Analysis
             if (literalType === 'ArrayLiteral')
             {
                 assert.ok(Array.isArray(val));
-                const newArrayDeclaration = new ArrayDeclaration(val as Array<unknown>);
-                newArrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ArrayOperation('write', getSourceCodeInfoFromIid(iid, sandbox)));
-                this.arrayDeclarations.push(newArrayDeclaration);
+                ArrayLogStore.appendArrayOperation(val, 'write', sandbox, iid);
             }
         };
 
-        this.getField = (iid, base) =>
+        this.getField = (iid, base, offset: string | Symbol, _val: unknown, isComputed: boolean) =>
         {
-            if (Array.isArray(base))
+            if (Array.isArray(base) && isArrayAccess(isComputed, offset))
             {
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base);
-                arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ArrayOperation('read', getSourceCodeInfoFromIid(iid, sandbox)));
+                ArrayLogStore.appendArrayOperation(base, 'read', sandbox, iid);
             }
         };
 
-        this.putFieldPre = (iid, base) =>
+        this.putFieldPre = (iid, base, offset: string | Symbol, _val: unknown, isComputed: boolean) =>
         {
-            if (Array.isArray(base))
+            if (Array.isArray(base) && isArrayAccess(isComputed, offset))
             {
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base);
-                arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
-                    new ArrayOperation('write', getSourceCodeInfoFromIid(iid, sandbox)));
+                ArrayLogStore.appendArrayOperation(base, 'write', sandbox, iid);
             }
         };
 
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
             if (f === Array || f === Array.of)
             {
                 assert.ok(Array.isArray(result));
-                const newArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
-                newArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
-                this.arrayDeclarations.push(newArrayDeclaration);
+                ArrayLogStore.appendArrayOperation(result, 'write', sandbox, iid);
             }
             else if (f === Array.from)
             {
                 const iterable = args[0];
-                if (Array.isArray(iterable))
+                if (Array.isArray(iterable))    // TODO: TypedArray
                 {
-                    const arrayDeclaration = this.findOrAddArrayDeclaration(iterable);
-                    arrayDeclaration.appendOperation(currentCallbackFunction,
-                        new ArrayOperation('read', sourceCodeInfo));
+                    ArrayLogStore.appendArrayOperation(iterable, 'read', sandbox, iid);
                 }
                 assert.ok(Array.isArray(result));
-                const newArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
-                newArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
-                this.arrayDeclarations.push(newArrayDeclaration);
-            }
-            // TODO: 数组记录独立出来
-            else if (f === Buffer || f === Buffer.from)
-            {
-                const array = args[0];
-                if (Array.isArray(array))
-                {
-                    const argArrayDeclaration = this.findOrAddArrayDeclaration(array);
-                    argArrayDeclaration.appendOperation(currentCallbackFunction,
-                        new ArrayOperation('read', sourceCodeInfo));
-                }
+                ArrayLogStore.appendArrayOperation(result, 'write', sandbox, iid);
             }
             else if (f === Array.prototype.concat)
             {
                 const arg = args[0];
                 assert.ok(Array.isArray(arg));
-                const argArrayDeclaration = this.findOrAddArrayDeclaration(arg as unknown[]);
-                argArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('read', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(arg, 'read', sandbox, iid);
 
                 assert.ok(Array.isArray(base));
-                const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                baseArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('read', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'read', sandbox, iid);
 
                 assert.ok(Array.isArray(result));
-                const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
-                resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
-                this.arrayDeclarations.push(resultNewArrayDeclaration);
+                ArrayLogStore.appendArrayOperation(result, 'write', sandbox, iid);
             }
             else if (f === Array.prototype.copyWithin)
             {
                 assert.ok(Array.isArray(base));
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                arrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('read', sourceCodeInfo));
-                arrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'read', sandbox, iid);
+                ArrayLogStore.appendArrayOperation(base, 'write', sandbox, iid);
             }
             else if (f === Array.prototype.entries || f === Array.prototype.keys || f === Array.prototype.values
                 || f === Array.prototype.every || f === Array.prototype.find || f === Array.prototype.findIndex
@@ -140,26 +96,20 @@ export class ArrayOperationLogger extends Analysis
             )
             {
                 assert.ok(Array.isArray(base));
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                arrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('read', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'read', sandbox, iid);
             }
             else if (f === Array.prototype.fill)
             {
                 if (Array.isArray(base))
                 {
-                    const arrayDeclaration = this.findOrAddArrayDeclaration(base);
-                    arrayDeclaration.appendOperation(currentCallbackFunction,
-                        new ArrayOperation('write', sourceCodeInfo));
+                    ArrayLogStore.appendArrayOperation(base, 'write', sandbox, iid);
                 }
             }
             else if (f === Array.prototype.pop || f === Array.prototype.push || f === Array.prototype.shift
                 || f === Array.prototype.reverse || f === Array.prototype.sort || f === Array.prototype.unshift)
             {
                 assert.ok(Array.isArray(base));
-                const arrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                arrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'write', sandbox, iid);
             }
             else if (f === Array.prototype.filter
                 || f === Array.prototype.flat
@@ -168,28 +118,18 @@ export class ArrayOperationLogger extends Analysis
                 || f === Array.prototype.slice)
             {
                 assert.ok(Array.isArray(base));
-                const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                baseArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('read', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'read', sandbox, iid);
 
                 assert.ok(Array.isArray(result));
-                const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
-                resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
-                this.arrayDeclarations.push(resultNewArrayDeclaration);
+                ArrayLogStore.appendArrayOperation(result, 'write', sandbox, iid);
             }
             else if (f === Array.prototype.splice)
             {
                 assert.ok(Array.isArray(base));
-                const baseArrayDeclaration = this.findOrAddArrayDeclaration(base as unknown[]);
-                baseArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
+                ArrayLogStore.appendArrayOperation(base, 'write', sandbox, iid);
 
                 assert.ok(Array.isArray(result));
-                const resultNewArrayDeclaration = new ArrayDeclaration(result as Array<unknown>);
-                resultNewArrayDeclaration.appendOperation(currentCallbackFunction,
-                    new ArrayOperation('write', sourceCodeInfo));
-                this.arrayDeclarations.push(resultNewArrayDeclaration);
+                ArrayLogStore.appendArrayOperation(result, 'write', sandbox, iid);
             }
         };
 
@@ -202,7 +142,7 @@ export class ArrayOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const arrayDeclaration = this.arrayDeclarations.find(arrayDeclaration => arrayDeclaration.is(lastExpressionValue));
+                const arrayDeclaration = ArrayLogStore.getArrayDeclarations().find(arrayDeclaration => arrayDeclaration.is(lastExpressionValue));
                 if (arrayDeclaration !== undefined)
                 {
                     arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new ArrayOperation('read', sourceCodeInfo));
@@ -214,26 +154,5 @@ export class ArrayOperationLogger extends Analysis
                 }
             }
         };
-    }
-
-    private findOrAddArrayDeclaration(array: ArrayDeclaration['array']): ArrayDeclaration
-    {
-        const arrayDeclaration = this.arrayDeclarations.find(
-            arrayDeclaration => arrayDeclaration.is(array));
-        if (arrayDeclaration === undefined)
-        {
-            const newArrayDeclaration = new ArrayDeclaration(array);
-            this.arrayDeclarations.push(newArrayDeclaration);
-            return newArrayDeclaration;
-        }
-        else
-        {
-            return arrayDeclaration;
-        }
-    }
-
-    private onAnalysisExit()
-    {
-        console.log(toJSON(this.arrayDeclarations));
     }
 }
