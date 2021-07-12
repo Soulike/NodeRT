@@ -6,7 +6,7 @@ import {ArrayOperation} from './Class/ArrayOperation';
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {Sandbox} from '../../Type/nodeprof';
 
-// Since buffer is used in many modules, we need to log its declarations in a shared object
+// Since array is used in many modules, we need to log its declarations in a shared object
 export class ArrayLogStore
 {
     private static arrayToArrayDeclaration: Map<ReadonlyArray<unknown>, ArrayDeclaration> = new Map();
