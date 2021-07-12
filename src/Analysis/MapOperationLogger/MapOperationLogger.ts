@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import MapDeclaration from './Class/MapDeclaration';
-import MapOperation from './Class/MapOperation';
-import SourceCodeInfo from '../Class/SourceCodeInfo';
-import Range from '../Class/Range';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {MapDeclaration} from './Class/MapDeclaration';
+import {MapOperation} from './Class/MapOperation';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
+import {Range} from '../Class/Range';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
+import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
-class MapOperationLogger extends Analysis
+export class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
@@ -108,5 +108,3 @@ class MapOperationLogger extends Analysis
         console.log(toJSON(this.mapDeclarations));
     }
 }
-
-export default MapOperationLogger;

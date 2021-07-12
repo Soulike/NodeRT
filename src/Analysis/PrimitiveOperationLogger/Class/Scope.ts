@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
-import PrimitiveDeclaration from './PrimitiveDeclaration';
-import SourceCodeInfo from '../../Class/SourceCodeInfo';
+import {PrimitiveDeclaration} from './PrimitiveDeclaration';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 type ScopeType = 'block' | 'function';
 
-class Scope
+export class Scope
 {
     public static GLOBAL_SCOPE = new Scope('function', 'global', null, [], null);
 
@@ -70,5 +70,3 @@ class Scope
         };
     }
 }
-
-export default Scope;

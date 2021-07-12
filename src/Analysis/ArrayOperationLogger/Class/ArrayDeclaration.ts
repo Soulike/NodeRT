@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
-import CallbackFunction from '../../Class/CallbackFunction';
-import ResourceOperation from '../../Class/ResourceOperation';
-import ArrayOperation from './ArrayOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {ResourceOperation} from '../../Class/ResourceOperation';
+import {ArrayOperation} from './ArrayOperation';
 import {strict as assert} from 'assert';
 
-class ArrayDeclaration extends ResourceDeclaration
+export class ArrayDeclaration extends ResourceDeclaration
 {
     private readonly array: unknown[];
     private readonly operations: Map<CallbackFunction, ArrayOperation[]>;
@@ -43,5 +43,3 @@ class ArrayDeclaration extends ResourceDeclaration
     }
 
 }
-
-export default ArrayDeclaration;

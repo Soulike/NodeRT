@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import FileDeclaration from './Class/FileDeclaration';
+import {FileDeclaration} from './Class/FileDeclaration';
 import {FileHandle} from 'fs/promises';
 import fs, {PathLike, promises as fsPromise} from 'fs';
 import {strict as assert} from 'assert';
 import {URL} from 'url';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import FileOperation from './Class/FileOperation';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {FileOperation} from './Class/FileOperation';
+import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
 
-class FileOperationLogger extends Analysis
+export class FileOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
@@ -371,5 +371,3 @@ class FileOperationLogger extends Analysis
         }
     }
 }
-
-export default FileOperationLogger;

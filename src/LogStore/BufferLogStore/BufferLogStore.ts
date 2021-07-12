@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
 import {BufferDeclaration} from './Class/BufferDeclaration';
-import BufferLike from '../../Analysis/Type/BufferLike';
+import {BufferLike} from '../../Analysis/Type/BufferLike';
 import util from 'util';
-import ArrayBufferLike from '../../Analysis/Type/ArrayBufferLike';
+import {ArrayBufferLike} from '../../Analysis/Type/ArrayBufferLike';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore

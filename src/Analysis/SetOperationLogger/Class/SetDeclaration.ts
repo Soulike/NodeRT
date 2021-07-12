@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../../Class/CallbackFunction';
-import SetOperation from './SetOperation';
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {SetOperation} from './SetOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 
-class SetDeclaration extends ResourceDeclaration
+export class SetDeclaration extends ResourceDeclaration
 {
     public readonly set: Set<unknown>;
     public readonly operations: Map<CallbackFunction, SetOperation[]>;
@@ -39,5 +39,3 @@ class SetDeclaration extends ResourceDeclaration
         return new Map(this.operations);
     }
 }
-
-export default SetDeclaration;

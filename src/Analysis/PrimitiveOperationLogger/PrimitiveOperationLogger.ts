@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
 
-import PrimitiveDeclaration from './Class/PrimitiveDeclaration';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
+import {PrimitiveDeclaration} from './Class/PrimitiveDeclaration';
+import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import Scope from './Class/Scope';
+import {Scope} from './Class/Scope';
 import {strict as assert} from 'assert';
 import {GLOBAL_IID} from './CONSTANT';
-import ScopeStack from './Class/ScopeStack';
-import PrimitiveOperation from './Class/PrimitiveOperation';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import {ScopeStack} from './Class/ScopeStack';
+import {PrimitiveOperation} from './Class/PrimitiveOperation';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 
-class PrimitiveOperationLogger extends Analysis
+export class PrimitiveOperationLogger extends Analysis
 {
     public declare: Hooks['declare'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
@@ -182,5 +182,3 @@ class PrimitiveOperationLogger extends Analysis
         }
     }
 }
-
-export default PrimitiveOperationLogger;

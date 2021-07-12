@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import ReferenceMetaOperationLogger from './ReferenceMetaOperationLogger';
+import {ReferenceMetaOperationLogger} from './ReferenceMetaOperationLogger';
 
 (function (sandbox: Sandbox)
 {

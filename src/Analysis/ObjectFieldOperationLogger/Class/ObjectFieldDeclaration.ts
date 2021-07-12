@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../../Class/CallbackFunction';
-import ObjectFieldOperation from './ObjectFieldOperation';
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {ObjectFieldOperation} from './ObjectFieldOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 
-class ObjectFieldDeclaration extends ResourceDeclaration
+export class ObjectFieldDeclaration extends ResourceDeclaration
 {
     private readonly name: string | Symbol;
     private readonly base: object;
@@ -44,5 +44,3 @@ class ObjectFieldDeclaration extends ResourceDeclaration
         return new Map(this.operations);
     }
 }
-
-export default ObjectFieldDeclaration;

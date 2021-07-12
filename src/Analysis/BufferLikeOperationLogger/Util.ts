@@ -1,7 +1,7 @@
-import BufferLike from '../Type/BufferLike';
+import {BufferLike} from '../Type/BufferLike';
 import {BufferLogStore, BufferOperation} from '../../LogStore/BufferLogStore';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import {getSourceCodeInfoFromIid} from '../Util';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {Analysis} from '../../Type/nodeprof';
 
 export function appendBufferOperation(this: Analysis, buffer: BufferLike, type: 'read' | 'write', iid: number)

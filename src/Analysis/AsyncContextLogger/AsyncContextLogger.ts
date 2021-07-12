@@ -2,16 +2,16 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
-import CallbackFunction from '../Class/CallbackFunction';
+import {CallbackFunction} from '../Class/CallbackFunction';
 import {strict as assert} from 'assert';
-import {getSourceCodeInfoFromIid} from '../Util';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import {getSourceCodeInfoFromIid} from '../../Util';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 
 /**
  * Logging all callback function content information into `CallbackFunctionContext`.
  * Should be run prior to other analysis. i.e. `--analysis AsyncContextLogger --analysis otherAnalysis`
  * */
-class AsyncContextLogger extends Analysis
+export class AsyncContextLogger extends Analysis
 {
     public functionEnter: Hooks['functionEnter'] | undefined;
 
@@ -101,6 +101,6 @@ class AsyncContextLogger extends Analysis
         this.lastAsyncId = asyncId;
         this.lastTriggerAsyncId = async_hooks.triggerAsyncId(); // TODO: async 下有可能是 0？是 GraalVM 的 BUG？
     };
-}
 
-export default AsyncContextLogger;
+    // TODO: for of 记录
+}

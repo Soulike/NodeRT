@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import AsyncContextLogger from './AsyncContextLogger';
+import {AsyncContextLogger} from './AsyncContextLogger';
 
 (function (sandbox: Sandbox)
 {

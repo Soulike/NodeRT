@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import SourceCodeInfo from './SourceCodeInfo';
+import {SourceCodeInfo} from './SourceCodeInfo';
 
-abstract class ResourceOperation
+export abstract class ResourceOperation
 {
     private readonly type: 'read' | 'write';
     private readonly sourceCodeInfo: SourceCodeInfo;
@@ -23,5 +23,3 @@ abstract class ResourceOperation
         return this.sourceCodeInfo;
     }
 }
-
-export default ResourceOperation;

@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import FileOperationLogger from './FileOperationLogger';
+import {FileOperationLogger} from './FileOperationLogger';
 
 (function (sandbox: Sandbox)
 {

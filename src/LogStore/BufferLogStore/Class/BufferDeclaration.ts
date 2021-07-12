@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../../Analysis/Class/ResourceDeclaration';
-import CallbackFunction from '../../../Analysis/Class/CallbackFunction';
+import {ResourceDeclaration} from '../../../Analysis/Class/ResourceDeclaration';
+import {CallbackFunction} from '../../../Analysis/Class/CallbackFunction';
 import {BufferOperation} from './BufferOperation';
-import BufferLike from '../../../Analysis/Type/BufferLike';
-import ArrayBufferLike from '../../../Analysis/Type/ArrayBufferLike';
+import {BufferLike} from '../../../Analysis/Type/BufferLike';
+import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import util from 'util';
 
 export class BufferDeclaration extends ResourceDeclaration

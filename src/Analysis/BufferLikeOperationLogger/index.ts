@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import BufferOperationLogger from './BufferOperationLogger';
-import TypedArrayOperationLogger from './TypedArrayOperationLogger';
-import DataViewOperationLogger from './DataViewOperationLogger';
-import ArrayBufferOperationLogger from './ArrayBufferOperationLogger';
+import {BufferOperationLogger} from './BufferOperationLogger';
+import {TypedArrayOperationLogger} from './TypedArrayOperationLogger';
+import {DataViewOperationLogger} from './DataViewOperationLogger';
+import {ArrayBufferOperationLogger} from './ArrayBufferOperationLogger';
 import {AsyncContextLogger} from '../AsyncContextLogger';
 import {BufferLogStoreAnalysis} from '../../LogStore/BufferLogStore';
 

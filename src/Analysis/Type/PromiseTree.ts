@@ -1,3 +1,1 @@
-type PromiseTree = Promise<unknown> & { children: PromiseTree[], parent: PromiseTree };
-
-export default PromiseTree;
+export type PromiseTree = Promise<unknown> & { children: PromiseTree[], parent: PromiseTree };

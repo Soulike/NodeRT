@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import Scope from './Scope';
+import {Scope} from './Scope';
 
-class ScopeStack
+export class ScopeStack
 {
     private readonly stack: Scope[];
 
@@ -36,5 +36,3 @@ class ScopeStack
         return this.getSize() === 0;
     }
 }
-
-export default ScopeStack;

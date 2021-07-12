@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import ResourceOperation from './ResourceOperation';
-import CallbackFunction from './CallbackFunction';
+import {ResourceOperation} from './ResourceOperation';
+import {CallbackFunction} from './CallbackFunction';
 
-abstract class ResourceDeclaration
+export abstract class ResourceDeclaration
 {
     public abstract is(...other: unknown[]): boolean;
 
@@ -11,5 +11,3 @@ abstract class ResourceDeclaration
 
     public abstract getOperations(): ReadonlyMap<CallbackFunction, ResourceOperation[]>;
 }
-
-export default ResourceDeclaration;

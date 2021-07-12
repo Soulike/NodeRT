@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import ReferenceMetaDeclaration from './Class/ReferenceMetaDeclaration';
-import ReferenceMetaOperation from './Class/ReferenceMetaOperation';
-import {getSourceCodeInfoFromIid, isObject, isPrimitive, isReference, toJSON} from '../Util';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import Reference from './Type/Reference';
+import {ReferenceMetaDeclaration} from './Class/ReferenceMetaDeclaration';
+import {ReferenceMetaOperation} from './Class/ReferenceMetaOperation';
+import {getSourceCodeInfoFromIid, isObject, isPrimitive, isReference, toJSON} from '../../Util';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {Reference} from './Type/Reference';
 import {strict as assert} from 'assert';
 
 /**Focus on object (including Array & Function) descriptors and prototype*/
-class ReferenceMetaOperationLogger extends Analysis
+export class ReferenceMetaOperationLogger extends Analysis
 {
     public literal: Hooks['literal'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
@@ -117,5 +117,3 @@ class ReferenceMetaOperationLogger extends Analysis
         }
     }
 }
-
-export default ReferenceMetaOperationLogger;

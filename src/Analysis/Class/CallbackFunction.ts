@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import SourceCodeInfo from './SourceCodeInfo';
+import {SourceCodeInfo} from './SourceCodeInfo';
 
-class CallbackFunction
+export class CallbackFunction
 {
     public static readonly UNKNOWN_ASYNC_ID = 0;
     public static readonly UNKNOWN = new CallbackFunction(null, CallbackFunction.UNKNOWN_ASYNC_ID, 'UNKNOWN', null, null);
@@ -39,5 +39,3 @@ class CallbackFunction
         return this.asyncScope!.isInAsyncScope(asyncScope);
     }
 }
-
-export default CallbackFunction;

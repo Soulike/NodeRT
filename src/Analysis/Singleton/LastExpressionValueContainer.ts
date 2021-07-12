@@ -4,7 +4,7 @@
  * Global shared static class that logs information from `endExpression` hook.
  * Should only be written by <code>AsyncContextLogger</code>
  * */
-class LastExpressionValueContainer
+export class LastExpressionValueContainer
 {
     private static lastExpressionValue: unknown;
 
@@ -18,5 +18,3 @@ class LastExpressionValueContainer
         this.lastExpressionValue = lastExpressionValue;
     }
 }
-
-export default LastExpressionValueContainer;

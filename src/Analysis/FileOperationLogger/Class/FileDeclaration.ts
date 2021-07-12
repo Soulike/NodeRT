@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
-import CallbackFunction from '../../Class/CallbackFunction';
-import FileOperation from './FileOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {FileOperation} from './FileOperation';
 import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../../LogStore/BufferLogStore';
 import {strict as assert} from 'assert';
 
-class FileDeclaration extends ResourceDeclaration
+export class FileDeclaration extends ResourceDeclaration
 {
     private readonly filePath: string | Buffer;
     private readonly bufferDeclaration: BufferDeclaration | null; // created if filePath is a Buffer
@@ -65,5 +65,3 @@ class FileDeclaration extends ResourceDeclaration
         return this.filePath === filePath;
     }
 }
-
-export default FileDeclaration;

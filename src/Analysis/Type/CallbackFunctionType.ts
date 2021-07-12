@@ -1,6 +1,6 @@
 // DO NOT INSTRUMENT
 
-type CallbackFunctionType =
+export type CallbackFunctionType =
     'global'
     | 'immediate'
     | 'timeout'
@@ -10,5 +10,3 @@ type CallbackFunctionType =
     | 'eventListener'
     | 'eventListenerOnce'
     | 'awaitContinue';
-
-export default CallbackFunctionType;

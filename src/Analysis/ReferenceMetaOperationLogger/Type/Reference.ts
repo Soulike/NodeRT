@@ -1,3 +1,3 @@
-type Reference = object | Function | Array<any>
+// DO NOT INSTRUMENT
 
-export default Reference;
+export type Reference = object | Function | Array<any>

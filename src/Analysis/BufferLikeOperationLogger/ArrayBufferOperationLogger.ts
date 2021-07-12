@@ -5,7 +5,7 @@ import util from 'util';
 import {appendBufferOperation} from './Util';
 import {strict as assert} from 'assert';
 
-class ArrayBufferOperationLogger extends Analysis
+export class ArrayBufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     private readonly appendBufferOperation = appendBufferOperation.bind(this);
@@ -53,5 +53,3 @@ class ArrayBufferOperationLogger extends Analysis
     }
 
 }
-
-export default ArrayBufferOperationLogger;

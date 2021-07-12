@@ -3,7 +3,7 @@
 /**
  * Code range in a file
  * */
-class Range
+export class Range
 {
     public readonly start: number;
     public readonly end: number;
@@ -18,5 +18,3 @@ class Range
         this.end = end;
     }
 }
-
-export default Range;

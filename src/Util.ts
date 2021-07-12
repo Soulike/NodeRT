@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
 import fs from 'fs';
-import {Sandbox} from '../Type/nodeprof';
-import SourceCodeInfo from './Class/SourceCodeInfo';
-import Range from './Class/Range';
-import BufferLike from './Type/BufferLike';
+import {Sandbox} from './Type/nodeprof';
+import {SourceCodeInfo} from './Analysis/Class/SourceCodeInfo';
+import {Range} from './Analysis/Class/Range';
+import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 
 export function printSync(content: string): void

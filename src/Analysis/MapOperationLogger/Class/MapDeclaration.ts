@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../../Class/CallbackFunction';
-import MapOperation from './MapOperation';
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {MapOperation} from './MapOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 
-class MapDeclaration extends ResourceDeclaration
+export class MapDeclaration extends ResourceDeclaration
 {
     private readonly map: Map<unknown, unknown>;
     private readonly operations: Map<CallbackFunction, MapOperation[]>;
@@ -39,5 +39,3 @@ class MapDeclaration extends ResourceDeclaration
         return new Map(this.operations);
     }
 }
-
-export default MapDeclaration;

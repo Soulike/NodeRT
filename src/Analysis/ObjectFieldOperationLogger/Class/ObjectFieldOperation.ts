@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import SourceCodeInfo from '../../Class/SourceCodeInfo';
-import ResourceOperation from '../../Class/ResourceOperation';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceOperation} from '../../Class/ResourceOperation';
 
-class ObjectFieldOperation extends ResourceOperation
+export class ObjectFieldOperation extends ResourceOperation
 {
     public readonly value: unknown | PropertyDescriptor;
     /** The value is a property meta, e.g. `{value: 1, writable: false}` */
@@ -16,5 +16,3 @@ class ObjectFieldOperation extends ResourceOperation
         this.isMeta = isMeta;
     }
 }
-
-export default ObjectFieldOperation;

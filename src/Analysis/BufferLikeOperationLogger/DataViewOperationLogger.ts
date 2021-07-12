@@ -4,7 +4,7 @@ import {appendBufferOperation} from './Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
 
-class DataViewOperationLogger extends Analysis
+export class DataViewOperationLogger extends Analysis
 {
     private static readonly getApis: Set<typeof DataView.prototype.getInt8> = new Set([
         DataView.prototype.getInt8,
@@ -56,5 +56,3 @@ class DataViewOperationLogger extends Analysis
         };
     }
 }
-
-export default DataViewOperationLogger;

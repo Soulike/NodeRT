@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import ObjectFieldOperationLogger from './ObjectFieldOperationLogger';
+import {ObjectFieldOperationLogger} from './ObjectFieldOperationLogger';
 
 (function (sandbox: Sandbox)
 {

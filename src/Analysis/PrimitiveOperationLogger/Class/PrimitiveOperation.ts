@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import SourceCodeInfo from '../../Class/SourceCodeInfo';
-import ResourceOperation from '../../Class/ResourceOperation';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceOperation} from '../../Class/ResourceOperation';
 
-class PrimitiveOperation extends ResourceOperation
+export class PrimitiveOperation extends ResourceOperation
 {
     public readonly value: unknown;
 
@@ -13,5 +13,3 @@ class PrimitiveOperation extends ResourceOperation
         this.value = value;
     }
 }
-
-export default PrimitiveOperation;

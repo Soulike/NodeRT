@@ -2,13 +2,13 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {appendBufferOperation, isArrayAccess} from './Util';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import util from 'util';
 import {strict as assert} from 'assert';
-import {isBufferLike} from '../Util';
+import {isBufferLike} from '../../Util';
 import TypedArray = NodeJS.TypedArray;
 
-class TypedArrayOperationLogger extends Analysis
+export class TypedArrayOperationLogger extends Analysis
 {
     private static readonly constructors = new Set([
         Int8Array,
@@ -162,5 +162,3 @@ class TypedArrayOperationLogger extends Analysis
         };
     }
 }
-
-export default TypedArrayOperationLogger;

@@ -1,14 +1,14 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import SetDeclaration from './Class/SetDeclaration';
-import SetOperation from './Class/SetOperation';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {SetDeclaration} from './Class/SetDeclaration';
+import {SetOperation} from './Class/SetOperation';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
+import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
-class SetOperationLogger extends Analysis
+export class SetOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
@@ -103,5 +103,3 @@ class SetOperationLogger extends Analysis
         console.log(toJSON(this.setDeclarations));
     }
 }
-
-export default SetOperationLogger;

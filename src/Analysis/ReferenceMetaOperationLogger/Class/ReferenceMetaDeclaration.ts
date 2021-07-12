@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
-import CallbackFunction from '../../Class/CallbackFunction';
-import ReferenceMetaOperation from './ReferenceMetaOperation';
-import Reference from '../Type/Reference';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {ReferenceMetaOperation} from './ReferenceMetaOperation';
+import {Reference} from '../Type/Reference';
 
-class ReferenceMetaDeclaration extends ResourceDeclaration
+export class ReferenceMetaDeclaration extends ResourceDeclaration
 {
     private readonly reference: Reference;
     private readonly operations: Map<CallbackFunction, ReferenceMetaOperation[]>;
@@ -41,5 +41,3 @@ class ReferenceMetaDeclaration extends ResourceDeclaration
     }
 
 }
-
-export default ReferenceMetaDeclaration;

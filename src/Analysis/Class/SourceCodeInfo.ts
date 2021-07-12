@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import Range from './Range';
+import {Range} from './Range';
 
-class SourceCodeInfo
+export class SourceCodeInfo
 {
     public readonly file: string;
     public readonly range: Readonly<Range>;
@@ -17,5 +17,3 @@ class SourceCodeInfo
         this.range = Object.freeze(range);
     }
 }
-
-export default SourceCodeInfo;

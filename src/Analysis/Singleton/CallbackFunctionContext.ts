@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import CallbackFunction from '../Class/CallbackFunction';
+import {CallbackFunction} from '../Class/CallbackFunction';
 
 /**
  * Global shared static class that logs callback function context information.
  * Should only be written by <code>AsyncContextLogger</code>
  * */
-class CallbackFunctionContext
+export class CallbackFunctionContext
 {
     private static currentCallbackFunction: CallbackFunction = CallbackFunction.GLOBAL;
 
@@ -20,5 +20,3 @@ class CallbackFunctionContext
         CallbackFunctionContext.currentCallbackFunction = callbackFunction;
     }
 }
-
-export default CallbackFunctionContext;

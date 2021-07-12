@@ -4,9 +4,9 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
 import {appendBufferOperation, isArrayAccess} from './Util';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 
-class BufferOperationLogger extends Analysis
+export class BufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
@@ -221,5 +221,3 @@ class BufferOperationLogger extends Analysis
         };
     }
 }
-
-export default BufferOperationLogger;

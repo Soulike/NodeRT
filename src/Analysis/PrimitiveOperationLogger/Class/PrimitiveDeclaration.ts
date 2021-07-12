@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import PrimitiveOperation from './PrimitiveOperation';
-import SourceCodeInfo from '../../Class/SourceCodeInfo';
-import ResourceDeclaration from '../../Class/ResourceDeclaration';
-import Scope from './Scope';
-import CallbackFunction from '../../Class/CallbackFunction';
+import {PrimitiveOperation} from './PrimitiveOperation';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {Scope} from './Scope';
+import {CallbackFunction} from '../../Class/CallbackFunction';
 
-class PrimitiveDeclaration extends ResourceDeclaration
+export class PrimitiveDeclaration extends ResourceDeclaration
 {
     public readonly iid: number;
     public readonly name: string;
@@ -60,5 +60,3 @@ class PrimitiveDeclaration extends ResourceDeclaration
         return name === this.name;
     }
 }
-
-export default PrimitiveDeclaration;

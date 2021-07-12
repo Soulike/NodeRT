@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {BufferLogStore} from './BufferLogStore';
-import {toJSON} from '../../Analysis/Util';
+import {toJSON} from '../../Util';
 
 export class BufferLogStoreAnalysis extends Analysis
 {

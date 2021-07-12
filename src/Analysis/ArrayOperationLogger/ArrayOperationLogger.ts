@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import ArrayDeclaration from './Class/ArrayDeclaration';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
-import ArrayOperation from './Class/ArrayOperation';
-import {getSourceCodeInfoFromIid, toJSON} from '../Util';
-import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
+import {ArrayDeclaration} from './Class/ArrayDeclaration';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {ArrayOperation} from './Class/ArrayOperation';
+import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
+import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import {strict as assert} from 'assert';
 
 /**Does not support spread expression now*/
-class ArrayOperationLogger extends Analysis
+export class ArrayOperationLogger extends Analysis
 {
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
@@ -237,5 +237,3 @@ class ArrayOperationLogger extends Analysis
         console.log(toJSON(this.arrayDeclarations));
     }
 }
-
-export default ArrayOperationLogger;

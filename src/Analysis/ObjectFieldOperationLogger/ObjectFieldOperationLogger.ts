@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import ObjectFieldDeclaration from './Class/ObjectFieldDeclaration';
-import {getSourceCodeInfoFromIid, isObject, toJSON} from '../Util';
-import ObjectFieldOperation from './Class/ObjectFieldOperation';
-import CallbackFunctionContext from '../Singleton/CallbackFunctionContext';
+import {ObjectFieldDeclaration} from './Class/ObjectFieldDeclaration';
+import {getSourceCodeInfoFromIid, isObject, toJSON} from '../../Util';
+import {ObjectFieldOperation} from './Class/ObjectFieldOperation';
+import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 import {strict as assert} from 'assert';
 
-class ObjectFieldOperationLogger extends Analysis
+export class ObjectFieldOperationLogger extends Analysis
 {
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public getField: Hooks['getField'] | undefined;
@@ -206,5 +206,3 @@ class ObjectFieldOperationLogger extends Analysis
         }
     }
 }
-
-export default ObjectFieldOperationLogger;

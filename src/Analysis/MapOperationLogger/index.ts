@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import MapOperationLogger from './MapOperationLogger';
+import {MapOperationLogger} from './MapOperationLogger';
 
 (function (sandbox: Sandbox)
 {

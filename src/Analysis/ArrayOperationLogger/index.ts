@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import ArrayOperationLogger from './ArrayOperationLogger';
+import {ArrayOperationLogger} from './ArrayOperationLogger';
 
 (function (sandbox: Sandbox)
 {
