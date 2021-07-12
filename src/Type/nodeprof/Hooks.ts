@@ -211,4 +211,12 @@ export interface Hooks
      * @param type Graal.js internal AST type of the statement
      **/
     startStatement: (iid: number, type: string) => void
+
+    /**
+     * This callback is called when an execution terminates in node.js.  In a browser environment, the callback is
+     * called if ChainedAnalyses.js or ChainedAnalysesNoCheck.js is used and Alt-Shift-T is pressed.
+     *
+     * @returns {void} - Any return value is ignored
+     */
+    endExecution: () => void;
 }

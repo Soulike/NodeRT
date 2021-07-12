@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
-import ResourceDeclaration from '../../../Class/ResourceDeclaration';
-import CallbackFunction from '../../../Class/CallbackFunction';
-import BufferOperation from './BufferOperation';
-import BufferLike from '../../../Type/BufferLike';
-import ArrayBufferLike from '../../../Type/ArrayBufferLike';
+import ResourceDeclaration from '../../../Analysis/Class/ResourceDeclaration';
+import CallbackFunction from '../../../Analysis/Class/CallbackFunction';
+import {BufferOperation} from './BufferOperation';
+import BufferLike from '../../../Analysis/Type/BufferLike';
+import ArrayBufferLike from '../../../Analysis/Type/ArrayBufferLike';
 import util from 'util';
 
-class BufferDeclaration extends ResourceDeclaration
+export class BufferDeclaration extends ResourceDeclaration
 {
     private readonly buffer: ArrayBufferLike;
     private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
@@ -48,6 +48,9 @@ class BufferDeclaration extends ResourceDeclaration
             return this.buffer === otherBuffer.buffer;
         }
     }
-}
 
-export default BufferDeclaration;
+    public toJSON()
+    {
+        return {...this, buffer: '<Buffer>'};
+    }
+}

@@ -21,22 +21,6 @@ class ArrayBufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
-        {
-            if (util.types.isAnyArrayBuffer(base))
-            {
-                this.appendBufferOperation(base, 'read', iid);
-            }
-        };
-
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
-        {
-            if (util.types.isAnyArrayBuffer(base))
-            {
-                this.appendBufferOperation(base, 'write', iid);
-            }
-        };
-
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
         {
             if (f === ArrayBuffer)

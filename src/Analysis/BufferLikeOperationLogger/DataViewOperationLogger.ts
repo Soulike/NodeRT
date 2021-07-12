@@ -40,22 +40,6 @@ class DataViewOperationLogger extends Analysis
 
     protected registerHooks(): void
     {
-        this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
-        {
-            if (util.types.isDataView(base))
-            {
-                this.appendBufferOperation(base, 'read', iid);
-            }
-        };
-
-        this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
-        {
-            if (util.types.isDataView(base))
-            {
-                this.appendBufferOperation(base, 'write', iid);
-            }
-        };
-
         this.invokeFun = (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) =>
         {
             if (util.types.isDataView(base))

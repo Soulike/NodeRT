@@ -7,3 +7,5 @@ import AsyncContextLogger from './AsyncContextLogger';
 {
     sandbox.analysis = new AsyncContextLogger(sandbox);
 })(J$);
+
+export {AsyncContextLogger};

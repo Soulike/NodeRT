@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {appendBufferOperation} from './Util';
+import {appendBufferOperation, isArrayAccess} from './Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 import util from 'util';
 import {strict as assert} from 'assert';
@@ -44,6 +44,7 @@ class TypedArrayOperationLogger extends Analysis
         TypedArrayOperationLogger.typedArrayPrototype.some,
         TypedArrayOperationLogger.typedArrayPrototype.toLocaleString,
         TypedArrayOperationLogger.typedArrayPrototype.toString,
+        TypedArrayOperationLogger.typedArrayPrototype.subarray,
     ]);
 
     private static instanceWriteOnlyApis: Set<Function> = new Set([
@@ -116,8 +117,7 @@ class TypedArrayOperationLogger extends Analysis
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
                     || f === TypedArrayOperationLogger.typedArrayPrototype.map
-                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice
-                    || f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice)
                 {
                     assert.ok(util.types.isTypedArray(base));
                     this.appendBufferOperation(base, 'read', iid);
@@ -138,7 +138,7 @@ class TypedArrayOperationLogger extends Analysis
 
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
-            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base))    // ignore Buffers, the same below
+            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))    // ignore Buffers, the same below
             {
                 this.appendBufferOperation(base, 'read', iid);
             }
@@ -146,7 +146,7 @@ class TypedArrayOperationLogger extends Analysis
 
         this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
         {
-            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base))
+            if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 this.appendBufferOperation(base, 'write', iid);
             }

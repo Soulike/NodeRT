@@ -3,7 +3,7 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
-import {appendBufferOperation} from './Util';
+import {appendBufferOperation, isArrayAccess} from './Util';
 import LastExpressionValueContainer from '../Singleton/LastExpressionValueContainer';
 
 class BufferOperationLogger extends Analysis
@@ -172,12 +172,11 @@ class BufferOperationLogger extends Analysis
                     assert.ok(Buffer.isBuffer(base));
                     this.appendBufferOperation(base, 'read', iid);
                 }
-                else if (f === Buffer.prototype.subarray || f === Buffer.prototype.slice) // not precise, since base & result share memory
+                // subarray() is inherent from TypedArray, so there is no need to log here
+                else if (f === Buffer.prototype.slice) // shares the same memory, so no 'write' here
                 {
                     assert.ok(Buffer.isBuffer(base));
                     this.appendBufferOperation(base, 'read', iid);
-                    const returnedBuffer = result as ReturnType<typeof Buffer.prototype.subarray>;
-                    this.appendBufferOperation(returnedBuffer, 'write', iid);
                 }
                 // @ts-ignore
                 else if (BufferOperationLogger.writeOnlyApis.has(f))
@@ -198,7 +197,7 @@ class BufferOperationLogger extends Analysis
 
         this.getField = (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) =>
         {
-            if (Buffer.isBuffer(base))
+            if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 this.appendBufferOperation(base, 'read', iid);
             }
@@ -206,7 +205,7 @@ class BufferOperationLogger extends Analysis
 
         this.putFieldPre = (iid, base, offset, val, isComputed, isOpAssign) =>
         {
-            if (Buffer.isBuffer(base))
+            if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 this.appendBufferOperation(base, 'write', iid);
             }
