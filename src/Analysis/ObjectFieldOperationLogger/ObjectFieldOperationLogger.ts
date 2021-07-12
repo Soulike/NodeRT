@@ -7,6 +7,7 @@ import {ObjectFieldOperation} from './Class/ObjectFieldOperation';
 import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 import {strict as assert} from 'assert';
 
+// TODO: 读写记录独立
 export class ObjectFieldOperationLogger extends Analysis
 {
     public putFieldPre: Hooks['putFieldPre'] | undefined;

@@ -1,11 +1,12 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {appendBufferOperation, isArrayAccess} from './Util';
+import {appendBufferOperation} from './Util';
 import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
 import util from 'util';
 import {strict as assert} from 'assert';
-import {isBufferLike} from '../../Util';
+import {isArrayAccess, isBufferLike} from '../../Util';
+import {ArrayLogStore} from '../../LogStore/ArrayLogStore';
 import TypedArray = NodeJS.TypedArray;
 
 export class TypedArrayOperationLogger extends Analysis
@@ -90,6 +91,10 @@ export class TypedArrayOperationLogger extends Analysis
                 {
                     this.appendBufferOperation(iterable, 'read', iid);
                 }
+                else if (Array.isArray(iterable))
+                {
+                    ArrayLogStore.appendArrayOperation(iterable, 'read', this.getSandbox(), iid);
+                }
             }
             // @ts-ignore
             else if (TypedArrayOperationLogger.ofApis.has(f))
@@ -124,11 +129,15 @@ export class TypedArrayOperationLogger extends Analysis
                     assert.ok(util.types.isTypedArray(result));
                     this.appendBufferOperation(result, 'write', iid);
                 }
-                else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)    // TODO: 数组读取记录
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
                 {
                     if (util.types.isTypedArray(args[0]))
                     {
                         this.appendBufferOperation(args[0], 'read', iid);
+                    }
+                    else if (Array.isArray(args[0]))
+                    {
+                        ArrayLogStore.appendArrayOperation(args[0], 'read', this.getSandbox(), iid);
                     }
                     assert.ok(util.types.isTypedArray(base));
                     this.appendBufferOperation(base, 'write', iid);

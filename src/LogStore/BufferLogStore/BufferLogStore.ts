@@ -30,4 +30,6 @@ export class BufferLogStore
     {
         return Array.from(this.bufferToBufferDeclaration.values());
     }
+
+    // TODO: append 移动过来
 }

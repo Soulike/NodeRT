@@ -10,8 +10,3 @@ export function appendBufferOperation(this: Analysis, buffer: BufferLike, type: 
     bufferDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
         new BufferOperation(type, getSourceCodeInfoFromIid(iid, this.getSandbox())));
 }
-
-export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boolean
-{
-    return isComputed && !(typeof offset === 'symbol') && !Number.isNaN(Number.parseInt(offset as string));
-}
