@@ -1,9 +1,4 @@
-import Sandbox from './Sandbox';
-
-declare global
-{
-    const J$: Sandbox;
-}
+// DO NOT INSTRUMENT
 
 export * from './Analysis';
 export * from './DeclareType';

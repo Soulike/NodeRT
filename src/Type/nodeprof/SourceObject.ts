@@ -1,4 +1,6 @@
-export declare interface SourceObject
+// DO NOT INSTRUMENT
+
+export interface SourceObject
 {
     /**Absolute path of source file*/
     readonly name: string,

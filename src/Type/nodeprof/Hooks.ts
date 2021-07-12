@@ -1,7 +1,9 @@
+// DO NOT INSTRUMENT
+
 import {DeclareType} from './DeclareType';
 import {LiteralType} from './LiteralType';
 
-export declare interface Hooks
+export interface Hooks
 {
     /**
      * Declaration of a symbol

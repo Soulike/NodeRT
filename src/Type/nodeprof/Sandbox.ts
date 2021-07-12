@@ -1,7 +1,9 @@
+// DO NOT INSTRUMENT
+
 import {SourceObject} from './SourceObject';
 import {Analysis} from './Analysis';
 
-export declare interface Sandbox
+export interface Sandbox
 {
     analysis: Analysis;
 
