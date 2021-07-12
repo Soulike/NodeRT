@@ -1,4 +1,6 @@
-export declare type LiteralType =
+// DO NOT INSTRUMENT
+
+export type LiteralType =
     'ObjectLiteral'
     | 'ArrayLiteral'
     | 'FunctionLiteral'

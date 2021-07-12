@@ -1,6 +1,8 @@
-import Sandbox from './Sandbox';
+// DO NOT INSTRUMENT
 
-export declare abstract class Analysis
+import {Sandbox} from './Sandbox';
+
+export abstract class Analysis
 {
     private readonly sandbox: Sandbox;
 
