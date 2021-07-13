@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import {ArrayOperation} from '../ArrayLogStore';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {ObjectDeclaration} from './Class/ObjectDeclaration';
+import {ObjectOperation} from './Class/ObjectOperation';
 
 export class ObjectLogStore
 {
@@ -19,7 +19,7 @@ export class ObjectLogStore
     {
         const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
         objectDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
-            new ArrayOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+            new ObjectOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getObjectDeclaration(object: object)
