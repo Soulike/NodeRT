@@ -4,6 +4,10 @@ import {BufferDeclaration} from './Class/BufferDeclaration';
 import {BufferLike} from '../../Analysis/Type/BufferLike';
 import util from 'util';
 import {ArrayBufferLike} from '../../Analysis/Type/ArrayBufferLike';
+import {Sandbox} from '../../Type/nodeprof';
+import {AsyncContextLogStore} from '../AsyncContextLogStore';
+import {BufferOperation} from './Class/BufferOperation';
+import {getSourceCodeInfoFromIid} from '../../Util';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -31,5 +35,10 @@ export class BufferLogStore
         return Array.from(this.bufferToBufferDeclaration.values());
     }
 
-    // TODO: append 移动过来
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    {
+        const bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer);
+        bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+            new BufferOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+    }
 }

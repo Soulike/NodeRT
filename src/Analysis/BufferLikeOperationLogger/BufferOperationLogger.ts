@@ -3,10 +3,11 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
-import {appendBufferOperation} from './Util';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
-import {isArrayAccess} from '../../Util';
+import {isArrayAccess, isBufferLike} from '../../Util';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {isObject} from 'lodash';
 
 export class BufferOperationLogger extends Analysis
 {
@@ -38,7 +39,6 @@ export class BufferOperationLogger extends Analysis
         Buffer.prototype.readUInt32LE,
         Buffer.prototype.readUIntBE,
         Buffer.prototype.readUIntLE,
-        Buffer.prototype.toJSON,
         Buffer.prototype.toString,
     ]);
 
@@ -78,8 +78,6 @@ export class BufferOperationLogger extends Analysis
         this.registerHooks();
     }
 
-    private appendBufferOperation = appendBufferOperation.bind(this);
-
     protected override registerHooks(): void
     {
         this.invokeFun = (iid, f, base, args, result) =>
@@ -87,38 +85,40 @@ export class BufferOperationLogger extends Analysis
             if (f === Buffer.alloc)
             {
                 assert.ok(Buffer.isBuffer(result));
-                this.appendBufferOperation(result, 'write', iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
                 const fill = args[1] as Parameters<typeof Buffer.alloc>[1];
-                if (fill instanceof Uint8Array)
+                if (fill instanceof Uint8Array || Buffer.isBuffer(fill))
                 {
-                    this.appendBufferOperation(fill, 'read', iid);
+                    BufferLogStore.appendBufferOperation(fill, 'read', this.getSandbox(), iid);
                 }
             }
             else if (f === Buffer.allocUnsafe || f === Buffer.allocUnsafeSlow)
             {
                 assert.ok(Buffer.isBuffer(result));
-                this.appendBufferOperation(result, 'write', iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
             }
             else if (f === Buffer || f === Buffer.from)
             {
-                if (args[0] instanceof Uint8Array || args[0] instanceof ArrayBuffer || args[0] instanceof SharedArrayBuffer)
+                if (isBufferLike(args[0]))
                 {
                     const readBuffer = args[0];
-                    this.appendBufferOperation(readBuffer, 'read', iid);
+                    BufferLogStore.appendBufferOperation(readBuffer, 'read', this.getSandbox(), iid);
                 }
-                else if (Array.isArray(args[0]))
+                else if (isObject(args[0]))
                 {
                     ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                 }
                 assert.ok(Buffer.isBuffer(result));
-                this.appendBufferOperation(result, 'write', iid);
+                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
             }
             else if (f === Buffer.compare)
             {
                 const buffer1 = args[0] as Parameters<typeof Buffer.compare>[0];
                 const buffer2 = args[1] as Parameters<typeof Buffer.compare>[1];
-                this.appendBufferOperation(buffer1, 'read', iid);
-                this.appendBufferOperation(buffer2, 'read', iid);
+                BufferLogStore.appendBufferOperation(buffer1, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(buffer2, 'read', this.getSandbox(), iid);
             }
             else if (f === Buffer.concat)
             {
@@ -128,9 +128,10 @@ export class BufferOperationLogger extends Analysis
                 const returnedBuffer = result as ReturnType<typeof Buffer.concat>;
                 for (const buffer of list)
                 {
-                    this.appendBufferOperation(buffer, 'read', iid);
+                    BufferLogStore.appendBufferOperation(buffer, 'read', this.getSandbox(), iid);
                 }
-                this.appendBufferOperation(returnedBuffer, 'write', iid);
+                ObjectLogStore.appendObjectOperation(returnedBuffer, 'write', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(returnedBuffer, 'write', this.getSandbox(), iid);
             }
             else if (Buffer.isBuffer(base))
             {
@@ -138,53 +139,62 @@ export class BufferOperationLogger extends Analysis
                 {
                     const sourceBuffer = base as Buffer;
                     const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.compare | typeof Buffer.prototype.equals>[0];
-                    this.appendBufferOperation(sourceBuffer, 'read', iid);
-                    this.appendBufferOperation(targetBuffer, 'read', iid);
+                    BufferLogStore.appendBufferOperation(sourceBuffer, 'read', this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(targetBuffer, 'read', this.getSandbox(), iid);
                 }
                 else if (f === Buffer.prototype.copy)
                 {
                     const sourceBuffer = base as Buffer;
                     const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.copy>[0];
-                    this.appendBufferOperation(sourceBuffer, 'read', iid);
-                    this.appendBufferOperation(targetBuffer, 'write', iid);
+                    BufferLogStore.appendBufferOperation(sourceBuffer, 'read', this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(targetBuffer, 'write', this.getSandbox(), iid);
                 }
                 else if (f === Buffer.prototype.fill)
                 {
                     if (args[0] instanceof Uint8Array)
                     {
                         const readBuffer = args[0];
-                        this.appendBufferOperation(readBuffer, 'read', iid);
+                        BufferLogStore.appendBufferOperation(readBuffer, 'read', this.getSandbox(), iid);
                     }
                     assert.ok(Buffer.isBuffer(base));
-                    this.appendBufferOperation(base, 'write', iid);
+                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
                 }
                 else if (f === Buffer.prototype.includes || f === Buffer.prototype.indexOf || f === Buffer.prototype.lastIndexOf)
                 {
                     if (args[0] instanceof Uint8Array)
                     {
                         const readBuffer = args[0];
-                        this.appendBufferOperation(readBuffer, 'read', iid);
+                        BufferLogStore.appendBufferOperation(readBuffer, 'read', this.getSandbox(), iid);
                     }
                     assert.ok(Buffer.isBuffer(base));
-                    this.appendBufferOperation(base, 'read', iid);
+                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
                 }
                 // @ts-ignore
                 else if (BufferOperationLogger.readOnlyApis.has(f))
                 {
                     assert.ok(Buffer.isBuffer(base));
-                    this.appendBufferOperation(base, 'read', iid);
+                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
                 }
                 // subarray() is inherent from TypedArray, so there is no need to log here
-                else if (f === Buffer.prototype.slice) // shares the same memory, so no 'write' here
+                else if (f === Buffer.prototype.slice) // shares the same memory, so no 'write' BufferOperation here
                 {
                     assert.ok(Buffer.isBuffer(base));
-                    this.appendBufferOperation(base, 'read', iid);
+                    assert.ok(Buffer.isBuffer(result));
+                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                }
+                else if (f === Buffer.prototype.toJSON)
+                {
+                    assert.ok(Buffer.isBuffer(base));
+                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
+                    const JSONObject = result as ReturnType<typeof Buffer.prototype.toJSON>;
+                    ObjectLogStore.appendObjectOperation(JSONObject, 'write', this.getSandbox(), iid);
                 }
                 // @ts-ignore
                 else if (BufferOperationLogger.writeOnlyApis.has(f))
                 {
                     assert.ok(Buffer.isBuffer(base));
-                    this.appendBufferOperation(base, 'write', iid);
+                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
                 }
             }
             else if (f === buffer.transcode)
@@ -192,8 +202,9 @@ export class BufferOperationLogger extends Analysis
                 const sourceBuffer = args[0] as Parameters<typeof buffer.transcode>[0];
                 const returnedBuffer = result;
                 assert.ok(Buffer.isBuffer(returnedBuffer));
-                this.appendBufferOperation(sourceBuffer, 'read', iid);
-                this.appendBufferOperation(returnedBuffer, 'write', iid);
+                BufferLogStore.appendBufferOperation(sourceBuffer, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(returnedBuffer, 'write', this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(returnedBuffer, 'write', this.getSandbox(), iid);
             }
         };
 
@@ -201,7 +212,7 @@ export class BufferOperationLogger extends Analysis
         {
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
-                this.appendBufferOperation(base, 'read', iid);
+                BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
             }
         };
 
@@ -209,7 +220,7 @@ export class BufferOperationLogger extends Analysis
         {
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
-                this.appendBufferOperation(base, 'write', iid);
+                BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
             }
         };
 
@@ -218,7 +229,7 @@ export class BufferOperationLogger extends Analysis
             const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
-                this.appendBufferOperation(lastExpressionValue, 'read', iid);
+                BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
             }
         };
     }

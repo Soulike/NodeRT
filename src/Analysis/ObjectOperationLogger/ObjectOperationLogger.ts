@@ -4,7 +4,8 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
-import {isObject} from 'lodash';
+import {isObject, isSymbol} from 'lodash';
+import {isBufferLike} from '../../Util';
 
 export class ObjectOperationLogger extends Analysis
 {
@@ -37,18 +38,41 @@ export class ObjectOperationLogger extends Analysis
             {
                 const lastExpressValue = LastExpressionValueLogStore.getLastExpressionValue();
                 assert.ok(isObject(lastExpressValue));
-                ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', this.getSandbox(), iid);
+                if (!isBufferLike(lastExpressValue))
+                {
+                    ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', this.getSandbox(), iid);
+                }
             }
         };
 
-        this.getField = (iid, base) =>
+        this.getField = (iid, base, offset) =>
         {
-            ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+            if (isBufferLike(base))
+            {
+                if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                }
+            }
+            else
+            {
+                ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+            }
         };
 
-        this.putFieldPre = (iid, base) =>
+        this.putFieldPre = (iid, base, offset) =>
         {
-            ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+            if (isBufferLike(base))
+            {
+                if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                }
+            }
+            else
+            {
+                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+            }
         };
 
         // Object.prototype and Object static methods only

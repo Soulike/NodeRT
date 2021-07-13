@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import {appendBufferOperation} from './Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
 
 export class DataViewOperationLogger extends Analysis
 {
@@ -27,7 +27,6 @@ export class DataViewOperationLogger extends Analysis
         DataView.prototype.setFloat64,
     ]);
     public invokeFun: Hooks['invokeFun'] | undefined;
-    private readonly appendBufferOperation = appendBufferOperation.bind(this);
 
     constructor(sandbox: Sandbox)
     {
@@ -45,12 +44,12 @@ export class DataViewOperationLogger extends Analysis
                 // @ts-ignore
                 if (DataViewOperationLogger.getApis.has(f))
                 {
-                    this.appendBufferOperation(base, 'read', iid);
+                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
                 }
                 // @ts-ignore
                 else if (DataViewOperationLogger.setApis.has(f))
                 {
-                    this.appendBufferOperation(base, 'write', iid);
+                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
                 }
             }
         };
