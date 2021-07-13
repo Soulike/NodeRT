@@ -6,7 +6,7 @@ import {TypedArrayOperationLogger} from './TypedArrayOperationLogger';
 import {DataViewOperationLogger} from './DataViewOperationLogger';
 import {ArrayBufferOperationLogger} from './ArrayBufferOperationLogger';
 import {AsyncContextLogger} from '../AsyncContextLogger';
-import {BufferLogStoreAnalysis} from '../../LogStore/BufferLogStore';
+import {BufferLogStoreAnalysis} from '../LogStoreAnalysis/BufferLogStoreAnalysis';
 
 (function (sandbox: Sandbox)
 {

@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
 import {PrimitiveOperation} from './PrimitiveOperation';
-import {SourceCodeInfo} from '../../../LogStore/Class/SourceCodeInfo';
-import {ResourceDeclaration} from '../../../LogStore/Class/ResourceDeclaration';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {Scope} from './Scope';
-import {CallbackFunction} from '../../../LogStore/Class/CallbackFunction';
+import {CallbackFunction} from '../../Class/CallbackFunction';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {

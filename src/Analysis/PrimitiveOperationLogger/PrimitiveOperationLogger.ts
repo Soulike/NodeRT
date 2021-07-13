@@ -1,13 +1,10 @@
 // DO NOT INSTRUMENT
 
-import {PrimitiveDeclaration} from './Class/PrimitiveDeclaration';
-import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
+import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from '../../LogStore/PrimitiveLogStore';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {Scope} from './Class/Scope';
 import {strict as assert} from 'assert';
 import {GLOBAL_IID} from './CONSTANT';
-import {ScopeStack} from './Class/ScopeStack';
-import {PrimitiveOperation} from './Class/PrimitiveOperation';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 export class PrimitiveOperationLogger extends Analysis
@@ -20,20 +17,13 @@ export class PrimitiveOperationLogger extends Analysis
     public read: Hooks['read'] | undefined;
     public write: Hooks['write'] | undefined;
 
-    private readonly scopeStack: ScopeStack;
-    private readonly pendingVariableDeclarations: PrimitiveDeclaration[];
-    private readonly variableDeclarations: PrimitiveDeclaration[];
+    public endExecution: Hooks['endExecution'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.scopeStack = new ScopeStack();
-        this.pendingVariableDeclarations = [];
-        this.variableDeclarations = [];
 
         this.registerHooks();
-
-        process.on('exit', () => this.onAnalysisExit());
     }
 
     protected override registerHooks()
@@ -43,14 +33,14 @@ export class PrimitiveOperationLogger extends Analysis
             if (literalType === 'FunctionLiteral')
             {
                 assert.ok(typeof val === 'function');
-                const currentScope = this.scopeStack.getTop();
+                const currentScope = PrimitiveLogStore.getScopeStack().getTop();
                 assert.ok(currentScope !== undefined);
 
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, sourceCodeInfo);
-                this.variableDeclarations.push(declaration);
+                PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 currentScope.declarations.push(declaration);
             }
         };
@@ -59,52 +49,30 @@ export class PrimitiveOperationLogger extends Analysis
         {
             if (iid === GLOBAL_IID)
             {
-                for (const declaration of this.pendingVariableDeclarations)
-                {
-                    declaration.setScope(Scope.GLOBAL_SCOPE);
-                }
-                Scope.GLOBAL_SCOPE.declarations.push(...this.pendingVariableDeclarations);
-                this.pendingVariableDeclarations.length = 0;
-                this.scopeStack.push(Scope.GLOBAL_SCOPE);
+                PrimitiveLogStore.clearPendingPrimitiveDeclarations(Scope.GLOBAL_SCOPE);
+                PrimitiveLogStore.getScopeStack().push(Scope.GLOBAL_SCOPE);
             }
             else
             {
-                let functionDeclaration: PrimitiveDeclaration | null = null;
-                for (const declaration of this.variableDeclarations)
-                {
-                    if (declaration.type === 'function' && declaration.iid === iid)
-                    {
-                        functionDeclaration = declaration;
-                        break;
-                    }
-                }
+                const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(iid);
                 assert.ok(functionDeclaration !== null);
 
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const newScope = new Scope('function', functionDeclaration.name, functionDeclaration.getScope(), [], sourceCodeInfo);
-                for (const declaration of this.pendingVariableDeclarations)
-                {
-                    declaration.setScope(newScope);
-                }
-                newScope.declarations.push(...this.pendingVariableDeclarations);
-                this.pendingVariableDeclarations.length = 0;
-                this.scopeStack.push(newScope);
+                PrimitiveLogStore.clearPendingPrimitiveDeclarations(newScope);
+                PrimitiveLogStore.getScopeStack().push(newScope);
             }
         };
 
         this.functionExit = () =>
         {
-            assert.ok(!this.scopeStack.isEmpty());
-            const poppedScope = this.scopeStack.pop();
+            const scopeStack = PrimitiveLogStore.getScopeStack();
+            assert.ok(!scopeStack.isEmpty());
+            const poppedScope = scopeStack.pop();
             assert.ok(poppedScope !== undefined);
-            for (const declaration of this.pendingVariableDeclarations)
-            {
-                declaration.setScope(poppedScope);
-            }
-            poppedScope.declarations.push(...this.pendingVariableDeclarations);
-            this.pendingVariableDeclarations.length = 0;
+            PrimitiveLogStore.clearPendingPrimitiveDeclarations(poppedScope);
         };
 
         this.declare = (iid, name, _type, kind) =>
@@ -115,8 +83,8 @@ export class PrimitiveOperationLogger extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
                 const declaration = new PrimitiveDeclaration(iid, name, 'var', null, sourceCodeInfo);
-                this.variableDeclarations.push(declaration);
-                this.pendingVariableDeclarations.push(declaration);
+                PrimitiveLogStore.addPrimitiveDeclaration(declaration);
+                PrimitiveLogStore.addPendingPrimitiveDeclaration(declaration);
             }
         };
 
@@ -129,17 +97,16 @@ export class PrimitiveOperationLogger extends Analysis
         {
             this.onVariableOperation('write', iid, name, val, isGlobal);
         };
-    }
 
-    private onAnalysisExit()
-    {
-        assert.ok(this.pendingVariableDeclarations.length === 0);
-        console.log(toJSON(this.variableDeclarations));
+        this.endExecution = () =>
+        {
+            assert.ok(PrimitiveLogStore.getPendingPrimitiveDeclarations().length === 0);
+        };
     }
 
     private onVariableOperation(type: 'read' | 'write', iid: number, name: string, val: unknown, isGlobal: boolean)
     {
-        const currentScope = this.scopeStack.getTop();
+        const currentScope = PrimitiveLogStore.getScopeStack().getTop();
         assert.ok(currentScope !== undefined);
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
@@ -152,15 +119,16 @@ export class PrimitiveOperationLogger extends Analysis
             {
                 const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE, sourceCodeInfo);
                 newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
-                this.variableDeclarations.push(newDeclaration);
+                PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
             else
             {
                 let found = false;
-                for (let i = this.pendingVariableDeclarations.length - 1; i >= 0; i--)
+                const pendingPrimitiveDeclarations = PrimitiveLogStore.getPendingPrimitiveDeclarations();
+                for (let i = pendingPrimitiveDeclarations.length - 1; i >= 0; i--)
                 {
-                    const pendingDeclaration = this.pendingVariableDeclarations[i]!;
+                    const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
                     if (pendingDeclaration.name === name)
                     {
                         pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));

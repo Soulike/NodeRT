@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {BufferLogStore} from './BufferLogStore';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {toJSON} from '../../Util';
 
 export class BufferLogStoreAnalysis extends Analysis

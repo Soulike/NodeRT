@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {SourceCodeInfo} from '../../../LogStore/Class/SourceCodeInfo';
-import {ResourceOperation} from '../../../LogStore/Class/ResourceOperation';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceOperation} from '../../Class/ResourceOperation';
 
 export class PrimitiveOperation extends ResourceOperation
 {
