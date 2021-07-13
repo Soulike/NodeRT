@@ -10,7 +10,10 @@
     "prenodeprof": "rm -rf ./dist && tsc",
     "nodeprof": "node ./dist/bin/nodeprof.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/lodash": "^4.14.171",
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
     "@types/node": "^14.17.1",
     "typescript": "^4.3.2"

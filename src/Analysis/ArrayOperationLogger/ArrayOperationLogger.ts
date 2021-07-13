@@ -1,19 +1,14 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {isArrayAccess} from '../../Util';
-import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {strict as assert} from 'assert';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 
 /**Does not support spread expression now*/
 export class ArrayOperationLogger extends Analysis
 {
-    public getField: Hooks['getField'] | undefined;
-    public putFieldPre: Hooks['putFieldPre'] | undefined;
     public literal: Hooks['literal'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
-    public forObject: Hooks['forObject'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
@@ -25,31 +20,6 @@ export class ArrayOperationLogger extends Analysis
     protected override registerHooks()
     {
         const sandbox = this.getSandbox();
-
-        this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
-        {
-            if (literalType === 'ArrayLiteral')
-            {
-                assert.ok(Array.isArray(val));
-                ObjectLogStore.appendObjectOperation(val, 'write', sandbox, iid);
-            }
-        };
-
-        this.getField = (iid, base, offset: string | Symbol, _val: unknown, isComputed: boolean) =>
-        {
-            if (Array.isArray(base) && isArrayAccess(isComputed, offset))
-            {
-                ObjectLogStore.appendObjectOperation(base, 'read', sandbox, iid);
-            }
-        };
-
-        this.putFieldPre = (iid, base, offset: string | Symbol, _val: unknown, isComputed: boolean) =>
-        {
-            if (Array.isArray(base) && isArrayAccess(isComputed, offset))
-            {
-                ObjectLogStore.appendObjectOperation(base, 'write', sandbox, iid);
-            }
-        };
 
         this.invokeFun = (iid, f, base, args, result) =>
         {
@@ -129,16 +99,6 @@ export class ArrayOperationLogger extends Analysis
 
                 assert.ok(Array.isArray(result));
                 ObjectLogStore.appendObjectOperation(result, 'write', sandbox, iid);
-            }
-        };
-
-
-        this.forObject = (iid, isForIn) =>
-        {
-            const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
-            if (!isForIn && Array.isArray(lastExpressionValue))
-            {
-                ObjectLogStore.appendObjectOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
             }
         };
     }
