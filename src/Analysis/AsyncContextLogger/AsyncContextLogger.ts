@@ -5,6 +5,7 @@ import async_hooks from 'async_hooks';
 import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
 import {strict as assert} from 'assert';
 import {getSourceCodeInfoFromIid} from '../../Util';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 /**
  * Logging all callback function content information into `AsyncContextLogStore`.
@@ -67,7 +68,7 @@ export class AsyncContextLogger extends Analysis
 
                 const asyncFunction = new CallbackFunction(f, asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
                 this.asyncIdToFunctionCall.set(asyncId, asyncFunction);
-                AsyncContextLogger.setCurrentCallbackFunction(asyncFunction);
+                AsyncContextLogStore.setCurrentCallbackFunction(asyncFunction);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;
