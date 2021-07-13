@@ -15,11 +15,6 @@ export class BufferOperationLogger extends Analysis
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
 
-    private static readonly constructionApis: Set<(...args: any[]) => Buffer> = new Set([
-        Buffer.allocUnsafe,
-        Buffer.allocUnsafeSlow,
-    ]);
-
     private static readonly readOnlyApis: Set<(...args: any[]) => any> = new Set([
         Buffer.prototype.readBigInt64BE,
         Buffer.prototype.readBigInt64LE,
@@ -99,8 +94,7 @@ export class BufferOperationLogger extends Analysis
                     this.appendBufferOperation(fill, 'read', iid);
                 }
             }
-            // @ts-ignore
-            if (BufferOperationLogger.constructionApis.has(f))
+            else if (f === Buffer.allocUnsafe || f === Buffer.allocUnsafeSlow)
             {
                 assert.ok(Buffer.isBuffer(result));
                 this.appendBufferOperation(result, 'write', iid);
