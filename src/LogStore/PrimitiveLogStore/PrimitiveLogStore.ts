@@ -35,20 +35,20 @@ export class PrimitiveLogStore
         this.pendingPrimitiveDeclarations.push(primitiveDeclaration);
     }
 
-    public static clearPendingPrimitiveDeclarations(scope: Scope)
+    public static clearPendingPrimitiveDeclarations(scopeForPendingPrimitiveDeclarations: Scope)
     {
         for (const declaration of PrimitiveLogStore.pendingPrimitiveDeclarations)
         {
-            declaration.setScope(scope);
+            declaration.setScope(scopeForPendingPrimitiveDeclarations);
         }
-        scope.declarations.push(...PrimitiveLogStore.pendingPrimitiveDeclarations);
+        scopeForPendingPrimitiveDeclarations.declarations.push(...PrimitiveLogStore.pendingPrimitiveDeclarations);
         PrimitiveLogStore.pendingPrimitiveDeclarations.length = 0;
     }
 
-    public static findFunctionDeclarationFromPrimitiveDeclarations(iid: number): PrimitiveDeclaration | null
+    public static findFunctionDeclarationFromPrimitiveDeclarations(functionIid: number): PrimitiveDeclaration | null
     {
         const functionDeclaration = PrimitiveLogStore.primitiveDeclarations
-            .find(declaration => declaration.type === 'function' && declaration.iid === iid);
+            .find(declaration => declaration.type === 'function' && declaration.iid === functionIid);
         return functionDeclaration === undefined ? null : functionDeclaration;
     }
 }
