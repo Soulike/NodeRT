@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../../Analysis/Class/ResourceDeclaration';
-import {CallbackFunction} from '../../../Analysis/Class/CallbackFunction';
-import {ResourceOperation} from '../../../Analysis/Class/ResourceOperation';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
+import {ResourceOperation} from '../../Class/ResourceOperation';
 import {ArrayOperation} from './ArrayOperation';
 import {strict as assert} from 'assert';
 

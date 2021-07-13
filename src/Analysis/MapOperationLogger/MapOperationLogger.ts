@@ -3,11 +3,11 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {MapDeclaration} from './Class/MapDeclaration';
 import {MapOperation} from './Class/MapOperation';
-import {SourceCodeInfo} from '../Class/SourceCodeInfo';
-import {Range} from '../Class/Range';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {SourceCodeInfo} from '../../LogStore/Class/SourceCodeInfo';
+import {Range} from '../../LogStore/Class/Range';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
-import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {strict as assert} from 'assert';
 
 export class MapOperationLogger extends Analysis
@@ -60,7 +60,7 @@ export class MapOperationLogger extends Analysis
                     const mapDeclaration = this.mapDeclarations.find(mapDeclaration => mapDeclaration.is(base));
                     if (mapDeclaration !== undefined)
                     {
-                        mapDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new MapOperation(type, sourceCodeInfo));
+                        mapDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(), new MapOperation(type, sourceCodeInfo));
                     }
                     else
                     {
@@ -78,7 +78,7 @@ export class MapOperationLogger extends Analysis
 
         this.forObject = (iid, isForIn) =>
         {
-            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
+            const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && lastExpressionValue instanceof Map)
             {
                 const sandbox = this.getSandbox();
@@ -92,7 +92,7 @@ export class MapOperationLogger extends Analysis
                 const mapDeclaration = this.mapDeclarations.find(mapDeclaration => mapDeclaration.is(lastExpressionValue));
                 if (mapDeclaration !== undefined)
                 {
-                    mapDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new MapOperation('read', sourceCodeInfo));
+                    mapDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(), new MapOperation('read', sourceCodeInfo));
                 }
                 else
                 {

@@ -8,7 +8,7 @@ import {strict as assert} from 'assert';
 import {GLOBAL_IID} from './CONSTANT';
 import {ScopeStack} from './Class/ScopeStack';
 import {PrimitiveOperation} from './Class/PrimitiveOperation';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 export class PrimitiveOperationLogger extends Analysis
 {
@@ -144,7 +144,7 @@ export class PrimitiveOperationLogger extends Analysis
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
         const declaration = currentScope.getDeclarationByName(name);
-        const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+        const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
 
         if (declaration === null)
         {

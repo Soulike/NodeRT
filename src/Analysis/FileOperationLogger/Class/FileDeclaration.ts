@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {ResourceDeclaration} from '../../../LogStore/Class/ResourceDeclaration';
+import {CallbackFunction} from '../../../LogStore/Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
 import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../../LogStore/BufferLogStore';
 import {strict as assert} from 'assert';

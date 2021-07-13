@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {ReferenceMetaDeclaration} from './Class/ReferenceMetaDeclaration';
 import {ReferenceMetaOperation} from './Class/ReferenceMetaOperation';
 import {getSourceCodeInfoFromIid, isObject, isPrimitive, isReference, toJSON} from '../../Util';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {Reference} from './Type/Reference';
 import {strict as assert} from 'assert';
 
@@ -35,7 +35,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                 assert.ok(isReference(val));
                 const newReferenceMetaDeclaration = this.findOrAddObjectDeclaration(val as Reference);
                 newReferenceMetaDeclaration.appendOperation(
-                    CallbackFunctionContext.getCurrentCallbackFunction(),
+                    AsyncContextLogStore.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
         };
@@ -49,7 +49,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                     assert.ok(isObject(result));
                     const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
                     referenceMetaDeclaration.appendOperation(
-                        CallbackFunctionContext.getCurrentCallbackFunction(),
+                        AsyncContextLogStore.getCurrentCallbackFunction(),
                         new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
                 }
                 else
@@ -60,7 +60,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                         assert.ok(isObject(result));
                         const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as object);
                         referenceMetaDeclaration.appendOperation(
-                            CallbackFunctionContext.getCurrentCallbackFunction(),
+                            AsyncContextLogStore.getCurrentCallbackFunction(),
                             new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
                     }
                 }
@@ -70,7 +70,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                 assert.ok(isReference(result));
                 const referenceMetaDeclaration = this.findOrAddObjectDeclaration(result as Reference);
                 referenceMetaDeclaration.appendOperation(
-                    CallbackFunctionContext.getCurrentCallbackFunction(),
+                    AsyncContextLogStore.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
             else if (f === Object.freeze || f === Object.preventExtensions || f === Object.seal
@@ -80,7 +80,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                 assert.ok(isReference(object));
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
-                    CallbackFunctionContext.getCurrentCallbackFunction(),
+                    AsyncContextLogStore.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
             else if (f === Object.getPrototypeOf || f === Object.prototype.isPrototypeOf
@@ -90,7 +90,7 @@ export class ReferenceMetaOperationLogger extends Analysis
                 assert.ok(isReference(object));
                 const fieldDeclaration = this.findOrAddObjectDeclaration(object);
                 fieldDeclaration.appendOperation(
-                    CallbackFunctionContext.getCurrentCallbackFunction(),
+                    AsyncContextLogStore.getCurrentCallbackFunction(),
                     new ReferenceMetaOperation('read', getSourceCodeInfoFromIid(iid, this.getSandbox())));
             }
         };

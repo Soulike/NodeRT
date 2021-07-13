@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../../Analysis/Class/ResourceDeclaration';
-import {CallbackFunction} from '../../../Analysis/Class/CallbackFunction';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
 import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';

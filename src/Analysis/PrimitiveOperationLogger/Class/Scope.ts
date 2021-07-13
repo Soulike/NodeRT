@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {PrimitiveDeclaration} from './PrimitiveDeclaration';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {SourceCodeInfo} from '../../../LogStore/Class/SourceCodeInfo';
 
 type ScopeType = 'block' | 'function';
 

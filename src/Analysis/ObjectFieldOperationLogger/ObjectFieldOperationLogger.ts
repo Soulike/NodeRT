@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {ObjectFieldDeclaration} from './Class/ObjectFieldDeclaration';
 import {getSourceCodeInfoFromIid, isObject, toJSON} from '../../Util';
 import {ObjectFieldOperation} from './Class/ObjectFieldOperation';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {strict as assert} from 'assert';
 
 // TODO: 读写记录独立
@@ -49,7 +49,7 @@ export class ObjectFieldOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const newOperation = new ObjectFieldOperation('read', val, false, sourceCodeInfo);
                 objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
             }
@@ -63,7 +63,7 @@ export class ObjectFieldOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const newOperation = new ObjectFieldOperation('write', val, false, sourceCodeInfo);
                 objectFieldDeclaration.appendOperation(currentCallbackFunction, newOperation);
             }
@@ -73,7 +73,7 @@ export class ObjectFieldOperationLogger extends Analysis
         {
             const sandbox = this.getSandbox();
             const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-            const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+            const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
 
             if (f === Object.assign)
             {
@@ -172,7 +172,7 @@ export class ObjectFieldOperationLogger extends Analysis
             if (!foundInObjectFieldDeclarations) // prevent circular reference
             {
                 const sandbox = this.getSandbox();
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
 
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 const objectFieldDeclaration = new ObjectFieldDeclaration(key, object);

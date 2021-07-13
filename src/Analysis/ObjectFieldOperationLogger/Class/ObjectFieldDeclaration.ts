@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {CallbackFunction} from '../../../LogStore/Class/CallbackFunction';
 import {ObjectFieldOperation} from './ObjectFieldOperation';
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {ResourceDeclaration} from '../../../LogStore/Class/ResourceDeclaration';
 
 export class ObjectFieldDeclaration extends ResourceDeclaration
 {

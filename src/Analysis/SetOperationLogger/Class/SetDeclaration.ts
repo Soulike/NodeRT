@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {CallbackFunction} from '../../../LogStore/Class/CallbackFunction';
 import {SetOperation} from './SetOperation';
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {ResourceDeclaration} from '../../../LogStore/Class/ResourceDeclaration';
 
 export class SetDeclaration extends ResourceDeclaration
 {

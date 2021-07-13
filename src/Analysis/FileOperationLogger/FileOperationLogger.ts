@@ -6,7 +6,7 @@ import {FileHandle} from 'fs/promises';
 import fs, {PathLike, promises as fsPromise} from 'fs';
 import {strict as assert} from 'assert';
 import {URL} from 'url';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {FileOperation} from './Class/FileOperation';
 import {getSourceCodeInfoFromIid, toJSON} from '../../Util';
 
@@ -207,7 +207,7 @@ export class FileOperationLogger extends Analysis
                     fileHandle.readv,
                     fileHandle.stat,
                 ]);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 if (fileHandleWriteApis.has(f))
@@ -224,7 +224,7 @@ export class FileOperationLogger extends Analysis
             {
                 const path = args[0] as PathLike | FileHandle;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(path);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('read', sourceCodeInfo));
@@ -234,7 +234,7 @@ export class FileOperationLogger extends Analysis
             {
                 const path = args[0] as PathLike | FileHandle;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(path);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
@@ -246,7 +246,7 @@ export class FileOperationLogger extends Analysis
                 const distPath = args[1] as PathLike | FileHandle;
                 const srcFileDeclaration = this.getFileDeclarationFromFilePath(srcPath);
                 const distFileDeclaration = this.getFileDeclarationFromFilePath(distPath);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 srcFileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('read', sourceCodeInfo));
@@ -257,7 +257,7 @@ export class FileOperationLogger extends Analysis
                 (<ReturnType<typeof fsPromise.mkdtemp>>result).then((filePath) =>
                 {
                     const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
-                    const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                    const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                     const sandbox = this.getSandbox();
                     const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                     fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
@@ -267,7 +267,7 @@ export class FileOperationLogger extends Analysis
             {
                 const filePath = result as ReturnType<typeof fs.mkdtempSync>;
                 const fileDeclaration = this.getFileDeclarationFromFilePath(filePath);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 fileDeclaration.appendOperation(currentCallbackFunction, new FileOperation('write', sourceCodeInfo));
@@ -285,7 +285,7 @@ export class FileOperationLogger extends Analysis
                 const fd = args[0];
                 assert.ok(typeof fd === 'number');
                 const fileDeclaration = this.fdToFileDeclaration.get(fd);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 if (fileDeclaration !== undefined) // ignores undefined ones
@@ -299,7 +299,7 @@ export class FileOperationLogger extends Analysis
                 const fd = args[0];
                 assert.ok(typeof fd === 'number');
                 const fileDeclaration = this.fdToFileDeclaration.get(fd);
-                const currentCallbackFunction = CallbackFunctionContext.getCurrentCallbackFunction();
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 if (fileDeclaration !== undefined) // ignores undefined ones

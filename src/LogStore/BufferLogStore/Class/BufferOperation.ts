@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {ResourceOperation} from '../../../Analysis/Class/ResourceOperation';
-import {SourceCodeInfo} from '../../../Analysis/Class/SourceCodeInfo';
+import {ResourceOperation} from '../../Class/ResourceOperation';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class BufferOperation extends ResourceOperation
 {

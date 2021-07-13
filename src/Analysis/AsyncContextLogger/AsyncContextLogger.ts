@@ -2,14 +2,13 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
-import {CallbackFunction} from '../Class/CallbackFunction';
+import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
 import {strict as assert} from 'assert';
 import {getSourceCodeInfoFromIid} from '../../Util';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
 
 /**
- * Logging all callback function content information into `CallbackFunctionContext`.
- * Should be run prior to other analysis. i.e. `--analysis AsyncContextLogger --analysis otherAnalysis`
+ * Logging all callback function content information into `AsyncContextLogStore`.
+ * Should be run prior to other analysis. i.e. `--analysis AsyncContextLogStore --analysis otherAnalysis`
  * */
 export class AsyncContextLogger extends Analysis
 {
@@ -68,7 +67,7 @@ export class AsyncContextLogger extends Analysis
 
                 const asyncFunction = new CallbackFunction(f, asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
                 this.asyncIdToFunctionCall.set(asyncId, asyncFunction);
-                CallbackFunctionContext.setCurrentCallbackFunction(asyncFunction);
+                AsyncContextLogger.setCurrentCallbackFunction(asyncFunction);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;

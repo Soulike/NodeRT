@@ -2,9 +2,9 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {ArrayLogStore, ArrayOperation} from '../../LogStore/ArrayLogStore';
-import {CallbackFunctionContext} from '../Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {getSourceCodeInfoFromIid, isArrayAccess} from '../../Util';
-import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {strict as assert} from 'assert';
 
 /**Does not support spread expression now*/
@@ -136,7 +136,7 @@ export class ArrayOperationLogger extends Analysis
 
         this.forObject = (iid, isForIn) =>
         {
-            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
+            const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && Array.isArray(lastExpressionValue))
             {
                 const sandbox = this.getSandbox();
@@ -145,7 +145,7 @@ export class ArrayOperationLogger extends Analysis
                 const arrayDeclaration = ArrayLogStore.getArrayDeclarations().find(arrayDeclaration => arrayDeclaration.is(lastExpressionValue));
                 if (arrayDeclaration !== undefined)
                 {
-                    arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(), new ArrayOperation('read', sourceCodeInfo));
+                    arrayDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(), new ArrayOperation('read', sourceCodeInfo));
                 }
                 else
                 {

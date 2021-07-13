@@ -2,8 +2,8 @@
 
 import fs from 'fs';
 import {Sandbox} from './Type/nodeprof';
-import {SourceCodeInfo} from './Analysis/Class/SourceCodeInfo';
-import {Range} from './Analysis/Class/Range';
+import {SourceCodeInfo} from './LogStore/Class/SourceCodeInfo';
+import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 

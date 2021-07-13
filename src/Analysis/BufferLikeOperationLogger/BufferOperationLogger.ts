@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import buffer from 'buffer';
 import {appendBufferOperation} from './Util';
-import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {isArrayAccess} from '../../Util';
 import {ArrayLogStore} from '../../LogStore/ArrayLogStore';
 
@@ -215,7 +215,7 @@ export class BufferOperationLogger extends Analysis
 
         this.forObject = (iid, isForIn) =>
         {
-            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
+            const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
                 this.appendBufferOperation(lastExpressionValue, 'read', iid);

@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {appendBufferOperation} from './Util';
-import {LastExpressionValueContainer} from '../Singleton/LastExpressionValueContainer';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import util from 'util';
 import {strict as assert} from 'assert';
 import {isArrayAccess, isBufferLike} from '../../Util';
@@ -163,7 +163,7 @@ export class TypedArrayOperationLogger extends Analysis
 
         this.forObject = (iid, isForIn) =>
         {
-            const lastExpressionValue = LastExpressionValueContainer.getLastExpressionValue();
+            const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && util.types.isTypedArray(lastExpressionValue) && !Buffer.isBuffer(lastExpressionValue))
             {
                 this.appendBufferOperation(lastExpressionValue, 'read', iid);

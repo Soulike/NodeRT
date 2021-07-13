@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {ResourceOperation} from '../../Class/ResourceOperation';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {ResourceOperation} from '../../../LogStore/Class/ResourceOperation';
+import {SourceCodeInfo} from '../../../LogStore/Class/SourceCodeInfo';
 
 export class ReferenceMetaOperation extends ResourceOperation
 {

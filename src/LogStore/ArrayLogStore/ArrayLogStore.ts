@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {ArrayDeclaration} from './Class/ArrayDeclaration';
-import {CallbackFunctionContext} from '../../Analysis/Singleton/CallbackFunctionContext';
+import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {ArrayOperation} from './Class/ArrayOperation';
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {Sandbox} from '../../Type/nodeprof';
@@ -19,7 +19,7 @@ export class ArrayLogStore
     public static appendArrayOperation(array: ReadonlyArray<unknown>, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const arrayDeclaration = ArrayLogStore.getArrayDeclaration(array);
-        arrayDeclaration.appendOperation(CallbackFunctionContext.getCurrentCallbackFunction(),
+        arrayDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
             new ArrayOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
