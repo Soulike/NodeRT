@@ -6,7 +6,7 @@ import buffer from 'buffer';
 import {appendBufferOperation} from './Util';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {isArrayAccess} from '../../Util';
-import {ArrayLogStore} from '../../LogStore/ArrayLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 
 export class BufferOperationLogger extends Analysis
 {
@@ -108,7 +108,7 @@ export class BufferOperationLogger extends Analysis
                 }
                 else if (Array.isArray(args[0]))
                 {
-                    ArrayLogStore.appendArrayOperation(args[0], 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                 }
                 assert.ok(Buffer.isBuffer(result));
                 this.appendBufferOperation(result, 'write', iid);
@@ -123,7 +123,7 @@ export class BufferOperationLogger extends Analysis
             else if (f === Buffer.concat)
             {
                 const list = args[0] as Parameters<typeof Buffer.concat>[0];
-                ArrayLogStore.appendArrayOperation(list, 'read', this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(list, 'read', this.getSandbox(), iid);
 
                 const returnedBuffer = result as ReturnType<typeof Buffer.concat>;
                 for (const buffer of list)

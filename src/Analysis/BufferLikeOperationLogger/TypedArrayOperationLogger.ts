@@ -6,7 +6,7 @@ import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLog
 import util from 'util';
 import {strict as assert} from 'assert';
 import {isArrayAccess, isBufferLike} from '../../Util';
-import {ArrayLogStore} from '../../LogStore/ArrayLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import TypedArray = NodeJS.TypedArray;
 
 export class TypedArrayOperationLogger extends Analysis
@@ -93,7 +93,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else if (Array.isArray(iterable))
                 {
-                    ArrayLogStore.appendArrayOperation(iterable, 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(iterable, 'read', this.getSandbox(), iid);
                 }
             }
             // @ts-ignore
@@ -137,7 +137,7 @@ export class TypedArrayOperationLogger extends Analysis
                     }
                     else if (Array.isArray(args[0]))
                     {
-                        ArrayLogStore.appendArrayOperation(args[0], 'read', this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                     }
                     assert.ok(util.types.isTypedArray(base));
                     this.appendBufferOperation(base, 'write', iid);
