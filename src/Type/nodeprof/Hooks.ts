@@ -52,7 +52,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the value of the get field operation  is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    getField: (iid: number, base: object, offset: string | Symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => { result: unknown } | void
+    getField: (iid: number, base: object, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => { result: unknown } | void
 
     /**
      * This callback is called before a property of an object is written.
@@ -69,7 +69,7 @@ export interface Hooks
      * property is true, then the put field operation is skipped.  Original <tt>base</tt>, <tt>offset</tt>, and
      * <tt>val</tt> are replaced with that from the returned object if an object is returned.
      * */
-    putFieldPre: (iid: number, base: object, offset: string | Symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => { base: unknown, offset: unknown, val: unknown, skip: boolean } | void
+    putFieldPre: (iid: number, base: object, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => { base: unknown, offset: unknown, val: unknown, skip: boolean } | void
 
     /**
      * This callback is called before the execution of a function body starts.
