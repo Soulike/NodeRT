@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../../LogStore/Class/ResourceDeclaration';
-import {CallbackFunction} from '../../../LogStore/Class/CallbackFunction';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {CallbackFunction} from '../../Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
-import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../../LogStore/BufferLogStore';
+import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../BufferLogStore';
 import {strict as assert} from 'assert';
 
 export class FileDeclaration extends ResourceDeclaration
