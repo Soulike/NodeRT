@@ -115,6 +115,14 @@ export class ObjectOperationLogger extends Analysis
                 }
                 ObjectLogStore.appendObjectOperation(props, 'read', this.getSandbox(), iid);
             }
+            else if (f === Object.freeze || f === Object.seal || f === Object.preventExtensions)
+            {
+                const [obj] = args as Parameters<typeof Object.freeze | typeof Object.seal | typeof Object.preventExtensions>;
+                if (isObject(obj))
+                {
+                    ObjectLogStore.appendObjectOperation(obj, 'write', this.getSandbox(), iid);
+                }
+            }
             else if (f === Object)
             {
                 assert.ok(isObject(result));
