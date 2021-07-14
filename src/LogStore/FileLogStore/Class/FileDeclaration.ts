@@ -3,41 +3,36 @@
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
-import {BufferDeclaration, BufferLogStore, BufferOperation} from '../../BufferLogStore';
+import {BufferLogStore} from '../../BufferLogStore';
 import {strict as assert} from 'assert';
+import {isBufferLike} from '../../../Util';
+import {BufferLike} from '../../../Analysis/Type/BufferLike';
 
 export class FileDeclaration extends ResourceDeclaration
 {
-    private readonly filePath: string | Buffer;
-    private readonly bufferDeclaration: BufferDeclaration | null; // created if filePath is a Buffer
-    private readonly callbackFunctionToOperations: Map<CallbackFunction, FileOperation[]>;  // unused if filePath is a Buffer
+    private readonly filePath: string | BufferLike;
+    private readonly callbackFunctionToOperations?: Map<CallbackFunction, FileOperation[]>;  // undefined if filePath is a Buffer
 
-    constructor(filePath: string | Buffer)
+    constructor(filePath: string | BufferLike)
     {
         super();
         this.filePath = filePath;
-        this.callbackFunctionToOperations = new Map();
-
-        if (this.filePath instanceof Buffer)
+        if (!isBufferLike(filePath))
         {
-            this.bufferDeclaration = BufferLogStore.getBufferDeclaration(this.filePath);
-        }
-        else
-        {
-            this.bufferDeclaration = null;
+            this.callbackFunctionToOperations = new Map();
         }
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, fileOperation: FileOperation): void
     {
-        if (this.filePath instanceof Buffer)
+        if (isBufferLike(this.filePath))
         {
-            assert.ok(this.bufferDeclaration !== null);
-            const bufferOperation = new BufferOperation(fileOperation.getType(), fileOperation.getSourceCodeInfo());
-            this.bufferDeclaration.appendOperation(currentCallbackFunction, bufferOperation);
+            assert.ok(this.callbackFunctionToOperations === undefined);
+            BufferLogStore.appendBufferOperation(this.filePath, fileOperation.getType(), fileOperation.getSourceCodeInfo());
         }
         else
         {
+            assert.ok(this.callbackFunctionToOperations !== undefined);
             const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
             if (operations === undefined)
             {
@@ -52,7 +47,7 @@ export class FileDeclaration extends ResourceDeclaration
 
     public getOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
     {
-        return this.callbackFunctionToOperations;
+        return this.callbackFunctionToOperations ?? new Map();
     }
 
     public getFilePath()

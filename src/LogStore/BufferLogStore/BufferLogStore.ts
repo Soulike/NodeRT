@@ -8,6 +8,8 @@ import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {BufferOperation} from './Class/BufferOperation';
 import {getSourceCodeInfoFromIid} from '../../Util';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
+import {strict as assert} from 'assert';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -35,10 +37,21 @@ export class BufferLogStore
         return Array.from(this.bufferToBufferDeclaration.values());
     }
 
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo): void
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
         const bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer);
-        bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
-            new BufferOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
+        {
+            bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+                new BufferOperation(type, sandboxOrSourceCodeInfo));
+        }
+        else    // sandbox
+        {
+            assert.ok(iid !== undefined);
+            bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+                new BufferOperation(type, getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+        }
     }
 }
