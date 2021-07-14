@@ -151,6 +151,9 @@ export class FileOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
+        /*
+        * No need to specially log operations on `BufferLike`s. See `FileDeclaration`.
+        * */
         this.invokeFun = (iid, f, base, args, result) =>
         {
             if (f === fsPromise.open)

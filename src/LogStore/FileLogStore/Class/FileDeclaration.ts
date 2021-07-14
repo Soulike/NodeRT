@@ -8,6 +8,11 @@ import {strict as assert} from 'assert';
 import {isBufferLike} from '../../../Util';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 
+/**
+ * When facing a `BufferLike`, `FileDeclaration` does not log its operations.
+ * Instead, It passes them to `BufferLogStore.appendBufferOperation()`.
+ * Therefore, we don't need to tell `BufferLike` from `fd`, `FileHandle` or `string` (file path) in `FileOperationLogger`.
+ * */
 export class FileDeclaration extends ResourceDeclaration
 {
     private readonly filePath: string | BufferLike;
