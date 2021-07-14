@@ -98,3 +98,8 @@ export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boo
 {
     return isComputed && !(typeof offset === 'symbol') && !Number.isNaN(Number.parseInt(offset as string));
 }
+
+export function isURL(other: unknown): other is URL
+{
+    return other instanceof URL;
+}

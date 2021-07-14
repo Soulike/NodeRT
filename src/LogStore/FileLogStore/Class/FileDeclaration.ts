@@ -3,56 +3,35 @@
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
-import {BufferLogStore} from '../../BufferLogStore';
-import {strict as assert} from 'assert';
-import {isBufferLike} from '../../../Util';
-import {BufferLike} from '../../../Analysis/Type/BufferLike';
 
-/**
- * When facing a `BufferLike`, `FileDeclaration` does not log its operations.
- * Instead, It passes them to `BufferLogStore.appendBufferOperation()`.
- * Therefore, we don't need to tell `BufferLike` from `fd`, `FileHandle` or `string` (file path) in `FileOperationLogger`.
- * */
 export class FileDeclaration extends ResourceDeclaration
 {
-    private readonly filePath: string | BufferLike;
-    private readonly callbackFunctionToOperations?: Map<CallbackFunction, FileOperation[]>;  // undefined if filePath is a Buffer
+    private readonly filePath: string;
+    private readonly callbackFunctionToOperations: Map<CallbackFunction, FileOperation[]>;
 
-    constructor(filePath: string | BufferLike)
+    constructor(filePath: string)
     {
         super();
         this.filePath = filePath;
-        if (!isBufferLike(filePath))
-        {
-            this.callbackFunctionToOperations = new Map();
-        }
+        this.callbackFunctionToOperations = new Map();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, fileOperation: FileOperation): void
     {
-        if (isBufferLike(this.filePath))
+        const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        if (operations === undefined)
         {
-            assert.ok(this.callbackFunctionToOperations === undefined);
-            BufferLogStore.appendBufferOperation(this.filePath, fileOperation.getType(), fileOperation.getSourceCodeInfo());
+            this.callbackFunctionToOperations.set(currentCallbackFunction, [fileOperation]);
         }
         else
         {
-            assert.ok(this.callbackFunctionToOperations !== undefined);
-            const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
-            if (operations === undefined)
-            {
-                this.callbackFunctionToOperations.set(currentCallbackFunction, [fileOperation]);
-            }
-            else
-            {
-                operations.push(fileOperation);
-            }
+            operations.push(fileOperation);
         }
     }
 
     public getOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
     {
-        return this.callbackFunctionToOperations ?? new Map();
+        return this.callbackFunctionToOperations;
     }
 
     public getFilePath()

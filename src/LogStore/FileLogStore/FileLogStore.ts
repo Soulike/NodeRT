@@ -2,20 +2,18 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {FileDeclaration} from './Class/FileDeclaration';
 import {FileOperation} from './Class/FileOperation';
-import {PathLike} from 'fs';
-import {FileHandle} from 'fs/promises';
 import {URL} from 'url';
-import {strict as assert} from 'assert';
 import {BufferLike} from '../../Analysis/Type/BufferLike';
+import {FileHandle} from 'fs/promises';
 
 export class FileLogStore
 {
-    private static readonly filePathToFileDeclaration: Map<string | BufferLike, FileDeclaration> = new Map();
-    private static readonly fileHandleToFileDeclaration: Map<FileHandle, FileDeclaration>;
-    private static readonly fdToFileDeclaration: Map<number, FileDeclaration>;
+    private static readonly filePathToFileDeclaration: Map<string, FileDeclaration> = new Map();
+    private static readonly fdToFilePathOrBuffer: Map<number, string | BufferLike>;
+    private static readonly fileHandles: Set<FileHandle> = new Set();
 
     public static getFileDeclarations(): ReadonlyArray<FileDeclaration>
     {
@@ -24,22 +22,33 @@ export class FileLogStore
 
     public static getFileHandles(): ReadonlySet<FileHandle>
     {
-        return new Set(FileLogStore.fileHandleToFileDeclaration.keys());
+        return this.fileHandles;
     }
 
-    public static addFileHandle(fileHandle: FileHandle, fileDeclaration: FileDeclaration)
+    public static addFileHandle(fileHandle: FileHandle)
     {
-        FileLogStore.fileHandleToFileDeclaration.set(fileHandle, fileDeclaration);
+        this.fileHandles.add(fileHandle);
     }
 
-    public static addFd(fd: number, fileDeclaration: FileDeclaration)
+    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike)
     {
-        FileLogStore.fdToFileDeclaration.set(fd, fileDeclaration);
+        if (typeof filePathOrBuffer === 'string')
+        {
+            FileLogStore.getFileDeclaration(filePathOrBuffer);
+        }
+        if (filePathOrBuffer instanceof URL)
+        {
+            FileLogStore.fdToFilePathOrBuffer.set(fd, filePathOrBuffer.href);
+        }
+        else
+        {
+            FileLogStore.fdToFilePathOrBuffer.set(fd, filePathOrBuffer);
+        }
     }
 
-    public static appendFileOperation(filePathLike: PathLike | BufferLike | FileHandle | number, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
-        const fileDeclaration = FileLogStore.getFileDeclarationByFilePathLike(filePathLike);
+        const fileDeclaration = FileLogStore.getFileDeclaration(filePath);
         if (fileDeclaration !== undefined)
         {
             fileDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
@@ -47,59 +56,24 @@ export class FileLogStore
         }
     }
 
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle): FileDeclaration;
-    public static getFileDeclarationByFilePathLike(fd: number): FileDeclaration | undefined;
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle | number): FileDeclaration | undefined;
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle | number): FileDeclaration | undefined
+    public static getFileDeclaration(filePathLike: string | URL): FileDeclaration
     {
-        if (isBufferLike(filePathLike) || typeof filePathLike === 'string')
+        const realFilePath = typeof filePathLike === 'string' ? filePathLike : filePathLike.href;
+        const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(realFilePath);
+        if (fileDeclaration === undefined)
         {
-            const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(filePathLike);
-            if (fileDeclaration === undefined)
-            {
-                const newFileDeclaration = new FileDeclaration(filePathLike);
-                FileLogStore.filePathToFileDeclaration.set(filePathLike, newFileDeclaration);
-                return newFileDeclaration;
-            }
-            else
-            {
-                return fileDeclaration;
-            }
+            const newFileDeclaration = new FileDeclaration(realFilePath);
+            FileLogStore.filePathToFileDeclaration.set(realFilePath, newFileDeclaration);
+            return newFileDeclaration;
         }
-        else if (filePathLike instanceof URL)
+        else
         {
-            const realFilePath = filePathLike.href;
-            const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(realFilePath);
-            if (fileDeclaration === undefined)
-            {
-                const newFileDeclaration = new FileDeclaration(realFilePath);
-                FileLogStore.filePathToFileDeclaration.set(realFilePath, newFileDeclaration);
-                return newFileDeclaration;
-            }
-            else
-            {
-                return fileDeclaration;
-            }
-        }
-        else if (typeof filePathLike === 'number')   // fd
-        {
-            return FileLogStore.getFileDeclarationByFd(filePathLike);   // possibly undefined
-        }
-        else    // FileHandle
-        {
-            const fileDeclaration = FileLogStore.getFileDeclarationByFileHandle(filePathLike);
-            assert.ok(fileDeclaration !== undefined);
             return fileDeclaration;
         }
     }
 
-    private static getFileDeclarationByFileHandle(fileHandle: FileHandle): FileDeclaration | undefined
+    public static getFilePathOrBufferFromFd(fd: number): string | BufferLike | undefined
     {
-        return FileLogStore.fileHandleToFileDeclaration.get(fileHandle);
-    }
-
-    private static getFileDeclarationByFd(fd: number): FileDeclaration | undefined
-    {
-        return FileLogStore.fdToFileDeclaration.get(fd);
+        return FileLogStore.fdToFilePathOrBuffer.get(fd);
     }
 }
