@@ -2,17 +2,18 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 import {FileDeclaration} from './Class/FileDeclaration';
 import {FileOperation} from './Class/FileOperation';
 import {PathLike} from 'fs';
 import {FileHandle} from 'fs/promises';
 import {URL} from 'url';
 import {strict as assert} from 'assert';
+import {BufferLike} from '../../Analysis/Type/BufferLike';
 
 export class FileLogStore
 {
-    private static readonly filePathToFileDeclaration: Map<string | Buffer, FileDeclaration> = new Map();
+    private static readonly filePathToFileDeclaration: Map<string | BufferLike, FileDeclaration> = new Map();
     private static readonly fileHandleToFileDeclaration: Map<FileHandle, FileDeclaration>;
     private static readonly fdToFileDeclaration: Map<number, FileDeclaration>;
 
@@ -36,7 +37,7 @@ export class FileLogStore
         FileLogStore.fdToFileDeclaration.set(fd, fileDeclaration);
     }
 
-    public static appendFileOperation(filePathLike: PathLike | FileHandle | number, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendFileOperation(filePathLike: PathLike | BufferLike | FileHandle | number, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const fileDeclaration = FileLogStore.getFileDeclarationByFilePathLike(filePathLike);
         if (fileDeclaration !== undefined)
@@ -46,12 +47,12 @@ export class FileLogStore
         }
     }
 
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | FileHandle): FileDeclaration;
+    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle): FileDeclaration;
     public static getFileDeclarationByFilePathLike(fd: number): FileDeclaration | undefined;
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | FileHandle | number): FileDeclaration | undefined;
-    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | FileHandle | number): FileDeclaration | undefined
+    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle | number): FileDeclaration | undefined;
+    public static getFileDeclarationByFilePathLike(filePathLike: PathLike | BufferLike | FileHandle | number): FileDeclaration | undefined
     {
-        if (filePathLike instanceof Buffer || typeof filePathLike === 'string')
+        if (isBufferLike(filePathLike) || typeof filePathLike === 'string')
         {
             const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(filePathLike);
             if (fileDeclaration === undefined)

@@ -5,15 +5,17 @@ import {FileDeclaration, FileLogStore} from '../../LogStore/FileLogStore';
 import {FileHandle} from 'fs/promises';
 import fs, {PathLike, promises as fsPromise} from 'fs';
 import {strict as assert} from 'assert';
+import {isBufferLike} from '../../Util';
+import {isObject} from 'lodash';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 
-// TODO: 涉及 Buffer 和数组的 API 建模
 export class FileOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
 
     // Log information of callback apis
-    private readonly callbackToFileDeclarationInfo: Map<Function, { register: Function, fileDeclaration?: FileDeclaration }>;
+    private readonly callbackToFileDeclaration: Map<Function, { register: Function, fileDeclaration?: FileDeclaration }>;
 
     private readonly readApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
     private readonly writeApis: ReadonlySet<(path: PathLike & FileHandle, ...rest: any[]) => any>;
@@ -26,7 +28,7 @@ export class FileOperationLogger extends Analysis
     {
         super(sandbox);
 
-        this.callbackToFileDeclarationInfo = new Map();
+        this.callbackToFileDeclaration = new Map();
 
         this.readApis = new Set([
             fsPromise.access,
@@ -170,32 +172,81 @@ export class FileOperationLogger extends Analysis
             else if (FileLogStore.getFileHandles().has(base as FileHandle))
             {
                 const fileHandle = base as FileHandle;
-                const fileHandleWriteApis: ReadonlySet<Function> = new Set([
-                    fileHandle.appendFile,
+                const fileHandleWriteMetaApis: ReadonlySet<Function> = new Set([
                     fileHandle.chmod,
                     fileHandle.chown,
                     fileHandle.close,
-                    fileHandle.datasync,
-                    fileHandle.sync,
                     fileHandle.truncate,
-                    fileHandle.utimes,
-                    fileHandle.write,
-                    fileHandle.writeFile,
-                    fileHandle.writev,
                 ]);
-                const fileHandleReadApis: ReadonlySet<Function> = new Set([
-                    fileHandle.read,
-                    fileHandle.readFile,
-                    fileHandle.readv,
-                    fileHandle.stat,
-                ]);
-                if (fileHandleWriteApis.has(f))
-                {
-                    FileLogStore.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
-                }
-                else if (fileHandleReadApis.has(f))
+
+                if (f === fileHandle.read)
                 {
                     FileLogStore.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
+
+                    const [bufferOrOptions] = args as Parameters<typeof fileHandle.read>;
+                    if (isBufferLike(bufferOrOptions))
+                    {
+                        FileLogStore.appendFileOperation(bufferOrOptions, 'write', this.getSandbox(), iid);
+                    }
+                    else
+                    {
+                        const {buffer} = bufferOrOptions;
+                        assert.ok(isBufferLike(bufferOrOptions));
+                        FileLogStore.appendFileOperation(buffer, 'write', this.getSandbox(), iid);
+                    }
+                }
+                else if (f === fileHandle.readFile)
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
+                    (result as ReturnType<typeof fileHandle.readFile>).then(bufferOrString =>
+                    {
+                        if (isBufferLike(bufferOrString))
+                        {
+                            FileLogStore.appendFileOperation(bufferOrString, 'write', this.getSandbox(), iid);
+                        }
+                    });
+                }
+                else if (f === fileHandle.readv)
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
+
+                    const [buffers] = args as Parameters<typeof fileHandle.readv>;
+                    buffers.forEach(buffer => FileLogStore.appendFileOperation(buffer, 'write', this.getSandbox(), iid));
+                }
+                else if (f === fileHandle.write)
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
+
+                    const [data] = args as Parameters<typeof fileHandle.writeFile>;
+                    if (isBufferLike(data))
+                    {
+                        FileLogStore.appendFileOperation(data, 'read', this.getSandbox(), iid);
+                    }
+                }
+                else if (f === fileHandle.writeFile || f === fileHandle.appendFile)
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
+
+                    const [data] = args as Parameters<typeof fileHandle.writeFile>;
+                    if (isBufferLike(data))
+                    {
+                        FileLogStore.appendFileOperation(data, 'read', this.getSandbox(), iid);
+                    }
+                    else if (isObject(data))
+                    {
+                        ObjectLogStore.appendObjectOperation(data, 'read', this.getSandbox(), iid);
+                    }
+                }
+                else if (f === fileHandle.writev)
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
+
+                    const [buffers] = args as Parameters<typeof fileHandle.writev>;
+                    buffers.forEach(buffer => FileLogStore.appendFileOperation(buffer, 'read', this.getSandbox(), iid));
+                }
+                else if (fileHandleWriteMetaApis.has(f))
+                {
+                    FileLogStore.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }
             }
             // @ts-ignore
@@ -235,7 +286,7 @@ export class FileOperationLogger extends Analysis
                 const filePath = args[0] as Parameters<typeof fs.open>[0];
                 const callback = args[args.length - 1] as LastParameter<typeof fs.open>;
                 const fileDeclaration = FileLogStore.getFileDeclarationByFilePathLike(filePath);
-                this.callbackToFileDeclarationInfo.set(callback, {register: f, fileDeclaration});  // later processed in functionEnter()
+                this.callbackToFileDeclaration.set(callback, {register: f, fileDeclaration: fileDeclaration});  // later processed in functionEnter()
             }
             // @ts-ignore
             else if (this.fdReadApis.has(f))
@@ -255,7 +306,7 @@ export class FileOperationLogger extends Analysis
 
         this.functionEnter = (_iid, f, _dis, args) =>
         {
-            const info = this.callbackToFileDeclarationInfo.get(f);
+            const info = this.callbackToFileDeclaration.get(f);
             if (info !== undefined)
             {
                 const {register, fileDeclaration} = info;
