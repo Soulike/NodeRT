@@ -447,6 +447,16 @@ export class FileOperationLogger extends Analysis
                 assert.ok(typeof fd === 'number');
                 FileOperationLogger.appendOperation(fd, 'write', this.getSandbox(), iid);
             }
+            else if (f === fs.Dir.prototype.close || f === fs.Dir.prototype.closeSync)
+            {
+                assert.ok(base instanceof fs.Dir);
+                FileOperationLogger.appendOperation(base.path, 'write', this.getSandbox(), iid);
+            }
+            else if (f === fs.Dir.prototype.read || f === fs.Dir.prototype.readSync)
+            {
+                assert.ok(base instanceof fs.Dir);
+                FileOperationLogger.appendOperation(base.path, 'read', this.getSandbox(), iid);
+            }
         };
 
         this.functionEnter = (iid, f, _dis, args) =>
