@@ -39,4 +39,12 @@ export class ObjectDeclaration extends ResourceDeclaration
     {
         return this.object === other;
     }
+
+    public toJSON()
+    {
+        return {
+            ...this,
+            object: this.object === null ? null : `[Object]`,
+        };
+    }
 }
