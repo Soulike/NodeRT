@@ -44,7 +44,7 @@ export function toJSON(object: unknown): string
             {
                 return value;
             }
-        }, 4);
+        }, 2);
     }
     catch (e)
     {
