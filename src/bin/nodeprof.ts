@@ -9,8 +9,8 @@ const {error} = childProcess.spawnSync(`graalnode`, [
     '--jvm',
     '--experimental-options',
     `--vm.Dtruffle.class.path.append=${path.resolve(ROOT, './lib/nodeprof.jar')}`,
-    '--nodeprof.Scope=app',
-    '--nodeprof.ExcludeSource=test,Test',
+    '--nodeprof.Scope=module',
+    '--nodeprof.ExcludeSource=test,Test,node_modules',
     '--nodeprof', path.resolve(ROOT, './lib/nodeprof.js/src/ch.usi.inf.nodeprof/js/jalangi.js'),
     ...process.argv.slice(2),
 ], {
