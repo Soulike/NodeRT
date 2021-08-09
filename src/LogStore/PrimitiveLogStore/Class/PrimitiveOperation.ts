@@ -12,4 +12,12 @@ export class PrimitiveOperation extends ResourceOperation
         super(type, sourceCodeInfo);
         this.value = value;
     }
+
+    toJSON()
+    {
+        return {
+            ...this,
+            value: typeof this.value === 'object' && this.value !== null ? this.value.toString() : this.value,
+        };
+    }
 }

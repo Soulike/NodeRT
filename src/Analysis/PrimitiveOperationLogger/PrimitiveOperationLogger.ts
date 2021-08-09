@@ -4,7 +4,6 @@ import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
-import {GLOBAL_IID} from './CONSTANT';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 export class PrimitiveOperationLogger extends Analysis
@@ -47,16 +46,14 @@ export class PrimitiveOperationLogger extends Analysis
 
         this.functionEnter = (iid) =>
         {
-            if (iid === GLOBAL_IID)
+            const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(iid);
+            if (functionDeclaration === null)
             {
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(Scope.GLOBAL_SCOPE);
                 PrimitiveLogStore.getScopeStack().push(Scope.GLOBAL_SCOPE);
             }
             else
             {
-                const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(iid);
-                assert.ok(functionDeclaration !== null);
-
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
@@ -106,6 +103,11 @@ export class PrimitiveOperationLogger extends Analysis
 
     private onVariableOperation(type: 'read' | 'write', iid: number, name: string, val: unknown, isGlobal: boolean)
     {
+        if (name === 'this')
+        {
+            return;
+        }
+
         const currentScope = PrimitiveLogStore.getScopeStack().getTop();
         assert.ok(currentScope !== undefined);
         const sandbox = this.getSandbox();
