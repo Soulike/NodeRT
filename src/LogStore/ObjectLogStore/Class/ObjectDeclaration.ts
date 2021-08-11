@@ -4,17 +4,19 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {ObjectOperation} from './ObjectOperation';
+import assert from 'assert';
 import {isObject} from 'lodash';
 
 export class ObjectDeclaration extends ResourceDeclaration
 {
-    private readonly object: WeakSet<object>;
+    private readonly object: object;
     private readonly operations: Map<CallbackFunction, ObjectOperation[]>;
 
     constructor(object: object)
     {
         super();
-        this.object = new WeakSet([object]);
+        assert.ok(isObject(object));
+        this.object = object;
         this.operations = new Map();
     }
 
@@ -38,7 +40,7 @@ export class ObjectDeclaration extends ResourceDeclaration
 
     public is(other: unknown): boolean
     {
-        return isObject(other) && this.object.has(other);
+        return this.object === other;
     }
 
     public toJSON()
