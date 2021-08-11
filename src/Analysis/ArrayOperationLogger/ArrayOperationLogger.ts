@@ -40,9 +40,11 @@ export class ArrayOperationLogger extends Analysis
             }
             else if (f === Array.prototype.concat)
             {
-                const arg = args[0];
-                assert.ok(Array.isArray(arg));
-                ObjectLogStore.appendObjectOperation(arg, 'read', sandbox, iid);
+                const arg = args[0] as Parameters<typeof Array.prototype.concat>[0];
+                if (Array.isArray(arg))
+                {
+                    ObjectLogStore.appendObjectOperation(arg, 'read', sandbox, iid);
+                }
 
                 assert.ok(Array.isArray(base));
                 ObjectLogStore.appendObjectOperation(base, 'read', sandbox, iid);
