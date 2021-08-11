@@ -26,7 +26,7 @@ export class ObjectOperationLogger extends Analysis
     {
         this.literal = (iid, val, _fakeHasGetterSetter) =>
         {
-            if (val instanceof Object)
+            if (isObject(val))
             {
                 ObjectLogStore.appendObjectOperation(val, 'write', this.getSandbox(), iid);
             }
