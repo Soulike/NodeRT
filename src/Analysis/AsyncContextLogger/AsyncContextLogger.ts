@@ -101,6 +101,4 @@ export class AsyncContextLogger extends Analysis
         this.lastAsyncId = asyncId;
         this.lastTriggerAsyncId = async_hooks.triggerAsyncId(); // TODO: async 下有可能是 0？是 GraalVM 的 BUG？
     };
-
-    // TODO: for of 记录
 }
