@@ -5,19 +5,8 @@ import {ResourceOperation} from '../../Class/ResourceOperation';
 
 export class PrimitiveOperation extends ResourceOperation
 {
-    public readonly value: unknown;
-
-    constructor(type: 'read' | 'write', value: unknown, sourceCodeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo)
     {
         super(type, sourceCodeInfo);
-        this.value = value;
-    }
-
-    toJSON()
-    {
-        return {
-            ...this,
-            value: typeof this.value === 'object' && this.value !== null ? '<Object>' : this.value,
-        };
     }
 }

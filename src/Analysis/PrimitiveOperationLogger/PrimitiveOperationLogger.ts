@@ -120,7 +120,7 @@ export class PrimitiveOperationLogger extends Analysis
             if (isGlobal)
             {
                 const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE, sourceCodeInfo);
-                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
+                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -133,7 +133,7 @@ export class PrimitiveOperationLogger extends Analysis
                     const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
                     if (pendingDeclaration.name === name)
                     {
-                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
+                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
                         found = true;
                         break;
                     }
@@ -148,7 +148,7 @@ export class PrimitiveOperationLogger extends Analysis
         }
         else
         {
-            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, val, sourceCodeInfo));
+            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
         }
     }
 }
