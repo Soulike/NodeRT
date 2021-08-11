@@ -94,7 +94,10 @@ export class ObjectOperationLogger extends Analysis
             {
                 const propertiesObject = args[1] as Parameters<typeof Object.create>[1];
                 const newObject = result as ReturnType<typeof Object.create>;
-                ObjectLogStore.appendObjectOperation(propertiesObject, 'read', this.getSandbox(), iid);
+                if (isObject(propertiesObject))
+                {
+                    ObjectLogStore.appendObjectOperation(propertiesObject, 'read', this.getSandbox(), iid);
+                }
                 ObjectLogStore.appendObjectOperation(newObject, 'write', this.getSandbox(), iid);
             }
             else if (f === Object.defineProperty)
