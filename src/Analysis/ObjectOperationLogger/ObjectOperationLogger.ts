@@ -54,7 +54,7 @@ export class ObjectOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
                 }
             }
-            else
+            else if (isObject(base))
             {
                 ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
             }
@@ -69,7 +69,7 @@ export class ObjectOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
                 }
             }
-            else
+            else if (isObject(base))
             {
                 ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
             }
