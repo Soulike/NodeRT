@@ -9,13 +9,13 @@ import util from 'util';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
-    private readonly buffer: ArrayBufferLike;
+    private readonly buffer: WeakSet<ArrayBufferLike>;
     private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
 
     constructor(buffer: ArrayBufferLike)
     {
         super();
-        this.buffer = buffer;
+        this.buffer = new WeakSet([buffer]);
         this.callbackFunctionToOperations = new Map();
     }
 
@@ -41,11 +41,11 @@ export class BufferDeclaration extends ResourceDeclaration
     {
         if (util.types.isAnyArrayBuffer(otherBuffer))
         {
-            return this.buffer === otherBuffer;
+            return this.buffer.has(otherBuffer);
         }
         else
         {
-            return this.buffer === otherBuffer.buffer;
+            return this.buffer.has(otherBuffer.buffer);
         }
     }
 
