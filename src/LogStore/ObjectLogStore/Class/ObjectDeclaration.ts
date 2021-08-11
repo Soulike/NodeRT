@@ -44,7 +44,7 @@ export class ObjectDeclaration extends ResourceDeclaration
     {
         return {
             ...this,
-            object: this.object === null ? null : `[Object]`,
+            object: this.object === null ? null : `<Object>`,
         };
     }
 }
