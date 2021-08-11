@@ -17,7 +17,7 @@ export class PrimitiveOperation extends ResourceOperation
     {
         return {
             ...this,
-            value: typeof this.value === 'object' && this.value !== null ? this.value.toString() : this.value,
+            value: typeof this.value === 'object' && this.value !== null ? '<Object>' : this.value,
         };
     }
 }
