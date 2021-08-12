@@ -39,7 +39,7 @@ export class PrimitiveOperationLogger extends Analysis
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
                 const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
 
-                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, sourceCodeInfo);
+                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope);
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation('write', sourceCodeInfo));
                 currentScope.declarations.push(declaration);
@@ -78,10 +78,7 @@ export class PrimitiveOperationLogger extends Analysis
         {
             if (kind !== 'FunctionDeclaration')
             {
-                const sandbox = this.getSandbox();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-
-                const declaration = new PrimitiveDeclaration(iid, name, 'var', null, sourceCodeInfo);
+                const declaration = new PrimitiveDeclaration(iid, name, 'var', null);
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 PrimitiveLogStore.addPendingPrimitiveDeclaration(declaration);
             }
@@ -121,7 +118,7 @@ export class PrimitiveOperationLogger extends Analysis
         {
             if (isGlobal)
             {
-                const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE, sourceCodeInfo);
+                const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE);
                 newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
