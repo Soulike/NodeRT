@@ -37,9 +37,11 @@ export class PrimitiveOperationLogger extends Analysis
 
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
+                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
 
                 const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, sourceCodeInfo);
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
+                declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation('write', sourceCodeInfo));
                 currentScope.declarations.push(declaration);
             }
         };
