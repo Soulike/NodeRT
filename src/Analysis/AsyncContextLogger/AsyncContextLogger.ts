@@ -55,7 +55,7 @@ export class AsyncContextLogger extends Analysis
                 assert.ok(triggerAsyncFunction !== undefined);
 
                 // skip asyncIds without related function calls until global or unknown
-                while (triggerAsyncFunction.func === null
+                while (triggerAsyncFunction.functionWeakRef === null
                 && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
                 && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
                 {

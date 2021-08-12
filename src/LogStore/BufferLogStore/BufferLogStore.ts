@@ -14,7 +14,8 @@ import {strict as assert} from 'assert';
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
 {
-    private static bufferToBufferDeclaration: Map<ArrayBufferLike, BufferDeclaration> = new Map();
+    private static bufferToBufferDeclaration: WeakMap<ArrayBufferLike, BufferDeclaration> = new WeakMap();
+    private static bufferDeclarations: BufferDeclaration[] = [];
 
     public static getBufferDeclaration(buffer: BufferLike)
     {
@@ -23,6 +24,7 @@ export class BufferLogStore
         if (bufferDeclaration === undefined)
         {
             const newBufferDeclaration = new BufferDeclaration(underArrayBuffer);
+            BufferLogStore.bufferDeclarations.push(newBufferDeclaration);
             BufferLogStore.bufferToBufferDeclaration.set(underArrayBuffer, newBufferDeclaration);
             return newBufferDeclaration;
         }
@@ -34,7 +36,7 @@ export class BufferLogStore
 
     public static getBufferDeclarations(): ReadonlyArray<BufferDeclaration>
     {
-        return Array.from(this.bufferToBufferDeclaration.values());
+        return BufferLogStore.bufferDeclarations;
     }
 
     public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo): void

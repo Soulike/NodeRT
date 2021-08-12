@@ -10,7 +10,8 @@ export class CallbackFunction
     public static readonly GLOBAL_ASYNC_ID = 1;
     public static readonly GLOBAL = new CallbackFunction(null, CallbackFunction.GLOBAL_ASYNC_ID, 'GLOBAL', null, null);
 
-    public readonly func: Function | null;
+    public readonly functionWeakRef: WeakRef<Function> | null;
+    public readonly functionName: string;
     public readonly asyncId: number;
     public readonly type: string;
     public asyncScope: CallbackFunction | null;    // null for global
@@ -18,7 +19,8 @@ export class CallbackFunction
 
     constructor(func: Function | null, asyncId: number, type: string, asyncScope: CallbackFunction | null, registerCodeInfo: SourceCodeInfo | null)
     {
-        this.func = func;
+        this.functionWeakRef = func !== null ? new WeakRef(func) : null;
+        this.functionName = func !== null ? func.name : '<global>';
         this.asyncId = asyncId;
         this.type = type;
         this.asyncScope = asyncScope; // 被创建时所在的 scope

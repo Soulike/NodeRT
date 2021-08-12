@@ -2,21 +2,20 @@
 
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
-import {ResourceOperation} from '../../Class/ResourceOperation';
 import {ObjectOperation} from './ObjectOperation';
 import assert from 'assert';
 import {isObject} from 'lodash';
 
 export class ObjectDeclaration extends ResourceDeclaration
 {
-    private readonly object: object;
+    private readonly objectWeakRef: WeakRef<object>;
     private readonly operations: Map<CallbackFunction, ObjectOperation[]>;
 
     constructor(object: object)
     {
         super();
         assert.ok(isObject(object));
-        this.object = object;
+        this.objectWeakRef = new WeakRef(object);
         this.operations = new Map();
     }
 
@@ -33,21 +32,16 @@ export class ObjectDeclaration extends ResourceDeclaration
         }
     }
 
-    public getOperations(): Map<CallbackFunction, ResourceOperation[]>
-    {
-        return new Map(this.operations);
-    }
-
     public is(other: unknown): boolean
     {
-        return this.object === other;
+        return this.objectWeakRef.deref() === other;
     }
 
     public toJSON()
     {
         return {
             ...this,
-            object: this.object === null ? null : `<Object>`,
+            objectWeakRef: `<objectWeakRef>`
         };
     }
 }

@@ -8,11 +8,12 @@ import {ObjectOperation} from './Class/ObjectOperation';
 
 export class ObjectLogStore
 {
-    private static objectToObjectDeclaration: Map<object, ObjectDeclaration> = new Map();
+    private static objectToObjectDeclaration: WeakMap<object, ObjectDeclaration> = new WeakMap();
+    private static objectDeclarations: ObjectDeclaration[] = [];
 
     public static getObjectDeclarations(): ReadonlyArray<ObjectDeclaration>
     {
-        return Array.from(ObjectLogStore.objectToObjectDeclaration.values());
+        return ObjectLogStore.objectDeclarations;
     }
 
     public static appendObjectOperation(object: object, type: 'read' | 'write', sandbox: Sandbox, iid: number)
@@ -28,7 +29,8 @@ export class ObjectLogStore
         if (objectDeclaration === undefined)
         {
             const newObjectDeclaration = new ObjectDeclaration(object);
-            this.objectToObjectDeclaration.set(object, newObjectDeclaration);
+            ObjectLogStore.objectDeclarations.push(newObjectDeclaration);
+            ObjectLogStore.objectToObjectDeclaration.set(object, newObjectDeclaration);
             return newObjectDeclaration;
         }
         else
