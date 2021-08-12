@@ -169,7 +169,6 @@ export class FileOperationLogger extends Analysis
         * */
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            // TODO: fs.Dir
             if (f === fsPromise.open)
             {
                 assert.ok(result instanceof Promise);

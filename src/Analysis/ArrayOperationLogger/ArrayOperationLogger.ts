@@ -30,11 +30,8 @@ export class ArrayOperationLogger extends Analysis
             }
             else if (f === Array.from)
             {
-                const iterable = args[0];
-                if (Array.isArray(iterable))    // TODO: TypedArray
-                {
-                    ObjectLogStore.appendObjectOperation(iterable, 'read', sandbox, iid);
-                }
+                const iterable = args[0] as Parameters<typeof Array.from>[0];
+                ObjectLogStore.appendObjectOperation(iterable, 'read', sandbox, iid);
                 assert.ok(Array.isArray(result));
                 ObjectLogStore.appendObjectOperation(result, 'write', sandbox, iid);
             }
