@@ -35,13 +35,9 @@ export class PrimitiveOperationLogger extends Analysis
                 const currentScope = PrimitiveLogStore.getScopeStack().getTop();
                 assert.ok(currentScope !== undefined);
 
-                const sandbox = this.getSandbox();
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-                const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
-
                 const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope);
+                // no need to add 'write' operation here since `this.write` hook will be called
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
-                declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation('write', sourceCodeInfo));
                 currentScope.declarations.push(declaration);
             }
         };
