@@ -35,16 +35,38 @@ export class PrimitiveOperationLogger extends Analysis
                 const currentScope = PrimitiveLogStore.getScopeStack().getTop();
                 assert.ok(currentScope !== undefined);
 
-                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope);
-                // no need to add 'write' operation here since `this.write` hook will be called
-                PrimitiveLogStore.addPrimitiveDeclaration(declaration);
-                currentScope.declarations.push(declaration);
+                let found = false;
+                if (val.name !== '')
+                {
+                    const primitiveDeclarations = PrimitiveLogStore.getPrimitiveDeclarations();
+                    // check whether it's a expression value assigning
+                    for (let i = primitiveDeclarations.length - 1; i >= 0; i--)
+                    {
+                        const declaration = primitiveDeclarations[i]!;
+                        if (declaration.name === val.name)
+                        {
+                            declaration.appendOperation(
+                                AsyncContextLogStore.getCurrentCallbackFunction(),
+                                new PrimitiveOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope);
+                    // no need to add 'write' operation here since `this.write` hook will be called
+                    PrimitiveLogStore.addPrimitiveDeclaration(declaration);
+                    currentScope.declarations.push(declaration);
+                }
             }
         };
 
-        this.functionEnter = (iid) =>
+        this.functionEnter = (iid, f) =>
         {
-            const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(iid);
+            const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(f.name);
             if (functionDeclaration === null)
             {
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(Scope.GLOBAL_SCOPE);
@@ -136,8 +158,18 @@ export class PrimitiveOperationLogger extends Analysis
 
                 if (!found)
                 {
-                    const location = sandbox.iidToLocation(iid);
-                    console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
+                    const currentScope = PrimitiveLogStore.getScopeStack().getTop();
+                    assert.ok(currentScope !== undefined);
+                    const primitiveDeclaration = currentScope.getDeclarationByName(name);
+                    if ((primitiveDeclaration !== null))
+                    {
+                        primitiveDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
+                    }
+                    else
+                    {
+                        const location = sandbox.iidToLocation(iid);
+                        console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
+                    }
                 }
             }
         }

@@ -9,17 +9,17 @@ export class PrimitiveDeclaration extends ResourceDeclaration
 {
     public readonly iid: number;
     public readonly name: string;
-    public readonly type: 'function' | 'var';
+    public readonly typeWhenDefined: 'function' | 'var';
 
     private readonly callbackFunctionToOperations: Map<CallbackFunction, PrimitiveOperation[]>;
     private scope: Scope | null;    // null for pending ones
 
-    constructor(iid: number, name: string, type: 'function' | 'var', scope: Scope | null)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null)
     {
         super();
         this.iid = iid;
         this.name = name;
-        this.type = type;
+        this.typeWhenDefined = typeWhenDefined;
         this.scope = scope;
         this.callbackFunctionToOperations = new Map();
     }
