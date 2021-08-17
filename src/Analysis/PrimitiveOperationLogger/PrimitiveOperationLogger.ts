@@ -5,6 +5,7 @@ import {getSourceCodeInfoFromIid} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
+import {isFunction} from 'lodash';
 
 export class PrimitiveOperationLogger extends Analysis
 {
@@ -35,38 +36,17 @@ export class PrimitiveOperationLogger extends Analysis
                 const currentScope = PrimitiveLogStore.getScopeStack().getTop();
                 assert.ok(currentScope !== undefined);
 
-                let found = false;
-                if (val.name !== '')
-                {
-                    const primitiveDeclarations = PrimitiveLogStore.getPrimitiveDeclarations();
-                    // check whether it's a expression value assigning
-                    for (let i = primitiveDeclarations.length - 1; i >= 0; i--)
-                    {
-                        const declaration = primitiveDeclarations[i]!;
-                        if (declaration.name === val.name)
-                        {
-                            declaration.appendOperation(
-                                AsyncContextLogStore.getCurrentCallbackFunction(),
-                                new PrimitiveOperation('write', getSourceCodeInfoFromIid(iid, this.getSandbox())));
-                            found = true;
-                            break;
-                        }
-                    }
-                }
+                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, val);
 
-                if (!found)
-                {
-                    const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope);
-                    // no need to add 'write' operation here since `this.write` hook will be called
-                    PrimitiveLogStore.addPrimitiveDeclaration(declaration);
-                    currentScope.declarations.push(declaration);
-                }
+                // no need to add 'write' operation here since `this.write` hook will be called
+                PrimitiveLogStore.addPrimitiveDeclaration(declaration);
+                currentScope.declarations.push(declaration);
             }
         };
 
         this.functionEnter = (iid, f) =>
         {
-            const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(f.name);
+            const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(f);
             if (functionDeclaration === null)
             {
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(Scope.GLOBAL_SCOPE);
@@ -136,7 +116,16 @@ export class PrimitiveOperationLogger extends Analysis
         {
             if (isGlobal)
             {
-                const newDeclaration = new PrimitiveDeclaration(iid, name, typeof val === 'function' ? 'function' : 'var', Scope.GLOBAL_SCOPE);
+                let newDeclaration = null;
+                if (isFunction(val))
+                {
+                    newDeclaration = new PrimitiveDeclaration(iid, name, 'function', Scope.GLOBAL_SCOPE, val);
+                }
+                else
+                {
+                    newDeclaration = new PrimitiveDeclaration(iid, name, 'var', Scope.GLOBAL_SCOPE);
+                }
+
                 newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
@@ -158,18 +147,8 @@ export class PrimitiveOperationLogger extends Analysis
 
                 if (!found)
                 {
-                    const currentScope = PrimitiveLogStore.getScopeStack().getTop();
-                    assert.ok(currentScope !== undefined);
-                    const primitiveDeclaration = currentScope.getDeclarationByName(name);
-                    if ((primitiveDeclaration !== null))
-                    {
-                        primitiveDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
-                    }
-                    else
-                    {
-                        const location = sandbox.iidToLocation(iid);
-                        console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
-                    }
+                    const location = sandbox.iidToLocation(iid);
+                    console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
                 }
             }
         }

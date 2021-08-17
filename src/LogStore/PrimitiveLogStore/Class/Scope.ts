@@ -9,6 +9,7 @@ export class Scope
 {
     public static GLOBAL_SCOPE = new Scope('function', 'global', null, [], null);
 
+    public readonly id: number; // for debug
     public readonly type: ScopeType;
     public readonly name: string | null;
     public readonly parent: Scope | null;	// null for global
@@ -17,6 +18,7 @@ export class Scope
 
     constructor(type: ScopeType, name: string | null, parent: Scope | null, declarations: PrimitiveDeclaration[], sourceCodeInfo: SourceCodeInfo | null)
     {
+        this.id = Date.now();
         this.type = type;
         this.name = name;
         this.parent = parent;
@@ -42,7 +44,7 @@ export class Scope
             return this.parent.getDeclarationByName(name);
         }
     }
-
+    
     public getDeclarationByIid(iid: number): PrimitiveDeclaration | null
     {
         for (const declaration of this.declarations)

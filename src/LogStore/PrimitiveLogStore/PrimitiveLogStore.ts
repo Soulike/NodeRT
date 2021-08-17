@@ -45,10 +45,12 @@ export class PrimitiveLogStore
         PrimitiveLogStore.pendingPrimitiveDeclarations.length = 0;
     }
 
-    public static findFunctionDeclarationFromPrimitiveDeclarations(functionName: string): PrimitiveDeclaration | null
+    public static findFunctionDeclarationFromPrimitiveDeclarations(func: Function): PrimitiveDeclaration | null
     {
         const functionDeclaration = PrimitiveLogStore.primitiveDeclarations
-            .find(declaration => declaration.typeWhenDefined === 'function' && declaration.name === functionName);
+            .find(declaration => declaration.typeWhenDefined === 'function'
+                && declaration.functionWhenDefinedWeakRef !== null
+                && declaration.functionWhenDefinedWeakRef.deref() === func);
         return functionDeclaration === undefined ? null : functionDeclaration;
     }
 }
