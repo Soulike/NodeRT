@@ -74,6 +74,7 @@ export class PrimitiveOperationLogger extends Analysis
 
         this.declare = (iid, name, _type, kind) =>
         {
+            // Can't distinguish between normal declarations (var i) from parameters of functions. Should be a write operation to functions parameters when functions are called.
             if (kind !== 'FunctionDeclaration')
             {
                 const declaration = new PrimitiveDeclaration(iid, name, 'var', null);
