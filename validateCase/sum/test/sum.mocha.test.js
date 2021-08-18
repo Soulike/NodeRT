@@ -5,7 +5,7 @@ describe(sum.name, () =>
 {
     it('should handle 0 argument', function ()
     {
-        assert.equal(sum(0), 0);
+        assert.equal(sum(), 0);
     });
 });
 
