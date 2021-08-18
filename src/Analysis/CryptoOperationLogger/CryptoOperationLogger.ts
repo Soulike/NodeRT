@@ -118,6 +118,7 @@ export class CryptoOperationLogger extends Analysis
                     const [err, buf] = args as Parameters<Parameters<typeof crypto.randomBytes>[1]>;
                     if (!err)
                     {
+                        assert.ok(isBufferLike(buf));
                         BufferLogStore.appendBufferOperation(buf, 'write', sourceCodeInfo);
                     }
                 }
