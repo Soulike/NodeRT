@@ -43,6 +43,11 @@ export class AsyncContextLogger extends Analysis
     {
         this.functionEnter = (iid, f) =>
         {
+            /*
+            The function information logged here may not belong to the actual callback function, since the actual callback function could be located in a source file that is ignored
+            
+            What logged here is the information of the first called function located in file that is not ignored
+            */
             if (this.asyncContextChanged)
             {
                 const asyncId = this.lastAsyncId;
