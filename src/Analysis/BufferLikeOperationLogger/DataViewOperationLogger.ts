@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation} from '../../Util';
 
 export class DataViewOperationLogger extends Analysis
 {
@@ -44,12 +44,12 @@ export class DataViewOperationLogger extends Analysis
                 // @ts-ignore
                 if (DataViewOperationLogger.getApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
+                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
                 }
                 // @ts-ignore
                 else if (DataViewOperationLogger.setApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
                 }
             }
         };

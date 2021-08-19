@@ -3,11 +3,8 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import util from 'util';
-import {strict as assert} from 'assert';
-import {isArrayAccess, isBufferLike} from '../../Util';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {isArrayAccess, logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../Util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {isObject} from 'lodash';
 import TypedArray = NodeJS.TypedArray;
 
 export class TypedArrayOperationLogger extends Analysis
@@ -71,90 +68,38 @@ export class TypedArrayOperationLogger extends Analysis
         this.invokeFun = (iid, f, base, args, result) =>
         {
             // @ts-ignore
-            if (TypedArrayOperationLogger.constructors.has(f))
+            if (TypedArrayOperationLogger.constructors.has(f)
+                // @ts-ignore
+                || TypedArrayOperationLogger.fromApis.has(f)
+                // @ts-ignore
+                || TypedArrayOperationLogger.ofApis.has(f))
             {
-                assert.ok(util.types.isTypedArray(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-                if (isBufferLike(args[0]))
-                {
-                    BufferLogStore.appendBufferOperation(args[0], 'read', this.getSandbox(), iid);
-                }
-                else if (isObject(args[0]))
-                {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
-                }
-            }
-            // @ts-ignore
-            else if (TypedArrayOperationLogger.fromApis.has(f))
-            {
-                assert.ok(util.types.isTypedArray(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-                const iterable = args[0];
-                if (isBufferLike(iterable))
-                {
-                    BufferLogStore.appendBufferOperation(iterable, 'read', this.getSandbox(), iid);
-                }
-                else if (isObject(iterable))
-                {
-                    ObjectLogStore.appendObjectOperation(iterable, 'read', this.getSandbox(), iid);
-                }
-            }
-            // @ts-ignore
-            else if (TypedArrayOperationLogger.ofApis.has(f))
-            {
-                assert.ok(util.types.isTypedArray(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
+                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
             }
             else if (util.types.isTypedArray(base) || Buffer.isBuffer(base))  // including Buffer since these apis are not logged in Buffer part
             {
-                if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin)
+                if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin
+                    || TypedArrayOperationLogger.instanceWriteOnlyApis.has(f))
                 {
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
                 }
                 else if (TypedArrayOperationLogger.instanceReadOnlyApis.has(f))
                 {
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                }
-                else if (TypedArrayOperationLogger.instanceWriteOnlyApis.has(f))
-                {
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
                     || f === TypedArrayOperationLogger.typedArrayPrototype.map
-                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice)
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
                 {
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                    assert.ok(util.types.isTypedArray(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                    BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-                }
-                else if (f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
-                {
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                    assert.ok(util.types.isTypedArray(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
+                    logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
                 {
-                    if (util.types.isTypedArray(args[0]))
-                    {
-                        BufferLogStore.appendBufferOperation(args[0], 'read', this.getSandbox(), iid);
-                    }
-                    else if (Array.isArray(args[0]))
-                    {
-                        ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
-                    }
-                    assert.ok(util.types.isTypedArray(base));
-                    BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                    logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
                 }
             }
         };

@@ -1,10 +1,9 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import util from 'util';
 import {strict as assert} from 'assert';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectResultAsWriteOperation} from '../../Util';
+import {isObject} from 'lodash';
 
 export class ArrayBufferOperationLogger extends Analysis
 {
@@ -19,39 +18,20 @@ export class ArrayBufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, _args, result) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
-            if (f === ArrayBuffer)
+            if (f === ArrayBuffer
+            || f === SharedArrayBuffer)
             {
-                assert.ok(util.types.isArrayBuffer(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
+                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
             }
-            else if (util.types.isAnyArrayBuffer(base))
+            else if (f === ArrayBuffer.prototype.slice
+                || f === SharedArrayBuffer.prototype.slice)
             {
-                if (f === ArrayBuffer.prototype.slice)
-                {
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                    assert.ok(util.types.isArrayBuffer(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                    BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-                }
-            }
-            else if (f === SharedArrayBuffer)
-            {
-                assert.ok(util.types.isSharedArrayBuffer(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-            }
-            else if (util.types.isSharedArrayBuffer(base))
-            {
-                if (f === SharedArrayBuffer.prototype.slice)
-                {
-                    BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
-                    assert.ok(util.types.isSharedArrayBuffer(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                    BufferLogStore.appendBufferOperation(result, 'write', this.getSandbox(), iid);
-                }
+                assert.ok(isObject(base));
+                logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
+                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
             }
         };
     }
