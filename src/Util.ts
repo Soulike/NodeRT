@@ -6,6 +6,7 @@ import {SourceCodeInfo} from './LogStore/Class/SourceCodeInfo';
 import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
+import {isFunction} from 'lodash';
 
 export function printSync(content: string): void
 {
@@ -55,20 +56,6 @@ export function toJSON(object: unknown): string
 
 }
 
-export function isObject(value: unknown): boolean
-{
-    return isReference(value) && !Array.isArray(value);
-}
-
-export function isReference(value: unknown): boolean
-{
-    if (value === null)
-    {
-        return false;
-    }
-    return ((typeof value === 'function') || (typeof value === 'object'));
-}
-
 export function isPrimitive(value: unknown): boolean
 {
     if (value === null || value === undefined)
@@ -104,4 +91,24 @@ export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boo
 export function isURL(other: unknown): other is URL
 {
     return other instanceof URL;
+}
+
+export function getFunctionProperties(object: any): Set<Function> | never
+{
+    const functions: Set<Function> = new Set();
+    Object.getOwnPropertyNames(object).forEach(key =>
+    {
+        try
+        {
+            if (isFunction(object[key]))
+            {
+                functions.add(object[key]);
+            }
+        }
+        catch (e)
+        {
+            // ignore
+        }
+    });
+    return functions;
 }
