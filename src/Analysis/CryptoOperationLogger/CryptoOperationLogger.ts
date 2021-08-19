@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {Certificate, Cipher, Decipher, DiffieHellman, ECDH, Hash, Hmac, KeyObject, Verify} from 'crypto';
-import crypto from 'crypto';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike, logObjectArgsAsReadOperation, logObjectResultAsWriteOperation} from '../../Util';
-import {isFunction} from 'lodash';
 import {strict as assert} from 'assert';
+import crypto, {Certificate, Cipher, Decipher, DiffieHellman, ECDH, Hash, Hmac, KeyObject, Verify} from 'crypto';
+import {isFunction} from 'lodash';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {logObjectArgsAsReadOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction'
 
 export class CryptoOperationLogger extends Analysis
 {

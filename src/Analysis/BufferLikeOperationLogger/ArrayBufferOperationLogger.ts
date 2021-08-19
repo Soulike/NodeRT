@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
-import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectResultAsWriteOperation} from '../../Util';
+import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
 import {isObject} from 'lodash';
 
 export class ArrayBufferOperationLogger extends Analysis

@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import util from 'util';
-import {logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation} from '../../Util';
+import {logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation} from '../../LogStore/LoggerFunction';
 
 export class DataViewOperationLogger extends Analysis
 {

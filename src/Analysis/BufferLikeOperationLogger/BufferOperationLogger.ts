@@ -1,10 +1,11 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import buffer from 'buffer';
-import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
-import {isArrayAccess, logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../Util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
+import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {isArrayAccess} from '../../Util';
 
 export class BufferOperationLogger extends Analysis
 {

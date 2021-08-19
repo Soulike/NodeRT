@@ -3,7 +3,8 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import util from 'util';
-import {isArrayAccess, logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../Util';
+import {isArrayAccess} from '../../Util';
+import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction'
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import TypedArray = NodeJS.TypedArray;
 
