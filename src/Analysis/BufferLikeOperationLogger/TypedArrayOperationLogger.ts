@@ -69,9 +69,16 @@ export class TypedArrayOperationLogger extends Analysis
         this.invokeFun = (iid, f, base, args, result) =>
         {
             // @ts-ignore
-            if (TypedArrayOperationLogger.constructors.has(f)
-                // @ts-ignore
-                || TypedArrayOperationLogger.fromApis.has(f)
+            if (TypedArrayOperationLogger.constructors.has(f))
+            {
+                if (!util.types.isAnyArrayBuffer(args[0]))
+                {
+                    logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                    logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
+                }
+            }
+            // @ts-ignore
+            if (TypedArrayOperationLogger.fromApis.has(f)
                 // @ts-ignore
                 || TypedArrayOperationLogger.ofApis.has(f))
             {
