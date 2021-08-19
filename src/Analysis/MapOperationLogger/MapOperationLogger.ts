@@ -1,10 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
-import {isObject} from 'lodash';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../Util';
 
 export class MapOperationLogger extends Analysis
 {
@@ -30,38 +27,18 @@ export class MapOperationLogger extends Analysis
                 || f === Map.prototype.keys
                 || f === Map.prototype.entries)
             {
-                for (const arg of args)
-                {
-                    if (isObject(arg))
-                    {
-                        ObjectLogStore.appendObjectOperation(arg, 'read', this.getSandbox(), iid);
-                        if (isBufferLike(arg))
-                        {
-                            BufferLogStore.appendBufferOperation(arg, 'read',
-                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                        }
-                    }
-                }
-
-                if (isObject(result))
-                {
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                    if (isBufferLike(result))
-                    {
-                        BufferLogStore.appendBufferOperation(result, 'write',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
+                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
             }
             else if (base instanceof Map)
             {
                 if (MapOperationLogger.readMethods.has(f))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
                 }
                 else if (MapOperationLogger.writeMethods.has(f))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
                 }
             }
         };

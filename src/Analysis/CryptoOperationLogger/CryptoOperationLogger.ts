@@ -4,9 +4,8 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {Certificate, Cipher, Decipher, DiffieHellman, ECDH, Hash, Hmac, KeyObject, Verify} from 'crypto';
 import crypto from 'crypto';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
-import {isFunction, isObject} from 'lodash';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {getSourceCodeInfoFromIid, isBufferLike, logObjectArgsAsReadOperation, logObjectResultAsWriteOperation} from '../../Util';
+import {isFunction} from 'lodash';
 import {strict as assert} from 'assert';
 
 export class CryptoOperationLogger extends Analysis
@@ -82,27 +81,8 @@ export class CryptoOperationLogger extends Analysis
                 || CryptoOperationLogger.signFunctions.has(f)
                 || CryptoOperationLogger.verifyFunctions.has(f))
             {
-                const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
-                for (const arg of args)
-                {
-                    if (isBufferLike(arg))
-                    {
-                        BufferLogStore.appendBufferOperation(arg, 'read', sourceCodeInfo);
-                    }
-                    else if (isObject(arg))
-                    {
-                        ObjectLogStore.appendObjectOperation(arg, 'read', this.getSandbox(), iid);
-                    }
-                }
-                if (isBufferLike(result))
-                {
-                    BufferLogStore.appendBufferOperation(result, 'write', sourceCodeInfo);
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                }
-                else if (isObject(result))
-                {
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                }
+                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
             }
         };
 
