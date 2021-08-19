@@ -39,9 +39,13 @@ export class ObjectDeclaration extends ResourceDeclaration
 
     public toJSON()
     {
+        const object = this.objectWeakRef.deref();
+        let objectType = object === undefined
+            ? '[ReleasedObject]'
+            : `${Object.prototype.toString.apply(object)}`;
         return {
             ...this,
-            objectWeakRef: `<objectWeakRef>`
+            objectWeakRef: objectType
         };
     }
 }
