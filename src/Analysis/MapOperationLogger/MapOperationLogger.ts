@@ -1,12 +1,17 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {strict as assert} from 'assert';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {isObject} from 'lodash';
+import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
 
 export class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+
+    private static readonly readMethods: Set<Function> = new Set([Map.prototype.get, Map.prototype.forEach, Map.prototype.has]);
+    private static readonly writeMethods: Set<Function> = new Set([Map.prototype.set, Map.prototype.delete, Map.prototype.clear]);
 
     constructor(sandbox: Sandbox)
     {
@@ -17,22 +22,44 @@ export class MapOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, _args, result, isConstructor) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
-            const readMethods: Function[] = [Map.prototype.get, Map.prototype.forEach, Map.prototype.has];
-            const writeMethods: Function[] = [Map.prototype.set, Map.prototype.delete, Map.prototype.clear];
-            if (f === Map && isConstructor)
+            if (f === Map
+                || f === Map.prototype[Symbol.iterator]
+                || f === Map.prototype.values
+                || f === Map.prototype.keys
+                || f === Map.prototype.entries)
             {
-                assert.ok(result instanceof Map);
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                for (const arg of args)
+                {
+                    if (isObject(arg))
+                    {
+                        ObjectLogStore.appendObjectOperation(arg, 'read', this.getSandbox(), iid);
+                        if (isBufferLike(arg))
+                        {
+                            BufferLogStore.appendBufferOperation(arg, 'read',
+                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        }
+                    }
+                }
+
+                if (isObject(result))
+                {
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                    if (isBufferLike(result))
+                    {
+                        BufferLogStore.appendBufferOperation(result, 'write',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                }
             }
             else if (base instanceof Map)
             {
-                if (readMethods.includes(f))
+                if (MapOperationLogger.readMethods.has(f))
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
                 }
-                else if (writeMethods.includes(f))
+                else if (MapOperationLogger.writeMethods.has(f))
                 {
                     ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
                 }
