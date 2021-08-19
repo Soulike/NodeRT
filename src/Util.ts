@@ -134,14 +134,14 @@ export function logObjectArgsAsReadOperation(args: unknown[], sandbox: Sandbox, 
 
 export function logObjectResultAsWriteOperation(result: unknown, sandbox: Sandbox, iid: number): void
 {
-    if (isBufferLike(result))
-    {
-        BufferLogStore.appendBufferOperation(result, 'write',
-            getSourceCodeInfoFromIid(iid, sandbox));
-    }
-    else if (isObject(result))
+    if (isObject(result))
     {
         ObjectLogStore.appendObjectOperation(result, 'write', sandbox, iid);
+        if (isBufferLike(result))
+        {
+            BufferLogStore.appendBufferOperation(result, 'write',
+                getSourceCodeInfoFromIid(iid, sandbox));
+        }
     }
 }
 
