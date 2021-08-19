@@ -6,7 +6,10 @@ import {SourceCodeInfo} from './LogStore/Class/SourceCodeInfo';
 import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
-import {isFunction} from 'lodash';
+import {isFunction, isObject} from 'lodash';
+import {ObjectLogStore} from './LogStore/ObjectLogStore';
+import {BufferLogStore} from './LogStore/BufferLogStore';
+import assert from 'assert';
 
 export function printSync(content: string): void
 {
@@ -111,4 +114,57 @@ export function getFunctionProperties(object: any): Set<Function> | never
         }
     });
     return functions;
+}
+
+export function logObjectArgsAsReadOperation(args: unknown[], sandbox: Sandbox, iid: number): void
+{
+    for (const arg of args)
+    {
+        if (isBufferLike(arg))
+        {
+            BufferLogStore.appendBufferOperation(arg, 'read',
+                getSourceCodeInfoFromIid(iid, sandbox));
+        }
+        else if (isObject(arg))
+        {
+            ObjectLogStore.appendObjectOperation(arg, 'read', sandbox, iid);
+        }
+    }
+}
+
+export function logObjectResultAsWriteOperation(result: unknown, sandbox: Sandbox, iid: number): void
+{
+    if (isBufferLike(result))
+    {
+        BufferLogStore.appendBufferOperation(result, 'write',
+            getSourceCodeInfoFromIid(iid, sandbox));
+    }
+    else if (isObject(result))
+    {
+        ObjectLogStore.appendObjectOperation(result, 'write', sandbox, iid);
+    }
+}
+
+function logObjectBaseAsOperation(base: object, sandbox: Sandbox, iid: number, type: 'read'|'write'): void
+{
+    assert.ok(isObject(base));
+    if (isBufferLike(base))
+    {
+        BufferLogStore.appendBufferOperation(base, type,
+            getSourceCodeInfoFromIid(iid, sandbox));
+    }
+    else if (isObject(base))
+    {
+        ObjectLogStore.appendObjectOperation(base, type, sandbox, iid);
+    }
+}
+
+export function logObjectBaseAsReadOperation(base: object, sandbox: Sandbox, iid: number): void
+{
+    logObjectBaseAsOperation(base, sandbox, iid, 'read');
+}
+
+export function logObjectBaseAsWriteOperation(base: object, sandbox: Sandbox, iid: number): void
+{
+    logObjectBaseAsOperation(base, sandbox, iid, 'write');
 }
