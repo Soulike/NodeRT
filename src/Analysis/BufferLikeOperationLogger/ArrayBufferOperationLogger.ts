@@ -2,8 +2,9 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
-import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
-import {isObject} from 'lodash';
+import util from 'util';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {getSourceCodeInfoFromIid} from '../../Util';
 
 export class ArrayBufferOperationLogger extends Analysis
 {
@@ -18,20 +19,28 @@ export class ArrayBufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFun = (iid, f, base, _args, result) =>
         {
             if (f === ArrayBuffer
-            || f === SharedArrayBuffer)
+                || f === SharedArrayBuffer)
             {
-                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
-                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
+                assert(util.types.isAnyArrayBuffer(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === ArrayBuffer.isView)
+            {
+                // pass
             }
             else if (f === ArrayBuffer.prototype.slice
                 || f === SharedArrayBuffer.prototype.slice)
             {
-                assert.ok(isObject(base));
-                logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
+                assert.ok(util.types.isAnyArrayBuffer(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                assert.ok(util.types.isAnyArrayBuffer(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
         };
     }

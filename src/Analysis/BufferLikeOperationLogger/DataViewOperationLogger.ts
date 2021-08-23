@@ -1,12 +1,13 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import util from 'util';
-import {logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation} from '../../LogStore/LoggerFunction';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {strict as assert} from 'assert';
 
 export class DataViewOperationLogger extends Analysis
 {
-    private static readonly getApis: Set<typeof DataView.prototype.getInt8> = new Set([
+    private static readonly getApis: Set<Function> = new Set([
         DataView.prototype.getInt8,
         DataView.prototype.getUint8,
         DataView.prototype.getInt16,
@@ -16,7 +17,7 @@ export class DataViewOperationLogger extends Analysis
         DataView.prototype.getFloat32,
         DataView.prototype.getFloat64,
     ]);
-    private static readonly setApis: Set<typeof DataView.prototype.setInt8> = new Set([
+    private static readonly setApis: Set<Function> = new Set([
         DataView.prototype.setInt8,
         DataView.prototype.setUint8,
         DataView.prototype.setInt16,
@@ -39,18 +40,17 @@ export class DataViewOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base) =>
         {
-            if (util.types.isDataView(base))
+            if (DataViewOperationLogger.getApis.has(f))
             {
-                // @ts-ignore
-                if (DataViewOperationLogger.getApis.has(f))
-                {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                }
-                // @ts-ignore
-                else if (DataViewOperationLogger.setApis.has(f))
-                {
-                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
-                }
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (DataViewOperationLogger.setApis.has(f))
+            {
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
         };
     }

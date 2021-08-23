@@ -1,11 +1,14 @@
 // DO NOT INSTRUMENT
 
 import buffer from 'buffer';
+import {strict as assert} from 'assert';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
-import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {isArrayAccess} from '../../Util';
+import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike} from '../../Util';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import util from 'util';
+import {isObject} from 'lodash';
 
 export class BufferOperationLogger extends Analysis
 {
@@ -14,7 +17,9 @@ export class BufferOperationLogger extends Analysis
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
 
-    private static readonly readOnlyApis: Set<(...args: any[]) => any> = new Set([
+    private readonly iteratorToIteratee: WeakMap<IterableIterator<any>, object>;
+
+    private static readonly readOnlyApis: Set<Function> = new Set([
         Buffer.prototype.readBigInt64BE,
         Buffer.prototype.readBigInt64LE,
         Buffer.prototype.readBigUInt64BE,
@@ -37,10 +42,11 @@ export class BufferOperationLogger extends Analysis
         Buffer.prototype.readUInt32LE,
         Buffer.prototype.readUIntBE,
         Buffer.prototype.readUIntLE,
+        Buffer.prototype.toJSON,
         Buffer.prototype.toString,
     ]);
 
-    private static readonly writeOnlyApis: Set<(...args: any[]) => any> = new Set([
+    private static readonly writeOnlyApis: Set<Function> = new Set([
         Buffer.prototype.swap16,
         Buffer.prototype.swap32,
         Buffer.prototype.swap64,
@@ -72,6 +78,7 @@ export class BufferOperationLogger extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.iteratorToIteratee = new WeakMap();
 
         this.registerHooks();
     }
@@ -80,59 +87,156 @@ export class BufferOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            if (f === Buffer.alloc
-                || f === Buffer.allocUnsafe
-                || f === Buffer.allocUnsafeSlow
-                || f === Buffer
-                || f === Buffer.from
-                || f === Buffer.compare
-                || f === Buffer.concat
-                || f === Buffer.prototype.toJSON
-                || f === buffer.transcode)
+            if (f === Buffer.alloc)
             {
-                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
-                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
+                if (isBufferLike(args[1]))
+                {
+                    BufferLogStore.appendBufferOperation(args[1], 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                assert.ok(isBufferLike(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
-            else if (Buffer.isBuffer(base))
+            else if (f === Buffer.allocUnsafe
+                || f === Buffer.allocUnsafeSlow)
             {
-                if (f === Buffer.prototype.entries
-                    || f === Buffer.prototype.keys
-                    || f === Buffer.prototype.values
-                    || f === Buffer.prototype[Symbol.iterator]
-                    || f === Buffer.prototype.compare
-                    || f === Buffer.prototype.equals)
+                assert.ok(isBufferLike(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.byteLength)
+            {
+                if (isBufferLike(args[0]))
                 {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                    logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                else if (f === Buffer.prototype.copy)
+            }
+            else if (f === Buffer.compare)
+            {
+                assert.ok(isBufferLike(args[0]));
+                assert.ok(isBufferLike(args[1]));
+                BufferLogStore.appendBufferOperation(args[0], 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                BufferLogStore.appendBufferOperation(args[1], 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.concat)
+            {
+                assert.ok(Array.isArray(args[0]));
+                ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                for (const arg of args[0])
                 {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                    const targetBuffer = args[0] as Parameters<typeof Buffer.prototype.copy>[0];
-                    BufferLogStore.appendBufferOperation(targetBuffer, 'write', this.getSandbox(), iid);
+                    assert.ok(isBufferLike(arg));
+                    BufferLogStore.appendBufferOperation(arg, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                else if (f === Buffer.prototype.fill)
+                assert.ok(isBufferLike(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.from || f === Buffer)
+            {
+                if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
                 {
-                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
-                    logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                else if (f === Buffer.prototype.includes
-                    || f === Buffer.prototype.indexOf
-                    || f === Buffer.prototype.lastIndexOf)
+                else if (util.types.isAnyArrayBuffer(args[0]))
                 {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                    logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
+                    // pass
                 }
-                // @ts-ignore
-                else if (BufferOperationLogger.readOnlyApis.has(f))
+                else if (Array.isArray(args[0]) || isObject(args[0]))
                 {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                 }
-                // @ts-ignore
-                else if (BufferOperationLogger.writeOnlyApis.has(f))
+                assert.ok(isBufferLike(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.prototype.compare
+                || f === Buffer.prototype.equals)
+            {
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                assert.ok(isBufferLike(args[0]));
+                BufferLogStore.appendBufferOperation(args[0], 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.prototype.copy)
+            {
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                assert.ok(isBufferLike(args[0]));
+                BufferLogStore.appendBufferOperation(args[0], 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.prototype.entries
+                || f === Buffer.prototype.values)
+            {
+                assert.ok(isObject(base));
+                this.iteratorToIteratee.set(
+                    result as IterableIterator<any>,
+                    base);
+            }
+            else if (f === Buffer.prototype.fill)
+            {
+                if (isBufferLike(args[0]))
                 {
-                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.prototype.includes
+                || f === Buffer.prototype.indexOf
+                || f === Buffer.prototype.lastIndexOf)
+            {
+                if (isBufferLike(args[0]))
+                {
+                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (BufferOperationLogger.readOnlyApis.has(f))
+            {
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (BufferOperationLogger.writeOnlyApis.has(f))
+            {
+                assert.ok(isBufferLike(base));
+                BufferLogStore.appendBufferOperation(base, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === buffer.transcode)
+            {
+                assert.ok(isBufferLike(args[0]));
+                BufferLogStore.appendBufferOperation(args[0], 'read',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                assert.ok(isBufferLike(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.isBuffer
+                || f === Buffer.isEncoding
+                || f === Buffer.prototype.keys)
+            {
+                // pass
+            }
+            else if (this.iteratorToIteratee.has(base as any))
+            {
+                const iteratee = this.iteratorToIteratee.get(base as IterableIterator<any>)!;
+                ObjectLogStore.appendObjectOperation(iteratee, 'read', this.getSandbox(), iid);
             }
         };
 
