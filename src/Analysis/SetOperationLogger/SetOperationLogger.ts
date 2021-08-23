@@ -1,14 +1,14 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
+import {strict as assert} from 'assert';
+import {isObject} from 'lodash';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 
 export class SetOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-
-    private static readonly readMethods: Set<Function> = new Set([Set.prototype.forEach, Set.prototype.has]);
-    private static readonly writeMethods: Set<Function> = new Set([Set.prototype.add, Set.prototype.delete, Set.prototype.clear]);
 
     constructor(sandbox: Sandbox)
     {
@@ -20,26 +20,36 @@ export class SetOperationLogger extends Analysis
     protected override registerHooks()
     {
         this.invokeFun = (iid, f, base, args, result) =>
-        {   
-            if (f === Set
-                || f === Set.prototype.entries
-                || f === Set.prototype.keys
-                || f === Set.prototype.values
-                || f === Set.prototype[Symbol.iterator])
-            {   
-                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
-                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
-            }
-            else if (base instanceof Set)
+        {
+            if (f === Set)
             {
-                if (SetOperationLogger.readMethods.has(f))
+                if (isObject(args[0]))
                 {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                 }
-                else if (SetOperationLogger.writeMethods.has(f))
-                {
-                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
-                }
+                assert.ok(result instanceof Set);
+                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+            }
+            else if (f === Set.prototype[Symbol.iterator]
+                || f === Set.prototype.entries
+                || f === Set.prototype.values)
+            {
+                assert.ok(isObject(result));
+                assert.ok(isObject(base));
+                IteratorLogStore.addIterator(result as Iterator<any>, base);
+            }
+            else if (f === Set.prototype.add
+                || f === Set.prototype.clear
+                || f === Set.prototype.delete)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+            }
+            else if (f === Set.prototype.forEach
+                || f === Set.prototype.has)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
             }
         };
     }
