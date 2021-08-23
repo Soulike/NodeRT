@@ -1,14 +1,14 @@
 // DO NOT INSTRUMENT
 
+import {strict as assert} from 'assert';
+import {isObject} from 'lodash';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {logObjectArgsAsReadOperation, logObjectBaseAsReadOperation, logObjectBaseAsWriteOperation, logObjectResultAsWriteOperation} from '../../LogStore/LoggerFunction';
 
 export class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-
-    private static readonly readMethods: Set<Function> = new Set([Map.prototype.get, Map.prototype.forEach, Map.prototype.has]);
-    private static readonly writeMethods: Set<Function> = new Set([Map.prototype.set, Map.prototype.delete, Map.prototype.clear]);
 
     constructor(sandbox: Sandbox)
     {
@@ -21,25 +21,36 @@ export class MapOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            if (f === Map
-                || f === Map.prototype[Symbol.iterator]
-                || f === Map.prototype.values
-                || f === Map.prototype.keys
-                || f === Map.prototype.entries)
+            if (f === Map)
             {
-                logObjectArgsAsReadOperation(args, this.getSandbox(), iid);
-                logObjectResultAsWriteOperation(result, this.getSandbox(), iid);
+                if (isObject(args[0]))
+                {
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                }
+                assert.ok(result instanceof Map);
+                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
             }
-            else if (base instanceof Map)
+            else if (f === Map.prototype[Symbol.iterator]
+                || f === Map.prototype.entries
+                || f === Map.prototype.values)
             {
-                if (MapOperationLogger.readMethods.has(f))
-                {
-                    logObjectBaseAsReadOperation(base, this.getSandbox(), iid);
-                }
-                else if (MapOperationLogger.writeMethods.has(f))
-                {
-                    logObjectBaseAsWriteOperation(base, this.getSandbox(), iid);
-                }
+                assert.ok(isObject(result));
+                assert.ok(isObject(base));
+                IteratorLogStore.addIterator(result as Iterator<any>, base);
+            }
+            else if (f === Map.prototype.clear
+                || f === Map.prototype.delete
+                || f === Map.prototype.set)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+            }
+            else if (f === Map.prototype.forEach
+                || f === Map.prototype.get
+                || f === Map.prototype.has)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
             }
         };
     }
