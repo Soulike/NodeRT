@@ -34,7 +34,6 @@ export class ArrayOperationLogger extends Analysis
             }
             else if (f === Array.prototype[Symbol.iterator]
                 || f === Array.prototype.entries
-                || f === Array.prototype.keys
                 || f === Array.prototype.values)
             {
                 assert.ok(isObject(base));
@@ -103,7 +102,8 @@ export class ArrayOperationLogger extends Analysis
                 assert.ok(isObject(result));
                 ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
             }
-            else if (f === Array.isArray)
+            else if (f === Array.isArray
+                || f === Array.prototype.keys)
             {
                 // pass
             }
