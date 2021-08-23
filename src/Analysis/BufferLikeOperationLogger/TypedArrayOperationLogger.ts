@@ -4,6 +4,7 @@ import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
 import util from 'util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
@@ -31,8 +32,6 @@ export class TypedArrayOperationLogger extends Analysis
 
     private static typedArrayPrototype = Uint8Array.prototype;  // All TypedArrays share the same prototype
 
-    private readonly iteratorToIteratee: WeakMap<IterableIterator<any>, object>;
-
     public forObject: Hooks['forObject'] | undefined;
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
@@ -41,7 +40,6 @@ export class TypedArrayOperationLogger extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.iteratorToIteratee = new WeakMap();
 
         this.registerHooks();
     }
@@ -133,18 +131,13 @@ export class TypedArrayOperationLogger extends Analysis
                 || f === TypedArrayOperationLogger.typedArrayPrototype.values)
             {
                 assert.ok(isObject(base));
-                this.iteratorToIteratee.set(
+                IteratorLogStore.addIterator(
                     result as IterableIterator<any>,
                     base);
             }
             else if (f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
             {
                 // pass
-            }
-            else if (this.iteratorToIteratee.has(base as any))
-            {
-                const iteratee = this.iteratorToIteratee.get(base as IterableIterator<any>)!;
-                ObjectLogStore.appendObjectOperation(iteratee, 'read', this.getSandbox(), iid);
             }
         };
 

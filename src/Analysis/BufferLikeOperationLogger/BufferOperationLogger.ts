@@ -9,6 +9,7 @@ import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike} from '../../Util'
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import util from 'util';
 import {isObject} from 'lodash';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 
 export class BufferOperationLogger extends Analysis
 {
@@ -16,8 +17,6 @@ export class BufferOperationLogger extends Analysis
     public forObject: Hooks['forObject'] | undefined;
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
-
-    private readonly iteratorToIteratee: WeakMap<IterableIterator<any>, object>;
 
     private static readonly readOnlyApis: Set<Function> = new Set([
         Buffer.prototype.readBigInt64BE,
@@ -78,7 +77,6 @@ export class BufferOperationLogger extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.iteratorToIteratee = new WeakMap();
 
         this.registerHooks();
     }
@@ -178,7 +176,7 @@ export class BufferOperationLogger extends Analysis
                 || f === Buffer.prototype.values)
             {
                 assert.ok(isObject(base));
-                this.iteratorToIteratee.set(
+                IteratorLogStore.addIterator(
                     result as IterableIterator<any>,
                     base);
             }
@@ -232,11 +230,6 @@ export class BufferOperationLogger extends Analysis
                 || f === Buffer.prototype.keys)
             {
                 // pass
-            }
-            else if (this.iteratorToIteratee.has(base as any))
-            {
-                const iteratee = this.iteratorToIteratee.get(base as IterableIterator<any>)!;
-                ObjectLogStore.appendObjectOperation(iteratee, 'read', this.getSandbox(), iid);
             }
         };
 

@@ -4,18 +4,16 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 
 /**Does not support spread expression now*/
 export class ArrayOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
 
-    private readonly iteratorToIteratee: WeakMap<IterableIterator<any>, object>;
-
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-        this.iteratorToIteratee = new WeakMap();
 
         this.registerHooks();
     }
@@ -37,7 +35,7 @@ export class ArrayOperationLogger extends Analysis
                 || f === Array.prototype.values)
             {
                 assert.ok(isObject(base));
-                this.iteratorToIteratee.set(
+                IteratorLogStore.addIterator(
                     result as IterableIterator<any>,
                     base);
             }
@@ -106,11 +104,6 @@ export class ArrayOperationLogger extends Analysis
                 || f === Array.prototype.keys)
             {
                 // pass
-            }
-            else if (this.iteratorToIteratee.has(base as any))
-            {
-                const iteratee = this.iteratorToIteratee.get(base as IterableIterator<any>)!;
-                ObjectLogStore.appendObjectOperation(iteratee, 'read', this.getSandbox(), iid);
             }
         };
     }
