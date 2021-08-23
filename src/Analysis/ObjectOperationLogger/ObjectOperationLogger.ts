@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
-import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {isObject, isSymbol} from 'lodash';
+import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {isBufferLike} from '../../Util';
 
 export class ObjectOperationLogger extends Analysis
@@ -78,63 +78,54 @@ export class ObjectOperationLogger extends Analysis
         // Object.prototype and Object static methods only
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            if (f === Object.assign)
+            if (f === Object)
             {
-                const [target, ...sources] = args as Parameters<typeof Object.assign>;
-                ObjectLogStore.appendObjectOperation(target, 'write', this.getSandbox(), iid);
-                sources.forEach(source =>
+                if (args.length === 0 || !isObject(args[0]))
                 {
-                    if (isObject(source))
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                }
+                else if (f === Object.assign)
+                {
+                    const [target, ...sources] = args as Parameters<typeof Object.assign>;
+                    ObjectLogStore.appendObjectOperation(target, 'write', this.getSandbox(), iid);
+                    for (const source of sources)
                     {
+                        assert.ok(isObject(source));
                         ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
                     }
-                });
-            }
-            else if (f === Object.create)
-            {
-                const propertiesObject = args[1] as Parameters<typeof Object.create>[1];
-                const newObject = result as ReturnType<typeof Object.create>;
-                if (isObject(propertiesObject))
-                {
-                    ObjectLogStore.appendObjectOperation(propertiesObject, 'read', this.getSandbox(), iid);
                 }
-                ObjectLogStore.appendObjectOperation(newObject, 'write', this.getSandbox(), iid);
-            }
-            else if (f === Object.defineProperty)
-            {
-                const [obj, _, descriptor] = args as Parameters<typeof Object.defineProperty>;
-                if (isObject(obj))
+                else if (f === Object.create)
                 {
-                    ObjectLogStore.appendObjectOperation(obj, 'write', this.getSandbox(), iid);
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
                 }
-                ObjectLogStore.appendObjectOperation(descriptor, 'read', this.getSandbox(), iid);
-            }
-            else if (f === Object.defineProperties)
-            {
-                const [obj, props] = args as Parameters<typeof Object.defineProperties>;
-                if (isObject(obj))
+                else if (f === Object.defineProperties
+                    || f === Object.defineProperty)
                 {
-                    ObjectLogStore.appendObjectOperation(obj, 'write', this.getSandbox(), iid);
+                    assert.ok(isObject(args[0]));
+                    ObjectLogStore.appendObjectOperation(args[0], 'write', this.getSandbox(), iid);
                 }
-                ObjectLogStore.appendObjectOperation(props, 'read', this.getSandbox(), iid);
-            }
-            else if (f === Object.freeze || f === Object.seal || f === Object.preventExtensions)
-            {
-                const [obj] = args as Parameters<typeof Object.freeze | typeof Object.seal | typeof Object.preventExtensions>;
-                if (isObject(obj))
+                else if (f === Object.entries
+                    || f === Object.values)
                 {
-                    ObjectLogStore.appendObjectOperation(obj, 'write', this.getSandbox(), iid);
+                    assert.ok(isObject(base));
+                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
                 }
-            }
-            else if (f === Object)
-            {
-                assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-            }
-            else if (isObject(base))
-            {
-                if (f === Object.prototype.toString || f === Object.prototype.toLocaleString || f === Object.prototype.valueOf)
+                else if (f === Object.fromEntries)
                 {
+                    assert.ok(isObject(args[0]));
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                }
+                else if (f === Object.prototype.toLocaleString
+                    || f === Object.prototype.toString
+                    || f === Object.prototype.valueOf)
+                {
+                    assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
                 }
             }
