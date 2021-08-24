@@ -1,7 +1,6 @@
 // DO NOT INSTRUMENT
 
 import {Dir} from 'fs';
-import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {FileOperationLogger} from './FileOperationLogger';
 
