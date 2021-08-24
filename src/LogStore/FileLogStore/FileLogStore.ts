@@ -12,7 +12,7 @@ import {FileHandle} from 'fs/promises';
 export class FileLogStore
 {
     private static readonly filePathToFileDeclaration: Map<string, FileDeclaration> = new Map();
-    private static readonly fdToFilePathOrBuffer: Map<number, string | BufferLike>;
+    private static readonly fdToFilePathOrBuffer: Map<number, string | BufferLike> = new Map();
     private static readonly fileHandles: Set<FileHandle> = new Set();
 
     public static getFileDeclarations(): ReadonlyArray<FileDeclaration>
