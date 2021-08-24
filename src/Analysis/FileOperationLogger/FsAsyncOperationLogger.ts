@@ -59,7 +59,7 @@ export class FsAsyncOperationLogger extends Analysis
             }
             else if (f === fs.ftruncate)
             {
-                const [fd] = args as Parameters<typeof fs.close>;
+                const [fd] = args as Parameters<typeof fs.ftruncate>;
                 FileOperationLogger.appendOperation(fd, 'write', this.getSandbox(), iid);
             }
             else if (f === fs.mkdir
@@ -129,7 +129,7 @@ export class FsAsyncOperationLogger extends Analysis
             }
             else if (f === fs.writev)
             {
-                const [fd, buffers] = args as Parameters<typeof fs.writev | typeof fs.writevSync>;
+                const [fd, buffers] = args as Parameters<typeof fs.writev>;
                 FileOperationLogger.appendOperation(fd, 'write', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
                     BufferLogStore.appendBufferOperation(buffer.buffer, 'read', this.getSandbox(), iid));
