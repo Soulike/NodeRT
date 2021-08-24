@@ -127,25 +127,30 @@ export class FileOperationLogger extends Analysis
     /**
      * Determine whether the operation is appended to BufferLogStore or FileLogStore
      * */
-    private static appendOperation(filePathLike: PathLike | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    private static appendOperation(fd: number, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    private static appendOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    private static appendOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendOperation(fileHandle: FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
+    public static appendOperation(filePathLike: PathLike | BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
+    public static appendOperation(fd: number, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
+    public static appendOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
+    public static appendOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         if (isBufferLike(filePathLikeOrFdOrFileHandle))
         {
-            BufferLogStore.appendBufferOperation(filePathLikeOrFdOrFileHandle, type, sandbox, iid);
+            const buffer = filePathLikeOrFdOrFileHandle;
+            BufferLogStore.appendBufferOperation(buffer, type, sandbox, iid);
         }
         else if (typeof filePathLikeOrFdOrFileHandle === 'number')   // fd
         {
-            const filePathOrBuffer = FileLogStore.getFilePathOrBufferFromFd(filePathLikeOrFdOrFileHandle);
+            const fd = filePathLikeOrFdOrFileHandle;
+            const filePathOrBuffer = FileLogStore.getFilePathOrBufferFromFd(fd);
             if (isBufferLike(filePathOrBuffer))
             {
-                BufferLogStore.appendBufferOperation(filePathOrBuffer, type, sandbox, iid);
+                const buffer = filePathOrBuffer;
+                BufferLogStore.appendBufferOperation(buffer, type, sandbox, iid);
             }
             else if (typeof filePathOrBuffer === 'string')
             {
-                FileLogStore.appendFileOperation(filePathOrBuffer, type, sandbox, iid);
+                const filePath = filePathOrBuffer;
+                FileLogStore.appendFileOperation(filePath, type, sandbox, iid);
             }
             else
             {
@@ -154,11 +159,13 @@ export class FileOperationLogger extends Analysis
         }
         else if (isURL(filePathLikeOrFdOrFileHandle) || typeof filePathLikeOrFdOrFileHandle === 'string')
         {
-            FileLogStore.appendFileOperation(filePathLikeOrFdOrFileHandle, type, sandbox, iid);
+            const filePathOrUrl = filePathLikeOrFdOrFileHandle;
+            FileLogStore.appendFileOperation(filePathOrUrl, type, sandbox, iid);
         }
         else    // FileHandle
         {
-            FileOperationLogger.appendOperation(filePathLikeOrFdOrFileHandle.fd, type, sandbox, iid);
+            const fileHandle = filePathLikeOrFdOrFileHandle;
+            FileOperationLogger.appendOperation(fileHandle.fd, type, sandbox, iid);
         }
     }
 
@@ -178,88 +185,6 @@ export class FileOperationLogger extends Analysis
                     FileLogStore.addFd(fileHandle.fd, filePathLike);
                     FileLogStore.addFileHandle(fileHandle);
                 });
-            }
-            else if (FileLogStore.getFileHandles().has(base as FileHandle))
-            {
-                const fileHandle = base as FileHandle;
-                const fileHandleWriteMetaApis: ReadonlySet<Function> = new Set([
-                    fileHandle.chmod,
-                    fileHandle.chown,
-                    fileHandle.close,
-                    fileHandle.truncate,
-                ]);
-
-                if (f === fileHandle.read)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
-
-                    const [bufferOrOptions] = args as Parameters<typeof fileHandle.read>;
-                    if (isBufferLike(bufferOrOptions))
-                    {
-                        FileOperationLogger.appendOperation(bufferOrOptions, 'write', this.getSandbox(), iid);
-                    }
-                    else if (bufferOrOptions !== undefined)
-                    {
-                        const {buffer} = bufferOrOptions;
-                        if (isBufferLike(buffer))
-                        {
-                            FileOperationLogger.appendOperation(buffer, 'write', this.getSandbox(), iid);
-                        }
-                    }
-                }
-                else if (f === fileHandle.readFile)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
-                    (result as ReturnType<typeof fileHandle.readFile>).then(bufferOrString =>
-                    {
-                        if (isBufferLike(bufferOrString))
-                        {
-                            FileOperationLogger.appendOperation(bufferOrString, 'write', this.getSandbox(), iid);
-                        }
-                    });
-                }
-                else if (f === fileHandle.readv)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
-
-                    const [buffers] = args as Parameters<typeof fileHandle.readv>;
-                    buffers.forEach(buffer => FileOperationLogger.appendOperation(buffer, 'write', this.getSandbox(), iid));
-                }
-                else if (f === fileHandle.write)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
-
-                    const [data] = args as Parameters<typeof fileHandle.writeFile>;
-                    if (isBufferLike(data))
-                    {
-                        FileOperationLogger.appendOperation(data, 'read', this.getSandbox(), iid);
-                    }
-                }
-                else if (f === fileHandle.writeFile || f === fileHandle.appendFile)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
-
-                    const [data] = args as Parameters<typeof fileHandle.writeFile>;
-                    if (isBufferLike(data))
-                    {
-                        FileOperationLogger.appendOperation(data, 'read', this.getSandbox(), iid);
-                    }
-                    else if (isObject(data))
-                    {
-                        ObjectLogStore.appendObjectOperation(data, 'read', this.getSandbox(), iid);
-                    }
-                }
-                else if (f === fileHandle.writev)
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
-
-                    const [buffers] = args as Parameters<typeof fileHandle.writev>;
-                    buffers.forEach(buffer => FileOperationLogger.appendOperation(buffer, 'read', this.getSandbox(), iid));
-                }
-                else if (fileHandleWriteMetaApis.has(f))
-                {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
-                }
             }
             // @ts-ignore
             else if (this.readApis.has(f))

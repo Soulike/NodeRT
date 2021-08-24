@@ -20,9 +20,9 @@ export class FileLogStore
         return Array.from(FileLogStore.filePathToFileDeclaration.values());
     }
 
-    public static getFileHandles(): ReadonlySet<FileHandle>
+    public static hasFileHandle(fileHandle: FileHandle): boolean
     {
-        return this.fileHandles;
+        return this.fileHandles.has(fileHandle);
     }
 
     public static addFileHandle(fileHandle: FileHandle)
