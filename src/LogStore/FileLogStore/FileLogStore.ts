@@ -25,9 +25,10 @@ export class FileLogStore
         return this.fileHandles.has(fileHandle);
     }
 
-    public static addFileHandle(fileHandle: FileHandle)
+    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike)
     {
         this.fileHandles.add(fileHandle);
+        this.addFd(fileHandle.fd, filePathOrBuffer);
     }
 
     public static deleteFileHandle(fileHandle: FileHandle)

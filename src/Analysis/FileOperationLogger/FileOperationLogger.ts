@@ -3,7 +3,7 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {FileLogStore} from '../../LogStore/FileLogStore';
 import {FileHandle} from 'fs/promises';
-import fs, {PathLike, promises as fsPromise} from 'fs';
+import fs, {PathLike} from 'fs';
 import {strict as assert} from 'assert';
 import {isBufferLike, isURL} from '../../Util';
 import {isObject} from 'lodash';
@@ -33,11 +33,6 @@ export class FileOperationLogger extends Analysis
         this.callbackToFilePathOrBuffer = new Map();
 
         this.readApis = new Set([
-            fsPromise.access,
-            fsPromise.lstat,
-            fsPromise.readlink,
-            fsPromise.stat,
-
             fs.access,
             fs.createReadStream,
             fs.exists,
@@ -52,17 +47,6 @@ export class FileOperationLogger extends Analysis
             fs.statSync,
         ]);
         this.writeApis = new Set([
-            fsPromise.chmod,
-            fsPromise.chown,
-            fsPromise.lchmod,
-            fsPromise.lchown,
-            fsPromise.lutimes,
-            fsPromise.mkdir,
-            fsPromise.rmdir,
-            fsPromise.rm,
-            fsPromise.truncate,
-            fsPromise.unlink,
-
             fs.chmod,
             fs.chown,
             fs.createWriteStream,
@@ -87,11 +71,6 @@ export class FileOperationLogger extends Analysis
             fs.unlinkSync,
         ]);
         this.readWriteApis = new Set([
-            fsPromise.copyFile,
-            fsPromise.link,
-            fsPromise.rename,
-            fsPromise.symlink,
-
             fs.copyFile,
             fs.link,
             fs.rename,
@@ -176,18 +155,8 @@ export class FileOperationLogger extends Analysis
         * */
         this.invokeFun = (iid, f, base, args, result) =>
         {
-            if (f === fsPromise.open)
-            {
-                assert.ok(result instanceof Promise);
-                (<ReturnType<typeof fsPromise.open>> result).then((fileHandle) =>
-                {
-                    const filePathLike = args[0] as Parameters<typeof fsPromise.open>[0];
-                    FileLogStore.addFd(fileHandle.fd, filePathLike);
-                    FileLogStore.addFileHandle(fileHandle);
-                });
-            }
             // @ts-ignore
-            else if (this.readApis.has(f))
+            if (this.readApis.has(f))
             {
                 const path = args[0] as PathLike | FileHandle;
                 FileOperationLogger.appendOperation(path, 'read', this.getSandbox(), iid);
@@ -206,38 +175,18 @@ export class FileOperationLogger extends Analysis
                 FileOperationLogger.appendOperation(srcPath, 'read', this.getSandbox(), iid);
                 FileOperationLogger.appendOperation(distPath, 'write', this.getSandbox(), iid);
             }
-            else if (f === fsPromise.readdir)
+            else if (f === fs.appendFile || f === fs.appendFileSync)
             {
-                const path = args[0] as Parameters<typeof fsPromise.readdir>[0];
-                FileOperationLogger.appendOperation(path, 'read', this.getSandbox(), iid);
-                (result as ReturnType<typeof fsPromise.readdir>).then(fileList =>
-                {
-                    ObjectLogStore.appendObjectOperation(fileList, 'write', this.getSandbox(), iid);
-                    fileList.forEach(file =>
-                    {
-                        if (isBufferLike(file))
-                        {
-                            BufferLogStore.appendBufferOperation(file, 'write', this.getSandbox(), iid);
-                        }
-                        else if (isObject(file))
-                        {
-                            ObjectLogStore.appendObjectOperation(file, 'write', this.getSandbox(), iid);
-                        }
-                    });
-                });
-            }
-            else if (f === fsPromise.appendFile || f === fs.appendFile || f === fs.appendFileSync)
-            {
-                const [path, data] = args as Parameters<typeof fsPromise.appendFile | typeof fs.appendFile | typeof fs.appendFileSync>;
+                const [path, data] = args as Parameters<typeof fs.appendFile | typeof fs.appendFileSync>;
                 FileOperationLogger.appendOperation(path, 'write', this.getSandbox(), iid);
                 if (typeof data !== 'string')
                 {
                     FileOperationLogger.appendOperation(data, 'read', this.getSandbox(), iid);
                 }
             }
-            else if (f === fsPromise.writeFile || f === fs.writeFile || f === fs.writeFileSync)
+            else if (f === fs.writeFile || f === fs.writeFileSync)
             {
-                const [path, data] = args as Parameters<typeof fsPromise.writeFile | typeof fs.writeFile | typeof fs.writeFileSync>;
+                const [path, data] = args as Parameters<typeof fs.writeFile | typeof fs.writeFileSync>;
                 FileOperationLogger.appendOperation(path, 'write', this.getSandbox(), iid);
                 if (isBufferLike(data))
                 {
@@ -247,26 +196,6 @@ export class FileOperationLogger extends Analysis
                 {
                     ObjectLogStore.appendObjectOperation(data, 'read', this.getSandbox(), iid);
                 }
-            }
-            else if (f === fsPromise.mkdtemp)
-            {
-                (<ReturnType<typeof fsPromise.mkdtemp>> result).then((filePath) =>
-                {
-                    FileOperationLogger.appendOperation(filePath, 'write', this.getSandbox(), iid);
-                });
-            }
-            else if (f === fsPromise.readFile)
-            {
-                const [path] = args as Parameters<typeof fsPromise.readFile>;
-                FileOperationLogger.appendOperation(path, 'read', this.getSandbox(), iid);
-
-                (<ReturnType<typeof fsPromise.readFile>> result).then((fileContent) =>
-                {
-                    if (isBufferLike(fileContent))
-                    {
-                        FileOperationLogger.appendOperation(fileContent, 'write', this.getSandbox(), iid);
-                    }
-                });
             }
             else if (f === fs.mkdtempSync)
             {
@@ -323,7 +252,7 @@ export class FileOperationLogger extends Analysis
             }
             else if (f === fs.readdir)
             {
-                const path = args[0] as Parameters<typeof fsPromise.readdir>[0];
+                const path = args[0] as Parameters<typeof fs.readdir>[0];
                 FileOperationLogger.appendOperation(path, 'read', this.getSandbox(), iid);
                 const callback = args[args.length - 1] as LastParameter<typeof fs.readdir>;
                 this.callbackToFilePathOrBuffer.set(callback, {register: fs.readdir});
