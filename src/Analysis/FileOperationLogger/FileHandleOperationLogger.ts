@@ -38,6 +38,11 @@ export class FileHandleOperationLogger extends Analysis
                     }
                     FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }
+                else if (f === fileHandle.close)
+                {
+                    (result as ReturnType<typeof fileHandle.close>).then(
+                        () => FileLogStore.deleteFileHandle(fileHandle));
+                }
                 else if (f === fileHandle.read)
                 {
                     FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
