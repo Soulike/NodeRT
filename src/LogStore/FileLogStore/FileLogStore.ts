@@ -30,6 +30,12 @@ export class FileLogStore
         this.fileHandles.add(fileHandle);
     }
 
+    public static deleteFileHandle(fileHandle: FileHandle)
+    {
+        this.fileHandles.delete(fileHandle);
+        this.fdToFilePathOrBuffer.delete(fileHandle.fd);
+    }
+
     public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike)
     {
         if (typeof filePathOrBuffer === 'string')
@@ -44,6 +50,11 @@ export class FileLogStore
         {
             FileLogStore.fdToFilePathOrBuffer.set(fd, filePathOrBuffer);
         }
+    }
+
+    public static deleteFd(fd: number)
+    {
+        this.fdToFilePathOrBuffer.delete(fd);
     }
 
     public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
