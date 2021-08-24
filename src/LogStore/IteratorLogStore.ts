@@ -1,6 +1,6 @@
 export class IteratorLogStore
 {
-    private static readonly iteratorToIteratee: WeakMap<Iterator<any>, object>;
+    private static readonly iteratorToIteratee: WeakMap<Iterator<any>, object> = new WeakMap();
 
     public static addIterator(iterator: Iterator<any>, iteratee: object): void
     {
