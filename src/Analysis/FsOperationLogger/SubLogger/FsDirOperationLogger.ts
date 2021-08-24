@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
 import {Dir} from 'fs';
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {FileOperationLogger} from './FileOperationLogger';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 
 export class FsDirOperationLogger extends Analysis
 {
@@ -24,7 +24,7 @@ export class FsDirOperationLogger extends Analysis
             {
                 if(base instanceof Dir)
                 {
-                    FileOperationLogger.appendOperation(base.path, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
                 }
             }
         }

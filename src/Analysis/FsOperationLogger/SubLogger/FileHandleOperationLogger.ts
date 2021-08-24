@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
-import {FileLogStore} from '../../LogStore/FileLogStore';
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {FileLogStore} from '../../../LogStore/FileLogStore';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {FileHandle} from 'fs/promises';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
-import {FileOperationLogger} from './FileOperationLogger';
+import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import {isObject} from 'lodash';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
+import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 
 export class FileHandleOperationLogger extends Analysis
 {
@@ -36,7 +36,7 @@ export class FileHandleOperationLogger extends Analysis
                         BufferLogStore.appendBufferOperation(args[0], 'read',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }
                 else if (f === fileHandle.close)
                 {
@@ -45,7 +45,7 @@ export class FileHandleOperationLogger extends Analysis
                 }
                 else if (f === fileHandle.read)
                 {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
                     (result as ReturnType<typeof fileHandle.read>).then(({buffer}) =>
                     {
                         BufferLogStore.appendBufferOperation(buffer.buffer, 'write',
@@ -54,11 +54,11 @@ export class FileHandleOperationLogger extends Analysis
                 }
                 else if (f === fileHandle.readFile)
                 {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
                 }
                 else if (f === fileHandle.readv)
                 {
-                    FileOperationLogger.appendOperation(fileHandle, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
                     (result as ReturnType<typeof fileHandle.readv>).then(({buffers}) =>
                     {
                         for (const buffer of buffers)
@@ -70,7 +70,7 @@ export class FileHandleOperationLogger extends Analysis
                 }
                 else if (f === fileHandle.truncate)
                 {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }
                 else if (f === fileHandle.write
                     || f === fileHandle.writeFile)
@@ -84,11 +84,11 @@ export class FileHandleOperationLogger extends Analysis
                     {
                         ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                     }
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }
                 else if (f === fileHandle.writev)
                 {
-                    FileOperationLogger.appendOperation(fileHandle, 'write', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                     (result as ReturnType<typeof fileHandle.writev>).then(({buffers}) =>
                     {
                         for (const buffer of buffers)
