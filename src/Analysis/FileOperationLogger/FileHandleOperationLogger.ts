@@ -1,3 +1,5 @@
+// DO NOT INSTRUMENT
+
 import {FileLogStore} from '../../LogStore/FileLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {FileHandle} from 'fs/promises';
