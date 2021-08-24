@@ -1,6 +1,5 @@
 // DO NOT INSTRUMENT
 
-import {strict as assert} from 'assert';
 import http from 'http';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
@@ -9,7 +8,6 @@ import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 
 export class HttpOperationLogger extends Analysis
 {
-    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
 
     constructor(sandbox: Sandbox)
@@ -27,75 +25,49 @@ export class HttpOperationLogger extends Analysis
             if (f === http.request || f === http.get)
             {
                 const clientRequest = result as ReturnType<typeof http.request>;
-                ObjectLogStore.appendObjectOperation(clientRequest, 'write', this.getSandbox(), iid);
 
                 clientRequest.on('socket', socket =>
                 {
                     ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                    socket.on('close', () =>
+                    {
+                        ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                    });
                 });
 
-                clientRequest.on('connect', (response, _socket, head) =>
+                clientRequest.on('connect', (_response, _socket, head) =>
                 {
-                    ObjectLogStore.appendObjectOperation(response, 'write', this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(head, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
 
-                clientRequest.on('upgrade', (response, _socket, head) =>
+                clientRequest.on('upgrade', (_response, _socket, head) =>
                 {
-                    ObjectLogStore.appendObjectOperation(response, 'write', this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(head, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                });
-
-                clientRequest.on('response', (response) =>
-                {
-                    ObjectLogStore.appendObjectOperation(response, 'write', this.getSandbox(), iid);
                 });
             }
             else if (f === http.createServer)
             {
                 const server = result as ReturnType<typeof http.createServer>;
-                ObjectLogStore.appendObjectOperation(server, 'write', this.getSandbox(), iid);
-
-                const requestHandler: http.RequestListener = (req, res) =>
-                {
-                    ObjectLogStore.appendObjectOperation(req, 'write', this.getSandbox(), iid);
-                    ObjectLogStore.appendObjectOperation(res, 'write', this.getSandbox(), iid);
-                    if (res.socket !== null)
-                    {
-                        ObjectLogStore.appendObjectOperation(res.socket, 'write', this.getSandbox(), iid);
-                    }
-                    res.on('close', () =>
-                    {
-                        if (res.socket !== null)
-                        {
-                            ObjectLogStore.appendObjectOperation(res.socket, 'write', this.getSandbox(), iid);
-                        }
-                    });
-                };
 
                 server.on('connection', socket =>
                 {
                     ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                    socket.on('close', () =>
+                    {
+                        ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                    });
                 });
 
-                server.on('checkContinue', requestHandler);
-
-                server.on('checkExpectation', requestHandler);
-
-                server.on('connect', (req, _socket, head) =>
+                server.on('connect', (_req, _socket, head) =>
                 {
-                    ObjectLogStore.appendObjectOperation(req, 'write', this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(head, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
 
-                server.on('request', requestHandler);
-
-                server.on('upgrade', (req, _socket, head) =>
+                server.on('upgrade', (_req, _socket, head) =>
                 {
-                    ObjectLogStore.appendObjectOperation(req, 'write', this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(head, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
@@ -108,19 +80,6 @@ export class HttpOperationLogger extends Analysis
                 {
                     BufferLogStore.appendBufferOperation(chunk, 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-            }
-        };
-
-        this.invokeFunPre = (iid, f, base) =>
-        {
-            if (f === http.ClientRequest.prototype.abort
-                || f === http.OutgoingMessage.prototype.destroy)
-            {
-                assert.ok(base instanceof http.OutgoingMessage);
-                if (base.socket !== null)
-                {
-                    ObjectLogStore.appendObjectOperation(base.socket, 'write', this.getSandbox(), iid);
                 }
             }
         };
