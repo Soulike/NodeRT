@@ -2,9 +2,12 @@
 
 import http from 'http';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
+import {HttpIncomingMessageOperationLogger} from './SubLogger/HttpIncomingMessageOperationLogger';
+import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessageOperationLogger';
 
 export class HttpOperationLogger extends Analysis
 {
@@ -20,31 +23,23 @@ export class HttpOperationLogger extends Analysis
     protected override registerHooks(): void
     {
         // We only care about operations on underlying socket
-        this.invokeFun = (iid, f, _base, args, result) =>
+        this.invokeFun = (iid, f, _base, _args, result) =>
         {
             if (f === http.request || f === http.get)
             {
-                const clientRequest = result as ReturnType<typeof http.request>;
+                const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
 
                 clientRequest.on('socket', socket =>
                 {
-                    ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
-                    socket.on('close', () =>
+                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    socket.on('data', (data) =>
                     {
-                        ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                        if (isBufferLike(data))
+                        {
+                            BufferLogStore.appendBufferOperation(data, 'write',
+                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        }
                     });
-                });
-
-                clientRequest.on('connect', (_response, _socket, head) =>
-                {
-                    BufferLogStore.appendBufferOperation(head, 'write',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                });
-
-                clientRequest.on('upgrade', (_response, _socket, head) =>
-                {
-                    BufferLogStore.appendBufferOperation(head, 'write',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
             }
             else if (f === http.createServer)
@@ -53,35 +48,22 @@ export class HttpOperationLogger extends Analysis
 
                 server.on('connection', socket =>
                 {
-                    ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
-                    socket.on('close', () =>
+                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    socket.on('data', (data) =>
                     {
-                        ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                        if (isBufferLike(data))
+                        {
+                            BufferLogStore.appendBufferOperation(data, 'write',
+                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        }
                     });
                 });
-
-                server.on('connect', (_req, _socket, head) =>
-                {
-                    BufferLogStore.appendBufferOperation(head, 'write',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                });
-
-                server.on('upgrade', (_req, _socket, head) =>
-                {
-                    BufferLogStore.appendBufferOperation(head, 'write',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                });
-            }
-            else if (f === http.OutgoingMessage.prototype.end
-                || f === http.OutgoingMessage.prototype.write)
-            {
-                const [chunk] = args as Parameters<typeof http.OutgoingMessage.prototype.write>;
-                if (isBufferLike(chunk))
-                {
-                    BufferLogStore.appendBufferOperation(chunk, 'read',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
             }
         };
+
+        const sandbox = this.getSandbox();
+        sandbox.addAnalysis(new HttpAgentOperationLogger(sandbox));
+        sandbox.addAnalysis(new HttpIncomingMessageOperationLogger(sandbox));
+        sandbox.addAnalysis(new HttpOutgoingMessageOperationLogger(sandbox));
     }
 }
