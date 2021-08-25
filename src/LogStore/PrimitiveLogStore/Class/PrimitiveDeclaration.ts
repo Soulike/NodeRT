@@ -5,6 +5,7 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {Scope} from './Scope';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {isFunction} from 'lodash';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
@@ -60,6 +61,7 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         {
             operations.push(variableOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, PrimitiveOperation[]>

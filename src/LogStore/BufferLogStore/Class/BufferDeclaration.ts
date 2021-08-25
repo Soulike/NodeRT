@@ -6,6 +6,7 @@ import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import util from 'util';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
@@ -30,6 +31,7 @@ export class BufferDeclaration extends ResourceDeclaration
         {
             operations.push(bufferOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, BufferOperation[]>

@@ -4,6 +4,7 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class StreamDeclaration extends ResourceDeclaration
 {
@@ -28,6 +29,7 @@ export class StreamDeclaration extends ResourceDeclaration
         {
             operations.push(streamOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, StreamOperation[]>

@@ -5,6 +5,7 @@ import {CallbackFunction} from '../../Class/CallbackFunction';
 import {SocketOperation} from './SocketOperation';
 import dgram from 'dgram';
 import net from 'net';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class SocketDeclaration extends ResourceDeclaration
 {
@@ -29,6 +30,7 @@ export class SocketDeclaration extends ResourceDeclaration
         {
             operations.push(socketOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, SocketOperation[]>

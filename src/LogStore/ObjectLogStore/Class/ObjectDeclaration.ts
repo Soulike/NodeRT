@@ -5,6 +5,7 @@ import {CallbackFunction} from '../../Class/CallbackFunction';
 import {ObjectOperation} from './ObjectOperation';
 import assert from 'assert';
 import {isObject} from 'lodash';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class ObjectDeclaration extends ResourceDeclaration
 {
@@ -30,6 +31,7 @@ export class ObjectDeclaration extends ResourceDeclaration
         {
             operations.push(objectOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, ObjectOperation[]>

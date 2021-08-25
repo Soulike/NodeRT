@@ -1,3 +1,3 @@
 // DO NOT INSTRUMENT
 
-export * as RaceDetector from './EventEmitter';
+export {eventEmitter as RaceDetector} from './EventEmitter';

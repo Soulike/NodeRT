@@ -3,6 +3,7 @@
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
+import {RaceDetector} from '../../../RaceDetector';
 
 export class FileDeclaration extends ResourceDeclaration
 {
@@ -27,6 +28,7 @@ export class FileDeclaration extends ResourceDeclaration
         {
             operations.push(fileOperation);
         }
+        RaceDetector.emit('operationAppended', this);
     }
 
     public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
