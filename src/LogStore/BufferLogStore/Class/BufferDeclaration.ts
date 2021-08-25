@@ -32,7 +32,7 @@ export class BufferDeclaration extends ResourceDeclaration
         }
     }
 
-    public getOperations(): ReadonlyMap<CallbackFunction, BufferOperation[]>
+    public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, BufferOperation[]>
     {
         return this.callbackFunctionToOperations;
     }

@@ -30,6 +30,11 @@ export class StreamDeclaration extends ResourceDeclaration
         }
     }
 
+    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, StreamOperation[]>
+    {
+        return this.operations;
+    }
+
     public is(other: unknown): boolean
     {
         return this.streamWeakRef.deref() === other;

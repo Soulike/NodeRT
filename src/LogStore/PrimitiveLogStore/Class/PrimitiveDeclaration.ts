@@ -62,6 +62,11 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         }
     }
 
+    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, PrimitiveOperation[]>
+    {
+        return this.callbackFunctionToOperations;
+    }
+
     public getOperations(): ReadonlyMap<CallbackFunction, PrimitiveOperation[]>
     {
         return this.callbackFunctionToOperations;

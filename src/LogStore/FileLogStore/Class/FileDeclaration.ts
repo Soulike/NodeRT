@@ -29,7 +29,7 @@ export class FileDeclaration extends ResourceDeclaration
         }
     }
 
-    public getOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
+    public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
     {
         return this.callbackFunctionToOperations;
     }

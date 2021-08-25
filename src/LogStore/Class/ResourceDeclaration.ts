@@ -8,4 +8,6 @@ export abstract class ResourceDeclaration
     public abstract is(...other: unknown[]): boolean;
 
     public abstract appendOperation(currentCallbackFunction: CallbackFunction, resourceOperation: ResourceOperation): void;
+
+    public abstract getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, ReadonlyArray<ResourceOperation>>;
 }

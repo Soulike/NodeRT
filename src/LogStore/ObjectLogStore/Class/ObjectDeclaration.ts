@@ -32,6 +32,11 @@ export class ObjectDeclaration extends ResourceDeclaration
         }
     }
 
+    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, ObjectOperation[]>
+    {
+        return this.operations;
+    }
+
     public is(other: unknown): boolean
     {
         return this.objectWeakRef.deref() === other;

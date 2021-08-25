@@ -31,6 +31,11 @@ export class SocketDeclaration extends ResourceDeclaration
         }
     }
 
+    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, SocketOperation[]>
+    {
+        return this.operations;
+    }
+
     public is(other: unknown): boolean
     {
         return this.socketWeakRef.deref() === other;
