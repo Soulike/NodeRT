@@ -7,6 +7,7 @@ import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
+import {SocketLogStore} from '../../LogStore/SocketLogStore';
 
 export class DgramOperationLogger extends Analysis
 {
@@ -31,7 +32,7 @@ export class DgramOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(msg, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
-                ObjectLogStore.appendObjectOperation(socket, 'write', this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
             }
             // change the internal state of the socket, seen as write operation
             else if (f === dgram.Socket.bind
@@ -40,7 +41,7 @@ export class DgramOperationLogger extends Analysis
                 || f === dgram.Socket.prototype.disconnect)
             {
                 assert.ok(base instanceof dgram.Socket);
-                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(base, this.getSandbox(), iid);
             }
             else if (f === dgram.Socket.prototype.send)
             {
