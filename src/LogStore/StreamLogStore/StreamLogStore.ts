@@ -17,7 +17,7 @@ export class StreamLogStore
         return StreamLogStore.streamDeclarations;
     }
 
-    public static appendSocketOperation(stream: Readable | Writable, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
         streamDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
