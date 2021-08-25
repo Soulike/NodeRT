@@ -1,11 +1,9 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {IncomingMessage, OutgoingMessage} from 'http';
-import {BufferLogStore} from '../../../LogStore/BufferLogStore';
+import {IncomingMessage} from 'http';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
 
 export class HttpIncomingMessageOperationLogger extends Analysis
 {
