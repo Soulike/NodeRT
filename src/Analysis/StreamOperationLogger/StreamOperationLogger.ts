@@ -1,8 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {Readable, Transform, Writable, pipeline, Stream} from 'stream';
-import {pipeline as pipelinePromise} from 'stream/promises';
+import {Readable, Transform, Writable, pipeline} from 'stream';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
@@ -72,9 +71,9 @@ export class StreamOperationLogger extends Analysis
                 }
             }
             else if (f === pipeline
-                || f === pipelinePromise)
+                /* || f === pipelinePromise */) // Node 15
             {
-                const parameters = args as Parameters<typeof pipeline | typeof pipelinePromise>;
+                const parameters = args as Parameters<typeof pipeline>;
                 let streams = [];
                 if (Array.isArray(parameters[0]))
                 {
