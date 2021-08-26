@@ -35,7 +35,7 @@ export class DgramOperationLogger extends Analysis
                 SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
             }
             // change the internal state of the socket, seen as write operation
-            else if (f === dgram.Socket.bind
+            else if (f === dgram.Socket.prototype.bind
                 || f === dgram.Socket.prototype.close
                 || f === dgram.Socket.prototype.connect
                 || f === dgram.Socket.prototype.disconnect)
