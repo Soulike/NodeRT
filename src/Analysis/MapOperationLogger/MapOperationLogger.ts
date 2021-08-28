@@ -30,27 +30,30 @@ export class MapOperationLogger extends Analysis
                 assert.ok(result instanceof Map);
                 ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
             }
-            else if (f === Map.prototype[Symbol.iterator]
-                || f === Map.prototype.entries
-                || f === Map.prototype.values)
+            else if (base instanceof Map)
             {
-                assert.ok(isObject(result));
-                assert.ok(isObject(base));
-                IteratorLogStore.addIterator(result as Iterator<any>, base);
-            }
-            else if (f === Map.prototype.clear
-                || f === Map.prototype.delete
-                || f === Map.prototype.set)
-            {
-                assert.ok(isObject(base));
-                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
-            }
-            else if (f === Map.prototype.forEach
-                || f === Map.prototype.get
-                || f === Map.prototype.has)
-            {
-                assert.ok(isObject(base));
-                ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                if (f === Map.prototype[Symbol.iterator]
+                    || f === Map.prototype.entries
+                    || f === Map.prototype.values)
+                {
+                    assert.ok(isObject(result));
+                    assert.ok(isObject(base));
+                    IteratorLogStore.addIterator(result as Iterator<any>, base);
+                }
+                else if (f === Map.prototype.clear
+                    || f === Map.prototype.delete
+                    || f === Map.prototype.set)
+                {
+                    assert.ok(isObject(base));
+                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                }
+                else if (f === Map.prototype.forEach
+                    || f === Map.prototype.get
+                    || f === Map.prototype.has)
+                {
+                    assert.ok(isObject(base));
+                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                }
             }
         };
     }

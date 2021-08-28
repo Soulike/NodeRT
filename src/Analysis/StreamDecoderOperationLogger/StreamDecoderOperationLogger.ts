@@ -18,21 +18,24 @@ export class StringDecoderOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, _base, args) =>
+        this.invokeFun = (iid, f, base, args) =>
         {
-            if (f === StringDecoder.prototype.write)
+            if (base instanceof StringDecoder)
             {
-                const [buffer] = args as Parameters<typeof StringDecoder.prototype.write>;
-                BufferLogStore.appendBufferOperation(buffer, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === StringDecoder.prototype.end)
-            {
-                const [buffer] = args as Parameters<typeof StringDecoder.prototype.end>;
-                if (isBufferLike(buffer))
+                if (f === StringDecoder.prototype.write)
                 {
+                    const [buffer] = args as Parameters<typeof StringDecoder.prototype.write>;
                     BufferLogStore.appendBufferOperation(buffer, 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (f === StringDecoder.prototype.end)
+                {
+                    const [buffer] = args as Parameters<typeof StringDecoder.prototype.end>;
+                    if (isBufferLike(buffer))
+                    {
+                        BufferLogStore.appendBufferOperation(buffer, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
                 }
             }
         };

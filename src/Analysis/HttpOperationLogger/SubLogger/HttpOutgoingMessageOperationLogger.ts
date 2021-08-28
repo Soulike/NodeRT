@@ -22,25 +22,28 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
     {
         this.invokeFunPre = (iid, f, base, args) =>
         {
-            if (f === OutgoingMessage.prototype.destroy)
+            if (base instanceof OutgoingMessage)
             {
-                assert.ok(base instanceof OutgoingMessage);
-                const socket = base.socket;
-                if (socket !== null)
+                if (f === OutgoingMessage.prototype.destroy)
                 {
-                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    assert.ok(base instanceof OutgoingMessage);
+                    const socket = base.socket;
+                    if (socket !== null)
+                    {
+                        SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    }
                 }
-            }
-            else if (f === OutgoingMessage.prototype.write
-                || f === OutgoingMessage.prototype.end)
-            {
-                const [chunk] = args as Parameters<
-                    typeof OutgoingMessage.prototype.write
-                    | typeof OutgoingMessage.prototype.end>;
-                if (isBufferLike(chunk))
+                else if (f === OutgoingMessage.prototype.write
+                    || f === OutgoingMessage.prototype.end)
                 {
-                    BufferLogStore.appendBufferOperation(chunk, 'read',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    const [chunk] = args as Parameters<
+                        typeof OutgoingMessage.prototype.write
+                        | typeof OutgoingMessage.prototype.end>;
+                    if (isBufferLike(chunk))
+                    {
+                        BufferLogStore.appendBufferOperation(chunk, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
                 }
             }
         };

@@ -55,22 +55,25 @@ export class NetOperationLogger extends Analysis
                     }
                 });
             }
-            else if (f === net.Socket.prototype.connect
-                || f === net.Socket.prototype.pause
-                || f === net.Socket.prototype.resume
-                || f === net.Socket.prototype.destroy)
+            else if (base instanceof net.Socket)
             {
-                assert.ok(base instanceof net.Socket);
-                const socket = base;
-                SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
-            }
-            else if (f === net.Socket.prototype.end
-                || f === net.Socket.prototype.write)
-            {
-                if (isBufferLike(args[0]))
+                if (f === net.Socket.prototype.connect
+                    || f === net.Socket.prototype.pause
+                    || f === net.Socket.prototype.resume
+                    || f === net.Socket.prototype.destroy)
                 {
-                    BufferLogStore.appendBufferOperation(args[0], 'read',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    assert.ok(base instanceof net.Socket);
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                }
+                else if (f === net.Socket.prototype.end
+                    || f === net.Socket.prototype.write)
+                {
+                    if (isBufferLike(args[0]))
+                    {
+                        BufferLogStore.appendBufferOperation(args[0], 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
                 }
             }
         };

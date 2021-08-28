@@ -5,7 +5,6 @@ import dgram from 'dgram';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
-import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 
@@ -34,26 +33,28 @@ export class DgramOperationLogger extends Analysis
                 });
                 SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
             }
-            // change the internal state of the socket, seen as write operation
-            else if (f === dgram.Socket.prototype.bind
-                || f === dgram.Socket.prototype.close
-                || f === dgram.Socket.prototype.connect
-                || f === dgram.Socket.prototype.disconnect)
+            else if (base instanceof dgram.Socket)
             {
-                assert.ok(base instanceof dgram.Socket);
-                SocketLogStore.appendSocketOperation(base, this.getSandbox(), iid);
-            }
-            else if (f === dgram.Socket.prototype.send)
-            {
-                const [msg] = args as Parameters<typeof dgram.Socket.prototype.send>;
-                if (isBufferLike(msg))
+                // change the internal state of the socket, seen as write operation
+                if (f === dgram.Socket.prototype.bind
+                    || f === dgram.Socket.prototype.close
+                    || f === dgram.Socket.prototype.connect
+                    || f === dgram.Socket.prototype.disconnect)
                 {
-                    BufferLogStore.appendBufferOperation(msg, 'read',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    SocketLogStore.appendSocketOperation(base, this.getSandbox(), iid);
                 }
-                else if (isObject(msg))
+                else if (f === dgram.Socket.prototype.send)
                 {
-                    ObjectLogStore.appendObjectOperation(msg, 'read', this.getSandbox(), iid);
+                    const [msg] = args as Parameters<typeof dgram.Socket.prototype.send>;
+                    if (isBufferLike(msg))
+                    {
+                        BufferLogStore.appendBufferOperation(msg, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    else if (isObject(msg))
+                    {
+                        ObjectLogStore.appendObjectOperation(msg, 'read', this.getSandbox(), iid);
+                    }
                 }
             }
         };

@@ -20,13 +20,16 @@ export class HttpIncomingMessageOperationLogger extends Analysis
     {
         this.invokeFunPre = (iid, f, base) =>
         {
-            if (f === IncomingMessage.prototype.destroy)
+            if (base instanceof IncomingMessage)
             {
-                assert.ok(base instanceof IncomingMessage);
-                const socket = base.socket;
-                if (socket !== null)
+                if (f === IncomingMessage.prototype.destroy)
                 {
-                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    assert.ok(base instanceof IncomingMessage);
+                    const socket = base.socket;
+                    if (socket !== null)
+                    {
+                        SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    }
                 }
             }
         };

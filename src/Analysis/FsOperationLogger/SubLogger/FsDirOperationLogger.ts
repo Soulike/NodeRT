@@ -19,12 +19,15 @@ export class FsDirOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base) =>
         {
-            if (f === Dir.prototype.read
-            || f === Dir.prototype.readSync)
+            if (base instanceof Dir)
             {
-                if(base instanceof Dir)
+                if (f === Dir.prototype.read
+                    || f === Dir.prototype.readSync)
                 {
-                    FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
+                    if (base instanceof Dir)
+                    {
+                        FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
+                    }
                 }
             }
         }

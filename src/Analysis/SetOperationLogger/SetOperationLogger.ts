@@ -30,26 +30,29 @@ export class SetOperationLogger extends Analysis
                 assert.ok(result instanceof Set);
                 ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
             }
-            else if (f === Set.prototype[Symbol.iterator]
-                || f === Set.prototype.entries
-                || f === Set.prototype.values)
+            else if (base instanceof Set)
             {
-                assert.ok(isObject(result));
-                assert.ok(isObject(base));
-                IteratorLogStore.addIterator(result as Iterator<any>, base);
-            }
-            else if (f === Set.prototype.add
-                || f === Set.prototype.clear
-                || f === Set.prototype.delete)
-            {
-                assert.ok(isObject(base));
-                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
-            }
-            else if (f === Set.prototype.forEach
-                || f === Set.prototype.has)
-            {
-                assert.ok(isObject(base));
-                ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                if (f === Set.prototype[Symbol.iterator]
+                    || f === Set.prototype.entries
+                    || f === Set.prototype.values)
+                {
+                    assert.ok(isObject(result));
+                    assert.ok(isObject(base));
+                    IteratorLogStore.addIterator(result as Iterator<any>, base);
+                }
+                else if (f === Set.prototype.add
+                    || f === Set.prototype.clear
+                    || f === Set.prototype.delete)
+                {
+                    assert.ok(isObject(base));
+                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                }
+                else if (f === Set.prototype.forEach
+                    || f === Set.prototype.has)
+                {
+                    assert.ok(isObject(base));
+                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                }
             }
         };
     }

@@ -66,78 +66,75 @@ export class TypedArrayOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
                 }
             }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin
-                || f === TypedArrayOperationLogger.typedArrayPrototype.fill
-                || f === TypedArrayOperationLogger.typedArrayPrototype.reverse
-                || f === TypedArrayOperationLogger.typedArrayPrototype.sort)
+            else if (util.types.isTypedArray(base))
             {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'write',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.every
-                || f === TypedArrayOperationLogger.typedArrayPrototype.find
-                || f === TypedArrayOperationLogger.typedArrayPrototype.findIndex
-                || f === TypedArrayOperationLogger.typedArrayPrototype.forEach
-                || f === TypedArrayOperationLogger.typedArrayPrototype.includes
-                || f === TypedArrayOperationLogger.typedArrayPrototype.indexOf
-                || f === TypedArrayOperationLogger.typedArrayPrototype.lastIndexOf
-                || f === TypedArrayOperationLogger.typedArrayPrototype.reduce
-                || f === TypedArrayOperationLogger.typedArrayPrototype.reduceRight
-                || f === TypedArrayOperationLogger.typedArrayPrototype.some
-                || f === TypedArrayOperationLogger.typedArrayPrototype.toLocaleString
-                || f === TypedArrayOperationLogger.typedArrayPrototype.toString)
-            {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
-                || f === TypedArrayOperationLogger.typedArrayPrototype.map
-                || f === TypedArrayOperationLogger.typedArrayPrototype.slice)
-            {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                if (f === TypedArrayOperationLogger.typedArrayPrototype.copyWithin
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.fill
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.reverse
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.sort)
+                {
+                    BufferLogStore.appendBufferOperation(base, 'write',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.every
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.find
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.findIndex
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.forEach
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.includes
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.indexOf
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.lastIndexOf
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.reduce
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.reduceRight
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.some
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.toLocaleString
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.toString)
+                {
+                    BufferLogStore.appendBufferOperation(base, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.map
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.slice)
+                {
+                    BufferLogStore.appendBufferOperation(base, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
 
-                assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (TypedArrayOperationLogger.fromApis.has(f))
-            {
-                const source = args[0];
-                assert.ok(isObject(source));
-                ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
-                assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.join)
-            {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
-            {
-                const source = args[0];
-                assert.ok(isObject(source));
-                ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
-                assert.ok(isBufferLike(base));
-                ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype[Symbol.iterator]
-                || f === TypedArrayOperationLogger.typedArrayPrototype.entries
-                || f === TypedArrayOperationLogger.typedArrayPrototype.values)
-            {
-                assert.ok(isObject(base));
-                IteratorLogStore.addIterator(
-                    result as IterableIterator<any>,
-                    base);
-            }
-            else if (f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
-            {
-                // pass
+                    assert.ok(isBufferLike(result));
+                    BufferLogStore.appendBufferOperation(result, 'write',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (TypedArrayOperationLogger.fromApis.has(f))
+                {
+                    const source = args[0];
+                    assert.ok(isObject(source));
+                    ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.join)
+                {
+                    BufferLogStore.appendBufferOperation(base, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
+                {
+                    const source = args[0];
+                    assert.ok(isObject(source));
+                    ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype[Symbol.iterator]
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.entries
+                    || f === TypedArrayOperationLogger.typedArrayPrototype.values)
+                {
+                    IteratorLogStore.addIterator(
+                        result as IterableIterator<any>,
+                        base);
+                }
+                else if (f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
+                {
+                    // pass
+                }
             }
         };
 

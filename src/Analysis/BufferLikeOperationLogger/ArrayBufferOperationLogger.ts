@@ -28,19 +28,21 @@ export class ArrayBufferOperationLogger extends Analysis
                 BufferLogStore.appendBufferOperation(result, 'write',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
-            else if (f === ArrayBuffer.isView)
+            else if (util.types.isAnyArrayBuffer(base))
             {
-                // pass
-            }
-            else if (f === ArrayBuffer.prototype.slice
-                || f === SharedArrayBuffer.prototype.slice)
-            {
-                assert.ok(util.types.isAnyArrayBuffer(base));
-                BufferLogStore.appendBufferOperation(base, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                assert.ok(util.types.isAnyArrayBuffer(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                if (f === ArrayBuffer.isView)
+                {
+                    // pass
+                }
+                else if (f === ArrayBuffer.prototype.slice
+                    || f === SharedArrayBuffer.prototype.slice)
+                {
+                    BufferLogStore.appendBufferOperation(base, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    assert.ok(util.types.isAnyArrayBuffer(result));
+                    BufferLogStore.appendBufferOperation(result, 'write',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
             }
         };
     }

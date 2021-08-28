@@ -2,8 +2,8 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
-import {strict as assert} from 'assert';
+import {getSourceCodeInfoFromIid} from '../../Util';
+import util from 'util';
 
 export class DataViewOperationLogger extends Analysis
 {
@@ -40,17 +40,18 @@ export class DataViewOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base) =>
         {
-            if (DataViewOperationLogger.getApis.has(f))
+            if (util.types.isDataView(base))
             {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'read',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (DataViewOperationLogger.setApis.has(f))
-            {
-                assert.ok(isBufferLike(base));
-                BufferLogStore.appendBufferOperation(base, 'write',
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                if (DataViewOperationLogger.getApis.has(f))
+                {
+                    BufferLogStore.appendBufferOperation(base, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.setApis.has(f))
+                {
+                    BufferLogStore.appendBufferOperation(base, 'write',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
             }
         };
     }
