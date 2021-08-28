@@ -7,6 +7,7 @@ import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {SocketOperation} from './Class/SocketOperation';
 import {getSourceCodeInfoFromIid} from '../../Util';
+import {StreamLogStore} from '../StreamLogStore';
 
 export class SocketLogStore
 {
@@ -20,16 +21,21 @@ export class SocketLogStore
 
     public static appendSocketOperation(socket: dgram.Socket | net.Socket, sandbox: Sandbox, iid: number)
     {
-        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket);
+        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, sandbox, iid);
         socketDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
             new SocketOperation(getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getSocketDeclaration(socket: dgram.Socket | net.Socket)
+    private static getSocketDeclaration(socket: dgram.Socket | net.Socket, sandbox: Sandbox, iid: number)
     {
         const socketDeclaration = SocketLogStore.socketToSocketDeclarations.get(socket);
         if (socketDeclaration === undefined)
         {
+            if (socket instanceof net.Socket)    // net.Socket inherits Stream, so a creation of a socket is a creation of a stream
+            {
+                StreamLogStore.appendStreamOperation(socket, 'write', sandbox, iid);
+            }
+            
             const newSocketDeclaration = new SocketDeclaration(socket);
             SocketLogStore.socketDeclarations.push(newSocketDeclaration);
             SocketLogStore.socketToSocketDeclarations.set(socket, newSocketDeclaration);
