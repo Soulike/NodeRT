@@ -3,6 +3,7 @@
 import http from 'http';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
+import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
@@ -28,6 +29,7 @@ export class HttpOperationLogger extends Analysis
             if (f === http.request || f === http.get)
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
+                StreamLogStore.appendStreamOperation(clientRequest, 'write', this.getSandbox(), iid);
 
                 clientRequest.on('socket', socket =>
                 {
@@ -57,6 +59,12 @@ export class HttpOperationLogger extends Analysis
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
                     });
+                });
+
+                server.on('request', (req, res) =>
+                {
+                    StreamLogStore.appendStreamOperation(req, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(res, 'write', this.getSandbox(), iid);
                 });
             }
         };
