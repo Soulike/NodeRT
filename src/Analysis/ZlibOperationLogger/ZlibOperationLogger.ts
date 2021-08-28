@@ -2,6 +2,7 @@
 
 import zlib from 'zlib';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 
@@ -24,7 +25,27 @@ export class ZlibOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args, result) =>
         {
-            if (f === zlib.brotliCompress
+            if (f === zlib.createBrotliCompress
+                || f === zlib.createBrotliDecompress
+                || f === zlib.createDeflate
+                || f === zlib.createDeflateRaw
+                || f === zlib.createGunzip
+                || f === zlib.createGzip
+                || f === zlib.createInflate
+                || f === zlib.createInflateRaw
+                || f === zlib.createUnzip)
+            {
+                const stream = result as ReturnType<typeof zlib.createBrotliCompress
+                    | typeof zlib.createBrotliDecompress
+                    | typeof zlib.createDeflate
+                    | typeof zlib.createDeflateRaw
+                    | typeof zlib.createGunzip
+                    | typeof zlib.createInflate
+                    | typeof zlib.createInflateRaw
+                    | typeof zlib.createUnzip>;
+                StreamLogStore.appendStreamOperation(stream, 'write', this.getSandbox(), iid);
+            }
+            else if (f === zlib.brotliCompress
                 || f === zlib.brotliDecompress
                 || f === zlib.deflate
                 || f === zlib.deflateRaw
