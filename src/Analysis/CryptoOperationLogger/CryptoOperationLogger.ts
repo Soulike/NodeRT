@@ -7,6 +7,8 @@ import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {Readable, Transform, Writable} from 'stream';
+import {StreamLogStore} from '../../LogStore/StreamLogStore';
 
 export class CryptoOperationLogger extends Analysis
 {
@@ -167,6 +169,8 @@ export class CryptoOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(args[1], 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
+                assert.ok(result instanceof Transform);
+                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
             }
             else if (f === crypto.createCipheriv
                 || f === crypto.createDecipheriv)
@@ -181,6 +185,8 @@ export class CryptoOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(args[2], 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
+                assert.ok(result instanceof Transform);
+                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
             }
             else if (f === crypto.createDiffieHellman)
             {
@@ -194,6 +200,13 @@ export class CryptoOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(args[2], 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
+            }
+            else if (f === crypto.createHash
+                || f === crypto.createSign
+                || f === crypto.createVerify)
+            {
+                assert.ok(result instanceof Readable || result instanceof Writable);
+                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
             }
             else if (f === crypto.generateKeyPair
                 || f === crypto.generatePrime)
