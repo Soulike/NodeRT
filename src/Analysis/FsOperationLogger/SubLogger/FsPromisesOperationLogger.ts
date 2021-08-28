@@ -8,6 +8,8 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
+import {Readable, Writable} from 'stream';
+import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 
 export class FsPromisesOperationLogger extends Analysis
 {
@@ -86,6 +88,10 @@ export class FsPromisesOperationLogger extends Analysis
                 {
                     BufferLogStore.appendBufferOperation(data, 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                if (data instanceof Readable || data instanceof Writable)
+                {
+                    StreamLogStore.appendStreamOperation(data, 'read', this.getSandbox(), iid);
                 }
                 else if (isObject(data))
                 {

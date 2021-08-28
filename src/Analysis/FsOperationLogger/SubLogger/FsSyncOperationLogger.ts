@@ -8,6 +8,9 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
+import {Readable, Writable} from 'stream';
+import {strict as assert} from 'assert';
+import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 
 export class FsSyncOperationLogger extends Analysis
 {
@@ -129,6 +132,11 @@ export class FsSyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(fd, 'write', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
                     BufferLogStore.appendBufferOperation(buffer.buffer, 'read', this.getSandbox(), iid));
+            }
+            else if (f === fs.createReadStream || f === fs.createWriteStream)
+            {
+                assert.ok(result instanceof Readable || result instanceof Writable);
+                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
             }
         };
     }
