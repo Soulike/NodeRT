@@ -10,6 +10,7 @@ import {BufferOperation} from './Class/BufferOperation';
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 import {strict as assert} from 'assert';
+import asyncHooks from 'async_hooks';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -39,20 +40,20 @@ export class BufferLogStore
         return BufferLogStore.bufferDeclarations;
     }
 
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo): void
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo): void;
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
     public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
         const bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer);
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
-            bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+            bufferDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
                 new BufferOperation(type, sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
-            bufferDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+            bufferDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
                 new BufferOperation(type, getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }

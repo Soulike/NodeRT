@@ -6,6 +6,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {isFunction} from 'lodash';
+import asyncHooks from 'async_hooks';
 
 export class PrimitiveOperationLogger extends Analysis
 {
@@ -111,7 +112,7 @@ export class PrimitiveOperationLogger extends Analysis
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
         const declaration = currentScope.getDeclarationByName(name);
-        const currentCallbackFunction = AsyncContextLogStore.getCurrentCallbackFunction();
+        const currentCallbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
 
         if (declaration === null)
         {

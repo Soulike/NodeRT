@@ -18,7 +18,6 @@ export class AsyncContextLogger extends Analysis
     private asyncContextChanged: boolean;
     private lastAsyncId: number;
     private lastTriggerAsyncId: number;
-    private asyncIdToFunctionCall: Map<number, CallbackFunction>;
 
     constructor(sandbox: Sandbox)
     {
@@ -26,10 +25,6 @@ export class AsyncContextLogger extends Analysis
         this.asyncContextChanged = false;
         this.lastAsyncId = -1;
         this.lastTriggerAsyncId = -1;
-        this.asyncIdToFunctionCall = new Map([
-            [CallbackFunction.UNKNOWN_ASYNC_ID, CallbackFunction.UNKNOWN],
-            [CallbackFunction.GLOBAL_ASYNC_ID, CallbackFunction.GLOBAL],
-        ]);
 
         async_hooks.createHook({
             init: this.asyncHookInit,
@@ -56,7 +51,7 @@ export class AsyncContextLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                let triggerAsyncFunction: CallbackFunction | null | undefined = this.asyncIdToFunctionCall.get(triggerAsyncId);
+                let triggerAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(triggerAsyncId);
                 assert.ok(triggerAsyncFunction !== undefined);
 
                 // skip asyncIds without related function calls until global or unknown
@@ -68,12 +63,11 @@ export class AsyncContextLogger extends Analysis
                     assert.ok(triggerAsyncFunction !== undefined && triggerAsyncFunction !== null);
                 }
 
-                const placeholderAsyncFunction: CallbackFunction | null | undefined = this.asyncIdToFunctionCall.get(asyncId);
+                const placeholderAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
                 const asyncFunction = new CallbackFunction(f, asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
-                this.asyncIdToFunctionCall.set(asyncId, asyncFunction);
-                AsyncContextLogStore.setCurrentCallbackFunction(asyncFunction);
+                AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, asyncFunction);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;
@@ -85,7 +79,7 @@ export class AsyncContextLogger extends Analysis
     // must be an arrow function to fix `this`
     private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number) =>
     {
-        let triggerAsyncFunction = this.asyncIdToFunctionCall.get(triggerAsyncId);
+        let triggerAsyncFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(triggerAsyncId);
         if (triggerAsyncFunction === undefined)
         {
             console.warn(`undefined triggerAsyncFunction with triggerAsyncId ${triggerAsyncId}`);
@@ -94,7 +88,7 @@ export class AsyncContextLogger extends Analysis
         if (asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID && asyncId !== CallbackFunction.GLOBAL_ASYNC_ID)
         {
             const placeholderAsyncFunction = new CallbackFunction(null, asyncId, type, triggerAsyncFunction, null);
-            this.asyncIdToFunctionCall.set(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
+            AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
     };
 

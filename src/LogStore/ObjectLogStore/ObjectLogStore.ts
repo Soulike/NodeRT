@@ -5,7 +5,7 @@ import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {getSourceCodeInfoFromIid} from '../../Util';
 import {ObjectDeclaration} from './Class/ObjectDeclaration';
 import {ObjectOperation} from './Class/ObjectOperation';
-
+import asyncHooks from 'async_hooks';
 export class ObjectLogStore
 {
     private static objectToObjectDeclaration: WeakMap<object, ObjectDeclaration> = new WeakMap();
@@ -19,7 +19,7 @@ export class ObjectLogStore
     public static appendObjectOperation(object: object, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
-        objectDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+        objectDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
             new ObjectOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
     }
 

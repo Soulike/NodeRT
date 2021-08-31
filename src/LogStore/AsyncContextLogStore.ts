@@ -1,5 +1,6 @@
 // DO NOT INSTRUMENT
 
+import {strict as assert} from 'assert';
 import {CallbackFunction} from './Class/CallbackFunction';
 
 /**
@@ -8,15 +9,20 @@ import {CallbackFunction} from './Class/CallbackFunction';
  * */
 export class AsyncContextLogStore
 {
-    private static currentCallbackFunction: CallbackFunction = CallbackFunction.GLOBAL;
+    private static readonly asyncIdToFunctionCall: Map<number, CallbackFunction> = new Map([
+        [CallbackFunction.UNKNOWN_ASYNC_ID, CallbackFunction.UNKNOWN],
+        [CallbackFunction.GLOBAL_ASYNC_ID, CallbackFunction.GLOBAL],
+    ]);
 
-    public static getCurrentCallbackFunction(): Readonly<CallbackFunction>
+    public static setAsyncIdToFunctionCall(asyncId: number, functionCall: CallbackFunction)
     {
-        return Object.freeze(AsyncContextLogStore.currentCallbackFunction);
+        AsyncContextLogStore.asyncIdToFunctionCall.set(asyncId, functionCall);
     }
 
-    public static setCurrentCallbackFunction(callbackFunction: CallbackFunction)
+    public static getFunctionCallFromAsyncId(asyncId: number): CallbackFunction
     {
-        AsyncContextLogStore.currentCallbackFunction = callbackFunction;
+        const callbackFunction = AsyncContextLogStore.asyncIdToFunctionCall.get(asyncId);
+        assert.ok(callbackFunction !== undefined);
+        return callbackFunction;
     }
 }

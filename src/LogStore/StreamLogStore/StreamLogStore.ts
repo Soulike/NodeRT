@@ -6,6 +6,7 @@ import {getSourceCodeInfoFromIid} from '../../Util';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {StreamDeclaration} from './Class/StreamDeclaration';
 import {StreamOperation} from './Class/StreamOperation';
+import asyncHooks from 'async_hooks';
 
 export class StreamLogStore
 {
@@ -20,7 +21,7 @@ export class StreamLogStore
     public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
-        streamDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+        streamDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
             new StreamOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
     }
 

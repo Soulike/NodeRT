@@ -8,6 +8,7 @@ import {FileOperation} from './Class/FileOperation';
 import {URL} from 'url';
 import {BufferLike} from '../../Analysis/Type/BufferLike';
 import {FileHandle} from 'fs/promises';
+import asyncHooks from 'async_hooks';
 
 export class FileLogStore
 {
@@ -63,7 +64,7 @@ export class FileLogStore
         const fileDeclaration = FileLogStore.getFileDeclaration(filePath);
         if (fileDeclaration !== undefined)
         {
-            fileDeclaration.appendOperation(AsyncContextLogStore.getCurrentCallbackFunction(),
+            fileDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
                 new FileOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
         }
     }
