@@ -2,7 +2,7 @@
 
 import {Readable, Writable} from 'stream';
 import {Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {StreamDeclaration} from './Class/StreamDeclaration';
 import {StreamOperation} from './Class/StreamOperation';
@@ -22,7 +22,7 @@ export class StreamLogStore
     {
         const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
         streamDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new StreamOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+            new StreamOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getStreamDeclaration(stream: Readable | Writable)

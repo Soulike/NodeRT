@@ -113,6 +113,6 @@ export function parseErrorStackTrace(stackTrace: string | undefined): string[] |
         return stackTraces
             .slice(1)
             .map(stackTrace => stackTrace.trim())
-            .filter(stackTrace => !(stackTrace.includes('Analysis') && stackTrace.includes('Logger')));
+            .filter(stackTrace => !((stackTrace.includes('Analysis') && stackTrace.includes('Logger') || stackTrace.includes('LogStore'))));    // TODO: 正式过滤规则
     }
 }

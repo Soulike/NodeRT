@@ -2,7 +2,7 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {ObjectDeclaration} from './Class/ObjectDeclaration';
 import {ObjectOperation} from './Class/ObjectOperation';
 import asyncHooks from 'async_hooks';
@@ -20,7 +20,7 @@ export class ObjectLogStore
     {
         const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
         objectDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new ObjectOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+            new ObjectOperation(type,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getObjectDeclaration(object: object)

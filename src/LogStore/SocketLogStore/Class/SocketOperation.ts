@@ -5,9 +5,9 @@ import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class SocketOperation extends ResourceOperation
 {
-    constructor(sourceCodeInfo: SourceCodeInfo)
+    constructor(stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         // only write for socket
-        super('write', sourceCodeInfo);
+        super('write', stackTrace, sourceCodeScopeInfo);
     }
 }

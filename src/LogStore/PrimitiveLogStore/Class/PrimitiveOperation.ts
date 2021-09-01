@@ -5,8 +5,8 @@ import {ResourceOperation} from '../../Class/ResourceOperation';
 
 export class PrimitiveOperation extends ResourceOperation
 {
-    constructor(type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
-        super(type, sourceCodeInfo);
+        super(type, stackTrace,sourceCodeScopeInfo);
     }
 }

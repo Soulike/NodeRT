@@ -2,7 +2,7 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {FileDeclaration} from './Class/FileDeclaration';
 import {FileOperation} from './Class/FileOperation';
 import {URL} from 'url';
@@ -65,7 +65,7 @@ export class FileLogStore
         if (fileDeclaration !== undefined)
         {
             fileDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-                new FileOperation(type, getSourceCodeInfoFromIid(iid, sandbox)));
+                new FileOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
         }
     }
 

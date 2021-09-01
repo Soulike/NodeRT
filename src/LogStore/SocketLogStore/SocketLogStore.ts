@@ -6,7 +6,7 @@ import {SocketDeclaration} from './Class/SocketDeclaration';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {SocketOperation} from './Class/SocketOperation';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {StreamLogStore} from '../StreamLogStore';
 import asyncHooks from 'async_hooks';
 
@@ -24,7 +24,7 @@ export class SocketLogStore
     {
         const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, sandbox, iid);
         socketDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new SocketOperation(getSourceCodeInfoFromIid(iid, sandbox)));
+            new SocketOperation(parseErrorStackTrace(new Error().stack),getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getSocketDeclaration(socket: dgram.Socket | net.Socket, sandbox: Sandbox, iid: number)

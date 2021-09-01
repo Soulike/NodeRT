@@ -5,8 +5,8 @@ import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class BufferOperation extends ResourceOperation
 {
-    constructor(type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
-        super(type, sourceCodeInfo);
+        super(type, stackTrace, sourceCodeScopeInfo);
     }
 }

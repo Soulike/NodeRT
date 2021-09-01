@@ -7,7 +7,7 @@ import {ArrayBufferLike} from '../../Analysis/Type/ArrayBufferLike';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {BufferOperation} from './Class/BufferOperation';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 import {strict as assert} from 'assert';
 import asyncHooks from 'async_hooks';
@@ -48,13 +48,13 @@ export class BufferLogStore
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
             bufferDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-                new BufferOperation(type, sandboxOrSourceCodeInfo));
+                new BufferOperation(type, parseErrorStackTrace(new Error().stack), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
             bufferDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-                new BufferOperation(type, getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+                new BufferOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }
 }

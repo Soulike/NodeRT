@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from '../../LogStore/PrimitiveLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
@@ -128,7 +128,7 @@ export class PrimitiveOperationLogger extends Analysis
                     newDeclaration = new PrimitiveDeclaration(iid, name, 'var', Scope.GLOBAL_SCOPE);
                 }
 
-                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
+                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack),sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -141,7 +141,7 @@ export class PrimitiveOperationLogger extends Analysis
                     const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
                     if (pendingDeclaration.name === name)
                     {
-                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
+                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
                         found = true;
                         break;
                     }
@@ -156,7 +156,7 @@ export class PrimitiveOperationLogger extends Analysis
         }
         else
         {
-            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, sourceCodeInfo));
+            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack),sourceCodeInfo));
         }
     }
 }
