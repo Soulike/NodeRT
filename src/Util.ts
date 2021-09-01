@@ -63,14 +63,12 @@ export function isPrimitive(value: unknown): boolean
 
 export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
 {
-    const {
-        name: fileName,
-        range,
-        loc,
-    } = sandbox.iidToSourceObject(iid);
-
-    return new SourceCodeInfo(fileName, new Range(range[0], range[1],
-        loc.start.line, loc.start.column, loc.end.line, loc.end.column));
+    const {name: fileName, loc, } = sandbox.iidToSourceObject(iid);
+    return new SourceCodeInfo(fileName, new Range(
+        loc.start.line,
+        loc.start.column,
+        loc.end.line,
+        loc.end.column));
 }
 
 export function isBufferLike(other: any): other is BufferLike
@@ -100,5 +98,5 @@ export function outputSync(message: string | object)
     {
         output = message;
     }
-    fs.writeFileSync(path.join('.', 'output.json'), output);
+    fs.appendFileSync(path.join('.', 'output.json'), output);
 }
