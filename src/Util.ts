@@ -100,3 +100,19 @@ export function outputSync(message: string | object)
     }
     fs.appendFileSync(path.join('.', 'output.json'), output);
 }
+
+export function parseErrorStackTrace(stackTrace: string | undefined): string[] | null
+{
+    if (stackTrace === undefined)
+    {
+        return null;
+    }
+    else
+    {
+        const stackTraces = stackTrace.split('\n');
+        return stackTraces
+            .slice(1)
+            .map(stackTrace => stackTrace.trim())
+            .filter(stackTrace => !(stackTrace.includes('Analysis') && stackTrace.includes('Logger')));
+    }
+}

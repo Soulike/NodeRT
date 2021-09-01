@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
 import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
 import {strict as assert} from 'assert';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 /**
@@ -56,8 +56,8 @@ export class AsyncContextLogger extends Analysis
 
                 // skip asyncIds without related function calls until global or unknown
                 while (triggerAsyncFunction.functionWeakRef === null
-                && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
-                && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
+                    && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
+                    && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
                 {
                     triggerAsyncFunction = triggerAsyncFunction.asyncScope;    // won't be null, ensured by triggerAsyncFunction.asyncId !== ...
                     assert.ok(triggerAsyncFunction !== undefined && triggerAsyncFunction !== null);
@@ -66,7 +66,7 @@ export class AsyncContextLogger extends Analysis
                 const placeholderAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
-                const asyncFunction = new CallbackFunction(f, asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
+                const asyncFunction = new CallbackFunction(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
                 AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, asyncFunction);
 
                 this.asyncContextChanged = false;
@@ -87,7 +87,7 @@ export class AsyncContextLogger extends Analysis
         }
         if (asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID && asyncId !== CallbackFunction.GLOBAL_ASYNC_ID)
         {
-            const placeholderAsyncFunction = new CallbackFunction(null, asyncId, type, triggerAsyncFunction, null);
+            const placeholderAsyncFunction = new CallbackFunction(null, null, asyncId, type, triggerAsyncFunction, null);
             AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
     };
