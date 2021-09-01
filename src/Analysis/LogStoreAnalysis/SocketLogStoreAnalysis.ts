@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {toJSON} from '../../Util';
+import {outputSync, toJSON} from '../../Util';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 
 export class SocketLogStoreAnalysis extends Analysis
@@ -19,7 +19,7 @@ export class SocketLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(toJSON(SocketLogStore.getSocketDeclarations()));
+            outputSync(toJSON(SocketLogStore.getSocketDeclarations()));
         };
     }
 }

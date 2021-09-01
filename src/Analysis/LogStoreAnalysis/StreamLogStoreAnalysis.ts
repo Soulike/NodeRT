@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {toJSON} from '../../Util';
+import {outputSync, toJSON} from '../../Util';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 
 export class StreamLogStoreAnalysis extends Analysis
@@ -19,7 +19,7 @@ export class StreamLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(toJSON(StreamLogStore.getStreamDeclarations()));
+            outputSync(toJSON(StreamLogStore.getStreamDeclarations()));
         };
     }
 }

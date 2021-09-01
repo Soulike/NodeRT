@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {toJSON} from '../../Util';
+import {outputSync, toJSON} from '../../Util';
 import {FileLogStore} from '../../LogStore/FileLogStore';
 
 export class FileLogStoreAnalysis extends Analysis
@@ -19,7 +19,7 @@ export class FileLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(toJSON(FileLogStore.getFileDeclarations()));
+            outputSync(toJSON(FileLogStore.getFileDeclarations()));
         };
     }
 }

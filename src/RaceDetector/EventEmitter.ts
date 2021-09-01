@@ -2,7 +2,7 @@
 
 import EventEmitter from 'events';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
-import {toJSON} from '../Util';
+import {outputSync, toJSON} from '../Util';
 import {aggressiveDetector} from './AggressiveDetector';
 import {conservativeDetector} from './ConservativeDetector';
 
@@ -41,19 +41,20 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
         const modifiedResourceDeclaration: any = {...resourceDeclaration};
         delete modifiedResourceDeclaration.callbackFunctionToOperations;
         delete modifiedResourceDeclaration.operations;
-        
-        console.log(
-`on
-${toJSON(modifiedResourceDeclaration)}
-found violation
-${toJSON(callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]])}
-and
-${toJSON(callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]])}
-are violated by
-${toJSON(callbackFunctionToOperationsArray[violatingOperationIndex])}
-`);
+
+        const output = {
+            resource: modifiedResourceDeclaration,
+            atomicPair: [
+                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
+                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]]
+            ],
+            violator: callbackFunctionToOperationsArray[violatingOperationIndex]
+        };
+
+        outputSync(toJSON(output));
     }
 });
+
 eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
     aggressiveDetector(resourceDeclaration);

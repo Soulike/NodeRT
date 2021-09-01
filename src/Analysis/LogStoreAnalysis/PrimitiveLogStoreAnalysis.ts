@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {toJSON} from '../../Util';
+import {outputSync, toJSON} from '../../Util';
 import {PrimitiveLogStore} from '../../LogStore/PrimitiveLogStore';
 
 export class PrimitiveLogStoreAnalysis extends Analysis
@@ -19,7 +19,7 @@ export class PrimitiveLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()));
+            outputSync(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()));
         };
     }
 }

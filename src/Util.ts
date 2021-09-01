@@ -5,6 +5,9 @@ import {SourceCodeInfo} from './LogStore/Class/SourceCodeInfo';
 import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
+import fs from 'fs';
+import path from 'path';
+import {isObject} from 'lodash';
 
 export function toJSON(object: unknown): string
 {
@@ -84,4 +87,18 @@ export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boo
 export function isURL(other: unknown): other is URL
 {
     return other instanceof URL;
+}
+
+export function outputSync(message: string | object)
+{
+    let output: string;
+    if (isObject(message))
+    {
+        output = toJSON(message);
+    }
+    else
+    {
+        output = message;
+    }
+    fs.writeFileSync(path.join('.', 'output.json'), output);
 }

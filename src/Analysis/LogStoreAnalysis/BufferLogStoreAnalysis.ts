@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {toJSON} from '../../Util';
+import {outputSync, toJSON} from '../../Util';
 
 export class BufferLogStoreAnalysis extends Analysis
 {
@@ -19,7 +19,7 @@ export class BufferLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(toJSON(BufferLogStore.getBufferDeclarations()));
+            outputSync(toJSON(BufferLogStore.getBufferDeclarations()));
         };
     }
 }
