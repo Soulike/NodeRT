@@ -22,12 +22,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
 
     if (checkedCallbacks.has(lastCallback))
     {
-        
         return null;
-    }
-    else
-    {
-        checkedCallbacks.add(lastCallback);
     }
 
     const lastCallbackAsyncIds: Set<number> = new Set();
@@ -69,5 +64,6 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         return null;
     }
 
+    checkedCallbacks.add(callbackToOperationsArray[violatingOperationIndex]![0]);
     return new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
 };
