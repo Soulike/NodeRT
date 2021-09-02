@@ -52,7 +52,8 @@ export class FileHandleOperationLogger extends Analysis
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     });
                 }
-                else if (f === fileHandle.readFile)
+                else if (f === fileHandle.readFile
+                    || f === fileHandle.stat)
                 {
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', this.getSandbox(), iid);
                 }
@@ -68,7 +69,9 @@ export class FileHandleOperationLogger extends Analysis
                         }
                     });
                 }
-                else if (f === fileHandle.truncate)
+                else if (f === fileHandle.truncate
+                    || f === fileHandle.chmod
+                    || f === fileHandle.chown)
                 {
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', this.getSandbox(), iid);
                 }

@@ -74,11 +74,19 @@ export class FsPromisesOperationLogger extends Analysis
                 });
             }
             else if (f === fsPromise.readdir
-                || f === fsPromise.readFile)
+                || f === fsPromise.readFile
+                || f === fsPromise.access)
             {
                 const [path] = args as Parameters<typeof fsPromise.readdir
-                    | typeof fsPromise.readFile>;
+                    | typeof fsPromise.readFile
+                    | typeof fsPromise.access>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
+            }
+            else if (f === fsPromise.chmod
+                || f === fsPromise.chown)
+            {
+                const [path] = args as Parameters<typeof fsPromise.chmod>;
+                FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid);
             }
             else if (f === fsPromise.writeFile)
             {

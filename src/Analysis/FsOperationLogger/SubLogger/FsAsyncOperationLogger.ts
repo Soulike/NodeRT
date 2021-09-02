@@ -44,6 +44,7 @@ export class FsAsyncOperationLogger extends Analysis
             else if (f === fs.close)
             {
                 const [fd] = args as Parameters<typeof fs.close>;
+                FileLogStoreAdaptor.appendFileOperation(fd, 'write', this.getSandbox(), iid);
                 FileLogStore.deleteFd(fd);
             }
             else if (f === fs.copyFile
@@ -57,22 +58,29 @@ export class FsAsyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(dst, 'write', this.getSandbox(), iid);
             }
-            else if (f === fs.ftruncate)
+            else if (f === fs.ftruncate
+                || f === fs.fchmod
+                || f === fs.fchown)
             {
-                const [fd] = args as Parameters<typeof fs.ftruncate>;
+                const [fd] = args as Parameters<typeof fs.ftruncate
+                    | typeof fs.fchmod
+                    | typeof fs.fchown>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'write', this.getSandbox(), iid);
             }
             else if (f === fs.mkdir
                 || f === fs.rmdir
                 || f === fs.rm
                 || f === fs.truncate
-                || f === fs.unlink)
+                || f === fs.unlink
+                || f === fs.chmod
+                || f === fs.chown)
             {
                 const [path] = args as Parameters<typeof fs.mkdir
                     | typeof fs.rmdir
                     | typeof fs.rm
                     | typeof fs.truncate
-                    | typeof fs.unlink>;
+                    | typeof fs.unlink
+                    | typeof fs.chmod>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid);
             }
             else if (f === fs.mkdtemp)
@@ -93,9 +101,16 @@ export class FsAsyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', this.getSandbox(), iid);
                 this.callbackToFilePathOrBuffer.set(callback, {register: fs.read});
             }
-            else if (f === fs.readdir)
+            else if (f === fs.readdir
+                || f === fs.access
+                || f === fs.exists
+                || f === fs.stat)
             {
-                const [path] = args as Parameters<typeof fs.readdir>;
+                const [path] = args as Parameters<
+                    typeof fs.readdir
+                    | typeof fs.access
+                    | typeof fs.exists
+                    | typeof fs.stat>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
             }
             else if (f === fs.readFile)
@@ -133,6 +148,11 @@ export class FsAsyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(fd, 'write', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
                     BufferLogStore.appendBufferOperation(buffer.buffer, 'read', this.getSandbox(), iid));
+            }
+            else if (f === fs.fstat)
+            {
+                const [fd] = args as Parameters<typeof fs.fstat>;
+                FileLogStoreAdaptor.appendFileOperation(fd, 'read', this.getSandbox(), iid);
             }
         };
 
