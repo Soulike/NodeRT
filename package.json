@@ -8,7 +8,11 @@
   "scripts": {
     "build": "tsc",
     "prenodeprof": "tsc",
-    "nodeprof": "node ./dist/bin/nodeprof.js --analysis dist/"
+    "prenodeprof:raw": "tsc",
+    "preraw": "tsc",
+    "nodeprof": "node ./dist/bin/nodeprof.js --analysis dist/",
+    "nodeprof:raw": "node ./dist/bin/nodeprof.js",
+    "raw": "node ./dist/bin/node.js"
   },
   "dependencies": {
     "lodash": "^4.17.21"
