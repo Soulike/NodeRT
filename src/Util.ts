@@ -46,7 +46,6 @@ export function toJSON(object: unknown): string
     catch (e)
     {
         console.error(e);
-        console.error(object);
         return '';
     }
 
@@ -98,7 +97,7 @@ export function outputSync(message: string | object)
     {
         output = message;
     }
-    fs.appendFileSync(path.join('.', 'output.json'), output);
+    fs.appendFileSync(path.join('.', 'output.json'), output + '\n');
 }
 
 export function parseErrorStackTrace(stackTrace: string | undefined): string[] | null
@@ -113,6 +112,6 @@ export function parseErrorStackTrace(stackTrace: string | undefined): string[] |
         return stackTraces
             .slice(1)
             .map(stackTrace => stackTrace.trim())
-            .filter(stackTrace => !((stackTrace.includes('Analysis') && stackTrace.includes('Logger') || stackTrace.includes('LogStore') || stackTrace.includes('internal/'))));    // TODO: 正式过滤规则
+            .filter(stackTrace => !stackTrace.includes(__dirname));
     }
 }
