@@ -139,7 +139,7 @@ export class FsAsyncOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read',null, this.getSandbox(), iid);
                 }
             }
             else if (f === fs.writev)

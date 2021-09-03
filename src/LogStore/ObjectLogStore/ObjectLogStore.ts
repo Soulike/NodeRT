@@ -16,11 +16,11 @@ export class ObjectLogStore
         return ObjectLogStore.objectDeclarations;
     }
 
-    public static appendObjectOperation(object: object, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendObjectOperation(object: object, type: 'read' | 'write', field: any|null, sandbox: Sandbox, iid: number)
     {
         const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
         objectDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new ObjectOperation(type,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new ObjectOperation(type,field,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getObjectDeclaration(object: object)

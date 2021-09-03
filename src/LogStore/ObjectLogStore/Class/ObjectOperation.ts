@@ -5,8 +5,14 @@ import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class ObjectOperation extends ResourceOperation
 {
-    constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    /**
+     * `null` represents unknown
+     */
+    public readonly field: any | null;
+
+    constructor(type: 'read' | 'write', field: any|null, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
-        super(type ,stackTrace, sourceCodeScopeInfo);
+        super(type, stackTrace, sourceCodeScopeInfo);
+        this.field = field;
     }
 }

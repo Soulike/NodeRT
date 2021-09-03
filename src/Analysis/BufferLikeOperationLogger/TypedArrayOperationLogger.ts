@@ -63,8 +63,30 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 }
+
+                assert.ok(util.types.isTypedArray(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (TypedArrayOperationLogger.fromApis.has(f))
+            {
+                const source = args[0];
+                assert.ok(isObject(source));
+                if (isBufferLike(source))
+                {
+                    BufferLogStore.appendBufferOperation(source, 'read',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else
+                {
+                    ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
+                }
+                
+                assert.ok(util.types.isTypedArray(result));
+                BufferLogStore.appendBufferOperation(result, 'write',
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isTypedArray(base))
             {
@@ -103,14 +125,6 @@ export class TypedArrayOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(result, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                else if (TypedArrayOperationLogger.fromApis.has(f))
-                {
-                    const source = args[0];
-                    assert.ok(isObject(source));
-                    ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
-                }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.join)
                 {
                     BufferLogStore.appendBufferOperation(base, 'read',
@@ -119,9 +133,18 @@ export class TypedArrayOperationLogger extends Analysis
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
                 {
                     const source = args[0];
-                    assert.ok(isObject(source));
-                    ObjectLogStore.appendObjectOperation(source, 'read', this.getSandbox(), iid);
-                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                    if (isBufferLike(source))
+                    {
+                        BufferLogStore.appendBufferOperation(source, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    else if(isObject(source))
+                    {
+                        ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
+                    }
+                    
+                    BufferLogStore.appendBufferOperation(base, 'write',
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype[Symbol.iterator]
                     || f === TypedArrayOperationLogger.typedArrayPrototype.entries

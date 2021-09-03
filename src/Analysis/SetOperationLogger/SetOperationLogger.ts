@@ -25,10 +25,10 @@ export class SetOperationLogger extends Analysis
             {
                 if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
                 }
                 assert.ok(result instanceof Set);
-                ObjectLogStore.appendObjectOperation(result, 'write', this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write',null, this.getSandbox(), iid);
             }
             else if (base instanceof Set)
             {
@@ -45,13 +45,13 @@ export class SetOperationLogger extends Analysis
                     || f === Set.prototype.delete)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'write', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write',null, this.getSandbox(), iid);
                 }
                 else if (f === Set.prototype.forEach
                     || f === Set.prototype.has)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read',null, this.getSandbox(), iid);
                 }
             }
         };

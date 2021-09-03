@@ -123,7 +123,7 @@ export class BufferOperationLogger extends Analysis
             else if (f === Buffer.concat)
             {
                 assert.ok(Array.isArray(args[0]));
-                ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
                 for (const arg of args[0])
                 {
                     assert.ok(isBufferLike(arg));
@@ -147,7 +147,7 @@ export class BufferOperationLogger extends Analysis
                 }
                 else if (Array.isArray(args[0]) || isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
                 }
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write',
