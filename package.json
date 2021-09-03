@@ -15,6 +15,7 @@
     "raw": "node ./dist/bin/node.js"
   },
   "dependencies": {
+    "@datastructures-js/set": "^4.1.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@datastructures-js/set@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.nlark.com/@datastructures-js/set/download/@datastructures-js/set-4.1.1.tgz#c3f0ebc24e248b56e92f8204c45623824ebd5d8d"
+  integrity sha1-w/Drwk4ki1bpL4IExFYjgk69XY0=
+
 "@types/lodash@^4.14.171":
   version "4.14.172"
   resolved "https://registry.nlark.com/@types/lodash/download/@types/lodash-4.14.172.tgz#aad774c28e7bfd7a67de25408e03ee5a8c3d028a"

@@ -2,6 +2,7 @@
 
 import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
 import {Detector} from './Detector';
+import {shouldOutput} from './Util';
 import {ViolationInfo} from './ViolationInfo';
 
 const checkedCallbacks: WeakSet<CallbackFunction> = new WeakSet();
@@ -64,6 +65,15 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         return null;
     }
 
-    checkedCallbacks.add(callbackToOperationsArray[violatingOperationIndex]![0]);
-    return new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
+    const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
+
+    if (shouldOutput(violationInfo, callbackToOperationsArray))
+    {
+        checkedCallbacks.add(callbackToOperationsArray[violatingOperationIndex]![0]);
+        return violationInfo;
+    }
+    else
+    {
+        return null;
+    }
 };
