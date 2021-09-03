@@ -1,3 +1,5 @@
+// DO NOT INSTRUMENT
+
 import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
 import {ResourceOperation} from '../LogStore/Class/ResourceOperation';
 import {ObjectDeclaration, ObjectOperation} from '../LogStore/ObjectLogStore';
