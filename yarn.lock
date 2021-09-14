@@ -17,6 +17,11 @@
   resolved "https://registry.nlark.com/@types/node/download/@types/node-16.7.1.tgz#c6b9198178da504dfca1fd0be9b2e1002f1586f0"
   integrity sha1-xrkZgXjaUE38of0L6bLhAC8VhvA=
 
+esbuild@^0.12.27:
+  version "0.12.27"
+  resolved "https://registry.nlark.com/esbuild/download/esbuild-0.12.27.tgz?cache=0&sync_timestamp=1631497049767&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fesbuild%2Fdownload%2Fesbuild-0.12.27.tgz#9bcfb837111c5e89b189188dde339515b213a724"
+  integrity sha1-m8+4NxEcXomxiRiN3jOVFbITpyQ=
+
 lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.nlark.com/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"

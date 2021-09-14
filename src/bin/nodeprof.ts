@@ -23,6 +23,7 @@ const {error} = childProcess.spawnSync(`graalnode`, [
 ], {
     env: process.env,
     stdio: 'inherit',
+    shell: true,
 });
 
 if (error)
