@@ -28,6 +28,13 @@ class RaceDetectorEventEmitter extends EventEmitter
 
 export const eventEmitter = new RaceDetectorEventEmitter();
 
+const outputs: object[] = [];
+
+process.on('exit', () =>
+{
+    outputSync(toJSON(outputs));
+});
+
 eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
     const violationInfo = conservativeDetector(resourceDeclaration);
@@ -52,7 +59,7 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
             violator: callbackFunctionToOperationsArray[violatingOperationIndex],
         };
 
-        outputSync(toJSON(output));
+        outputs.push(output);
     }
 });
 

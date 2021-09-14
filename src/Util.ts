@@ -88,6 +88,7 @@ export function isURL(other: unknown): other is URL
 
 export function outputSync(message: string | object)
 {
+    const outputFile = path.join('.', 'output.json');
     let output: string;
     if (isObject(message))
     {
@@ -97,7 +98,7 @@ export function outputSync(message: string | object)
     {
         output = message;
     }
-    fs.appendFileSync(path.join('.', 'output.json'), output + '\n');
+    fs.writeFileSync(outputFile, output + '\n');
 }
 
 export function parseErrorStackTrace(stackTrace: string | undefined): string[] | null
