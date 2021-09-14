@@ -54,7 +54,9 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     for (let i = atomicPairIndex1 + 1; i < atomicPairIndex2; i++)
     {
         const operations = callbackToOperationsArray[i]![1];
-        if (!operations.every(operation => operation.getType() !== 'write'))
+        const callback = callbackToOperationsArray[i]![0];
+        if (!operations.every(operation => operation.getType() !== 'write')
+            && callback.asyncId !== lastCallback.asyncId)   // for setInterval callbacks
         {
             violatingOperationIndex = i;
             break;
