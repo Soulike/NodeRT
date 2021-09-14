@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "prebuild": "rm -rf dist/ && tsc --noEmit",
-    "build": "esbuild src/index.ts src/bin/nodeprof.ts src/bin/node.ts --banner:js='// DO NOT INSTRUMENT' --bundle --minify-syntax --outdir=dist --platform=node",
+    "build": "node esbuild.js",
     "prenodeprof": "yarn build",
     "prenodeprof:raw": "yarn build",
     "preraw": "yarn build",
