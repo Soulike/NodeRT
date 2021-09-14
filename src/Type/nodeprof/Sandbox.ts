@@ -22,7 +22,7 @@ export interface Sandbox
      *
      * @param iid - Static unique instruction identifier
      * */
-    iidToSourceObject: (iid: number) => SourceObject
+    iidToSourceObject: (iid: number) => SourceObject;
 
     /**
      * Get the code corresponding to iid

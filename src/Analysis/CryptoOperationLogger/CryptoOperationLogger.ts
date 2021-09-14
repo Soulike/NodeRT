@@ -1,7 +1,19 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import crypto, {Certificate, Cipher, Decipher, DiffieHellman, ECDH, Hash, Hmac, KeyObject, Sign, Verify, X509Certificate} from 'crypto';
+import crypto, {
+    Certificate,
+    Cipher,
+    Decipher,
+    DiffieHellman,
+    ECDH,
+    Hash,
+    Hmac,
+    KeyObject,
+    Sign,
+    Verify,
+    X509Certificate,
+} from 'crypto';
 import {isFunction, isObject} from 'lodash';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
@@ -135,7 +147,7 @@ export class CryptoOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 }
                 if (isBufferLike(result))
                 {
@@ -152,7 +164,7 @@ export class CryptoOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 }
                 if (isBufferLike(args[1]))
                 {

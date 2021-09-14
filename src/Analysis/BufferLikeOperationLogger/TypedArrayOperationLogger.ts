@@ -83,7 +83,7 @@ export class TypedArrayOperationLogger extends Analysis
                 {
                     ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
                 }
-                
+
                 assert.ok(util.types.isTypedArray(result));
                 BufferLogStore.appendBufferOperation(result, 'write',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
@@ -138,11 +138,11 @@ export class TypedArrayOperationLogger extends Analysis
                         BufferLogStore.appendBufferOperation(source, 'read',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    else if(isObject(source))
+                    else if (isObject(source))
                     {
                         ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
                     }
-                    
+
                     BufferLogStore.appendBufferOperation(base, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }

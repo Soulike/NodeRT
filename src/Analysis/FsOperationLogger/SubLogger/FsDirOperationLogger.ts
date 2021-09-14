@@ -7,7 +7,7 @@ import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 export class FsDirOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
-    
+
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
@@ -24,12 +24,9 @@ export class FsDirOperationLogger extends Analysis
                 if (f === Dir.prototype.read
                     || f === Dir.prototype.readSync)
                 {
-                    if (base instanceof Dir)
-                    {
-                        FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
-                    }
+                    FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
                 }
             }
-        }
+        };
     }
 }

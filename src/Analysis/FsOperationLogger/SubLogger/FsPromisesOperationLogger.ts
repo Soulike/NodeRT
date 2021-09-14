@@ -40,8 +40,7 @@ export class FsPromisesOperationLogger extends Analysis
                 || f === fsPromise.cp
                 || f === fsPromise.rename)
             {
-                const [src, dst] = args as Parameters<
-                    typeof fsPromise.copyFile
+                const [src, dst] = args as Parameters<typeof fsPromise.copyFile
                     | typeof fsPromise.cp
                     | typeof fsPromise.rename>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
@@ -103,7 +102,7 @@ export class FsPromisesOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
                 }
             }
         };

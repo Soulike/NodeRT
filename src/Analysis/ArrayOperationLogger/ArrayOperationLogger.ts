@@ -28,15 +28,15 @@ export class ArrayOperationLogger extends Analysis
                 || f === Array.of)
             {
                 assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write',null, this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
             }
             else if (f === Array.from)
             {
                 const arrayLike = args[0];
                 assert.ok(isObject(arrayLike));
-                ObjectLogStore.appendObjectOperation(arrayLike, 'read',null, this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(arrayLike, 'read', null, this.getSandbox(), iid);
                 assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write',null, this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
             }
             else if (f === Array.isArray
                 || f === Array.prototype.keys)
@@ -55,14 +55,14 @@ export class ArrayOperationLogger extends Analysis
                 }
                 else if (f === Array.prototype.concat)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                     for (const arg of args)
                     {
                         assert.ok(isObject(arg));
-                        ObjectLogStore.appendObjectOperation(arg, 'read',null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(arg, 'read', null, this.getSandbox(), iid);
                     }
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.copyWithin
                     || f === Array.prototype.fill
@@ -74,7 +74,7 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.splice
                     || f === Array.prototype.unshift)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.every
                     || f === Array.prototype.find
@@ -90,7 +90,7 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.toLocaleString
                     || f === Array.prototype.toString)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.filter
                     || f === Array.prototype.flat
@@ -98,9 +98,9 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.map
                     || f === Array.prototype.slice)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
                 }
             }
         };

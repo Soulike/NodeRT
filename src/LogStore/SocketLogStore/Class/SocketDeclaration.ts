@@ -47,7 +47,7 @@ export class SocketDeclaration extends ResourceDeclaration
     {
         return {
             ...this,
-            socketWeakRef: '<Socket>'
+            socketWeakRef: '<Socket>',
         };
     }
 }

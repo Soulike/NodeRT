@@ -44,7 +44,7 @@ export class Scope
             return this.parent.getDeclarationByName(name);
         }
     }
-    
+
     public getDeclarationByIid(iid: number): PrimitiveDeclaration | null
     {
         for (const declaration of this.declarations)

@@ -17,7 +17,7 @@ export class FsAsyncOperationLogger extends Analysis
     public functionEnter: Hooks['functionEnter'] | undefined;
 
     // Log information of callback apis
-    private readonly callbackToFilePathOrBuffer: WeakMap<Function, {register: Function, filePathOrBuffer?: string | URL | BufferLike;}>;
+    private readonly callbackToFilePathOrBuffer: WeakMap<Function, { register: Function, filePathOrBuffer?: string | URL | BufferLike; }>;
 
     constructor(sandbox: Sandbox)
     {
@@ -51,8 +51,7 @@ export class FsAsyncOperationLogger extends Analysis
                 || f === fs.cp
                 || f === fs.rename)
             {
-                const [src, dst] = args as Parameters<
-                    typeof fs.copyFile
+                const [src, dst] = args as Parameters<typeof fs.copyFile
                     | typeof fs.cp
                     | typeof fs.rename>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
@@ -106,8 +105,7 @@ export class FsAsyncOperationLogger extends Analysis
                 || f === fs.exists
                 || f === fs.stat)
             {
-                const [path] = args as Parameters<
-                    typeof fs.readdir
+                const [path] = args as Parameters<typeof fs.readdir
                     | typeof fs.access
                     | typeof fs.exists
                     | typeof fs.stat>;
@@ -139,7 +137,7 @@ export class FsAsyncOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
                 }
             }
             else if (f === fs.writev)

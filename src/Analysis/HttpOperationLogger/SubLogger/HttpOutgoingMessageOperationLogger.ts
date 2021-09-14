@@ -1,6 +1,5 @@
 // DO NOT INSTRUMENT
 
-import {strict as assert} from 'assert';
 import {OutgoingMessage} from 'http';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
@@ -26,7 +25,6 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
             {
                 if (f === OutgoingMessage.prototype.destroy)
                 {
-                    assert.ok(base instanceof OutgoingMessage);
                     const socket = base.socket;
                     if (socket !== null)
                     {
@@ -36,8 +34,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                 else if (f === OutgoingMessage.prototype.write
                     || f === OutgoingMessage.prototype.end)
                 {
-                    const [chunk] = args as Parameters<
-                        typeof OutgoingMessage.prototype.write
+                    const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write
                         | typeof OutgoingMessage.prototype.end>;
                     if (isBufferLike(chunk))
                     {

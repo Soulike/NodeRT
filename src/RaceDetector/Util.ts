@@ -14,19 +14,20 @@ export function shouldOutput(violationInfo: ViolationInfo, callbackToOperations:
     const {
         resourceDeclaration,
         atomicOperationsPairIndexes,
-        violatingOperationIndex} = violationInfo;
-    
+        violatingOperationIndex,
+    } = violationInfo;
+
     // Check if the operations read/write on the same fields
     if (resourceDeclaration instanceof ObjectDeclaration)
     {
         const atomicPair = [
             callbackToOperations[atomicOperationsPairIndexes[0]],
-            callbackToOperations[atomicOperationsPairIndexes[1]]
+            callbackToOperations[atomicOperationsPairIndexes[1]],
         ];
         const violator = callbackToOperations[violatingOperationIndex]!;
 
         const atomicPairOperations = [
-            atomicPair[0]![1], atomicPair[1]![1]
+            atomicPair[0]![1], atomicPair[1]![1],
         ] as [ObjectOperation[], ObjectOperation[]];
         const violatorOperations = violator[1] as ObjectOperation[];
 

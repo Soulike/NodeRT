@@ -7,6 +7,6 @@ export class PrimitiveOperation extends ResourceOperation
 {
     constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
-        super(type, stackTrace,sourceCodeScopeInfo);
+        super(type, stackTrace, sourceCodeScopeInfo);
     }
 }

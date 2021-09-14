@@ -13,11 +13,6 @@ import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 
 export class BufferOperationLogger extends Analysis
 {
-    public invokeFun: Hooks['invokeFun'] | undefined;
-    public forObject: Hooks['forObject'] | undefined;
-    public getField: Hooks['getField'] | undefined;
-    public putFieldPre: Hooks['putFieldPre'] | undefined;
-
     private static readonly readOnlyApis: Set<Function> = new Set([
         Buffer.prototype.readBigInt64BE,
         Buffer.prototype.readBigInt64LE,
@@ -44,7 +39,6 @@ export class BufferOperationLogger extends Analysis
         Buffer.prototype.toJSON,
         Buffer.prototype.toString,
     ]);
-
     private static readonly writeOnlyApis: Set<Function> = new Set([
         Buffer.prototype.swap16,
         Buffer.prototype.swap32,
@@ -73,6 +67,10 @@ export class BufferOperationLogger extends Analysis
         Buffer.prototype.writeUIntBE,
         Buffer.prototype.writeUIntLE,
     ]);
+    public invokeFun: Hooks['invokeFun'] | undefined;
+    public forObject: Hooks['forObject'] | undefined;
+    public getField: Hooks['getField'] | undefined;
+    public putFieldPre: Hooks['putFieldPre'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
@@ -123,7 +121,7 @@ export class BufferOperationLogger extends Analysis
             else if (f === Buffer.concat)
             {
                 assert.ok(Array.isArray(args[0]));
-                ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 for (const arg of args[0])
                 {
                     assert.ok(isBufferLike(arg));
@@ -147,7 +145,7 @@ export class BufferOperationLogger extends Analysis
                 }
                 else if (Array.isArray(args[0]) || isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 }
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write',

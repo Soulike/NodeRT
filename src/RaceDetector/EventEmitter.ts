@@ -36,7 +36,8 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
         const {
             resourceDeclaration,
             atomicOperationsPairIndexes,
-            violatingOperationIndex} = violationInfo;
+            violatingOperationIndex,
+        } = violationInfo;
         const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
         const modifiedResourceDeclaration: any = {...resourceDeclaration};
         delete modifiedResourceDeclaration.callbackFunctionToOperations;
@@ -46,9 +47,9 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
             resource: modifiedResourceDeclaration,
             atomicPair: [
                 callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
-                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]]
+                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
             ],
-            violator: callbackFunctionToOperationsArray[violatingOperationIndex]
+            violator: callbackFunctionToOperationsArray[violatingOperationIndex],
         };
 
         outputSync(toJSON(output));

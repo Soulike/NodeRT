@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {Readable, Transform, Writable, pipeline} from 'stream';
+import {pipeline, Readable, Transform, Writable} from 'stream';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
@@ -28,7 +28,6 @@ export class StreamOperationLogger extends Analysis
                     || f === Readable.prototype.destroy
                     || f === Transform.prototype.destroy)
                 {
-                    assert.ok(base instanceof Writable || base instanceof Readable);
                     StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
                 }
                 else if (f === Writable.prototype.end

@@ -62,7 +62,7 @@ export function isPrimitive(value: unknown): boolean
 
 export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
 {
-    const {name: fileName, loc, } = sandbox.iidToSourceObject(iid);
+    const {name: fileName, loc} = sandbox.iidToSourceObject(iid);
     return new SourceCodeInfo(fileName, new Range(
         loc.start.line,
         loc.start.column,

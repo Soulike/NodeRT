@@ -47,8 +47,7 @@ export class FsSyncOperationLogger extends Analysis
                 || f === fs.cpSync
                 || f === fs.renameSync)
             {
-                const [src, dst] = args as Parameters<
-                    typeof fs.copyFileSync
+                const [src, dst] = args as Parameters<typeof fs.copyFileSync
                     | typeof fs.cpSync
                     | typeof fs.renameSync>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
@@ -133,7 +132,7 @@ export class FsSyncOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read',null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
                 }
             }
             else if (f === fs.writevSync)

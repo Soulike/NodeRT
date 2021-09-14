@@ -53,7 +53,7 @@ export class DgramOperationLogger extends Analysis
                     }
                     else if (isObject(msg))
                     {
-                        ObjectLogStore.appendObjectOperation(msg, 'read',null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(msg, 'read', null, this.getSandbox(), iid);
                     }
                 }
             }

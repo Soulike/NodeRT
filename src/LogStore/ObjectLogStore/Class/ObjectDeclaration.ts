@@ -52,7 +52,7 @@ export class ObjectDeclaration extends ResourceDeclaration
             : `${Object.prototype.toString.apply(object)}`;
         return {
             ...this,
-            objectWeakRef: objectType
+            objectWeakRef: objectType,
         };
     }
 }

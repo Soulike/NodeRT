@@ -46,7 +46,7 @@ export class StreamDeclaration extends ResourceDeclaration
     {
         return {
             ...this,
-            streamWeakRef: '<Stream>'
+            streamWeakRef: '<Stream>',
         };
     }
 }

@@ -8,7 +8,7 @@ export interface Hooks
     /**
      * Declaration of a symbol
      * */
-    declare: (iid: number, name: string, type: DeclareType, kind: 'FunctionDeclaration' | undefined) => void
+    declare: (iid: number, name: string, type: DeclareType, kind: 'FunctionDeclaration' | undefined) => void;
 
     /**
      * This callback is called after a variable is read.
@@ -21,7 +21,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the result of the read operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    read: (iid: number, name: string, val: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void
+    read: (iid: number, name: string, val: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void;
 
     /**
      * This callback is called before a variable is written.
@@ -35,7 +35,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the result of the write operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    write: (iid: number, name: string, val: unknown, lhs: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void
+    write: (iid: number, name: string, val: unknown, lhs: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void;
 
     /**
      * This callback is called after a property of an object is accessed.
@@ -52,7 +52,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the value of the get field operation  is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    getField: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => { result: unknown } | void
+    getField: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => { result: unknown } | void;
 
     /**
      * This callback is called before a property of an object is written.
@@ -69,7 +69,7 @@ export interface Hooks
      * property is true, then the put field operation is skipped.  Original <tt>base</tt>, <tt>offset</tt>, and
      * <tt>val</tt> are replaced with that from the returned object if an object is returned.
      * */
-    putFieldPre: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => { base: unknown, offset: unknown, val: unknown, skip: boolean } | void
+    putFieldPre: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => { base: unknown, offset: unknown, val: unknown, skip: boolean } | void;
 
     /**
      * This callback is called before the execution of a function body starts.
@@ -80,7 +80,7 @@ export interface Hooks
      * @param args - List of the arguments with which the function is called
      * @returns {undefined} - Any return value is ignored
      * */
-    functionEnter: (iid: number, f: Function, dis: unknown, args: unknown[]) => void
+    functionEnter: (iid: number, f: Function, dis: unknown, args: unknown[]) => void;
 
     /**
      * This callback is called when the execution of a function body completes
@@ -97,7 +97,7 @@ export interface Hooks
      * <tt>isBacktrack</tt> can be set to <tt>true</tt> to repeatedly execute the function body as in MultiSE
      * symbolic execution.
      * */
-    functionExit: (iid: number, returnVal: unknown, wrappedExceptionVal: unknown | undefined) => { returnVal: unknown, wrappedExceptionVal: unknown, isBacktrack: boolean } | void
+    functionExit: (iid: number, returnVal: unknown, wrappedExceptionVal: unknown | undefined) => { returnVal: unknown, wrappedExceptionVal: unknown, isBacktrack: boolean } | void;
 
     /**
      * This callback is called before a function, method, or constructor invocation.
@@ -119,7 +119,7 @@ export interface Hooks
      * Original <tt>f</tt>, <tt>base</tt>, and <tt>args</tt> are replaced with that from the returned object if
      * an object is returned.
      * */
-    invokeFunPre: (iid: number, f: Function, base: object, args: unknown[], isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { f: Function, base: object, args: unknown[], skip: boolean } | void
+    invokeFunPre: (iid: number, f: Function, base: object, args: unknown[], isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { f: Function, base: object, args: unknown[], skip: boolean } | void;
 
     /**
      * This callback is called after a function, method, or constructor invocation.
@@ -141,27 +141,27 @@ export interface Hooks
      * replaced with the value stored in the <tt>result</tt> property of the object.  This enables one to change the
      * value that is returned by the actual function invocation.
      * */
-    invokeFun: (iid: number, f: Function, base: unknown, args: unknown[], result: unknown, isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { result: unknown } | void
+    invokeFun: (iid: number, f: Function, base: unknown, args: unknown[], result: unknown, isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { result: unknown } | void;
 
     /**
      *  `forin` or `forof` support
      *  the object being iterated can be known by checking the last expression's result (via `endExpression`)
      * */
-    forObject: (iid: number, isForIn: boolean) => void
+    forObject: (iid: number, isForIn: boolean) => void;
 
     /**
      * This callback is called before an expression
      * @param iid source code location id
      * @param type type of the expression, TODO: use some standard type names, e.g., ESTree
      **/
-    startExpression: (iid: number, type: string) => void
+    startExpression: (iid: number, type: string) => void;
 
     /**
      * @param iid source code location id
      * @param type Graal.js internal AST type of the expression
      * @param value value of the expression
      * */
-    endExpression: (iid: number, type: string, value: unknown) => void
+    endExpression: (iid: number, type: string, value: unknown) => void;
 
     /**
      * This callback is called after the creation of a literal. A literal can be a function
@@ -175,7 +175,7 @@ export interface Hooks
      * the actual value should be computed lazily via `J$.adapter.hasGetterSetter(code)`
      * @param literalType is a new argument provided by NodeProf showing the type of literal
      * */
-    literal: (iid: number, val: unknown, /* hasGetterSetter should be computed lazily */ fakeHasGetterSetter: undefined, literalType: LiteralType) => void
+    literal: (iid: number, val: unknown, /* hasGetterSetter should be computed lazily */ fakeHasGetterSetter: undefined, literalType: LiteralType) => void;
 
     /**
      * This callback is called after a unary operation. Unary operations include  +, -, ~, !, typeof, void.
@@ -187,7 +187,7 @@ export interface Hooks
      * @returns {{result: *}|undefined} - If an object is returned, the result of the unary operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    unary: (iid: number, op: string, left: unknown, result: unknown) => { result: unknown } | void
+    unary: (iid: number, op: string, left: unknown, result: unknown) => { result: unknown } | void;
 
     /**
      * @param iid - Static unique instruction identifier of this callback
@@ -196,9 +196,9 @@ export interface Hooks
      * execution has thrown an uncaught exception and the exception is being stored in the <tt>exception</tt>
      * property of the parameter
      * */
-    asyncFunctionExit: (iid: number, result: unknown, exceptionVal: { exception: unknown } | undefined) => void
+    asyncFunctionExit: (iid: number, result: unknown, exceptionVal: { exception: unknown } | undefined) => void;
 
-    asyncFunctionEnter: (iid: number) => void
+    asyncFunctionEnter: (iid: number) => void;
 
     awaitPre: (iid: number, promiseOrValAwaited: Promise<unknown> | unknown) => void;
 
@@ -210,7 +210,7 @@ export interface Hooks
      * @param iid source code location id
      * @param type Graal.js internal AST type of the statement
      **/
-    startStatement: (iid: number, type: string) => void
+    startStatement: (iid: number, type: string) => void;
 
     /**
      * This callback is called when an execution terminates in node.js.  In a browser environment, the callback is
