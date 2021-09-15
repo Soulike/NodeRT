@@ -5,5 +5,5 @@ import {ViolationInfo} from './ViolationInfo';
 
 export interface Detector
 {
-    (resourceDeclaration: ResourceDeclaration): ViolationInfo | null;
+    (resourceDeclaration: ResourceDeclaration): ViolationInfo[] | null;
 }

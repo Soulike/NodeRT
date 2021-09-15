@@ -49,7 +49,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
 
     let atomicPairIndex1 = -1;
     let atomicPairIndex2 = LENGTH - 1;
-    let violatingOperationIndex = -1;
+    let violatingOperationIndexes = [];
 
     // From the last to the first, check if another callback can form atomic pair with the last callback
     for (let i = callbackToOperationsArray.length - 2; i >= 0; i--)
@@ -73,26 +73,32 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         if (!operations.every(operation => operation.getType() !== 'write')
             && callback.asyncId !== lastCallback.asyncId)   // for setInterval callbacks, which have the same asyncId, and do not violate each other
         {
-            violatingOperationIndex = i;
-            break;
+            violatingOperationIndexes.push(i);
         }
     }
-    if (violatingOperationIndex === -1)
+    if (violatingOperationIndexes.length === 0)
     {
         return null;
     }
 
-    const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
+    const violationInfos: ViolationInfo[] = [];
 
-    if (shouldOutput(violationInfo, callbackToOperationsArray))
+    for (const violatingOperationIndex of violatingOperationIndexes)
     {
-        resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration,
-            (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
-                .add(lastCallback.asyncId));
-        return violationInfo;
+        const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
+
+        if (shouldOutput(violationInfo, callbackToOperationsArray))
+        {
+            resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration,
+                (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
+                    .add(lastCallback.asyncId));
+            violationInfos.push(violationInfo);
+        }
+        else
+        {
+            return null;
+        }
     }
-    else
-    {
-        return null;
-    }
+
+    return violationInfos;
 };

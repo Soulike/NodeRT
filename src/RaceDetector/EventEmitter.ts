@@ -37,29 +37,32 @@ process.on('exit', () =>
 
 eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
-    const violationInfo = conservativeDetector(resourceDeclaration);
-    if (violationInfo !== null)
+    const violationInfos = conservativeDetector(resourceDeclaration);
+    if (violationInfos !== null)
     {
-        const {
-            resourceDeclaration,
-            atomicOperationsPairIndexes,
-            violatingOperationIndex,
-        } = violationInfo;
-        const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
-        const modifiedResourceDeclaration: any = {...resourceDeclaration};
-        delete modifiedResourceDeclaration.callbackFunctionToOperations;
-        delete modifiedResourceDeclaration.operations;
+        for (const violationInfo of violationInfos)
+        {
+            const {
+                resourceDeclaration,
+                atomicOperationsPairIndexes,
+                violatingOperationIndex,
+            } = violationInfo;
+            const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
+            const modifiedResourceDeclaration: any = {...resourceDeclaration};
+            delete modifiedResourceDeclaration.callbackFunctionToOperations;
+            delete modifiedResourceDeclaration.operations;
 
-        const output = {
-            resource: modifiedResourceDeclaration,
-            atomicPair: [
-                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
-                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
-            ],
-            violator: callbackFunctionToOperationsArray[violatingOperationIndex],
-        };
+            const output = {
+                resource: modifiedResourceDeclaration,
+                atomicPair: [
+                    callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
+                    callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
+                ],
+                violator: callbackFunctionToOperationsArray[violatingOperationIndex],
+            };
 
-        outputs.push(output);
+            outputs.push(output);
+        }
     }
 });
 
