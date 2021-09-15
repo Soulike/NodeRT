@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@datastructures-js/set": "^4.1.1",
+    "@types/graphviz": "^0.0.33",
+    "graphviz": "^0.0.9",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

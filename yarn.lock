@@ -7,6 +7,11 @@
   resolved "https://registry.nlark.com/@datastructures-js/set/download/@datastructures-js/set-4.1.1.tgz#c3f0ebc24e248b56e92f8204c45623824ebd5d8d"
   integrity sha1-w/Drwk4ki1bpL4IExFYjgk69XY0=
 
+"@types/graphviz@^0.0.33":
+  version "0.0.33"
+  resolved "https://registry.nlark.com/@types/graphviz/download/@types/graphviz-0.0.33.tgz#6d963ff3c505aec22737dc9807a8d80a0ed4b85d"
+  integrity sha1-bZY/88UFrsInN9yYB6jYCg7UuF0=
+
 "@types/lodash@^4.14.171":
   version "4.14.172"
   resolved "https://registry.nlark.com/@types/lodash/download/@types/lodash-4.14.172.tgz#aad774c28e7bfd7a67de25408e03ee5a8c3d028a"
@@ -22,10 +27,22 @@ esbuild@^0.12.27:
   resolved "https://registry.nlark.com/esbuild/download/esbuild-0.12.27.tgz?cache=0&sync_timestamp=1631497049767&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fesbuild%2Fdownload%2Fesbuild-0.12.27.tgz#9bcfb837111c5e89b189188dde339515b213a724"
   integrity sha1-m8+4NxEcXomxiRiN3jOVFbITpyQ=
 
+graphviz@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.npm.taobao.org/graphviz/download/graphviz-0.0.9.tgz?cache=0&sync_timestamp=1610088119353&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fgraphviz%2Fdownload%2Fgraphviz-0.0.9.tgz#0bbf1df588c6a92259282da35323622528c4bbc4"
+  integrity sha1-C78d9YjGqSJZKC2jUyNiJSjEu8Q=
+  dependencies:
+    temp "~0.4.0"
+
 lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.nlark.com/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
+
+temp@~0.4.0:
+  version "0.4.0"
+  resolved "https://registry.npm.taobao.org/temp/download/temp-0.4.0.tgz#671ad63d57be0fe9d7294664b3fc400636678a60"
+  integrity sha1-ZxrWPVe+D+nXKUZks/xABjZnimA=
 
 typescript@^4.3.2:
   version "4.3.5"
