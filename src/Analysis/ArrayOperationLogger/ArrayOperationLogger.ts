@@ -55,12 +55,6 @@ export class ArrayOperationLogger extends Analysis
                 }
                 else if (f === Array.prototype.concat)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
-                    for (const arg of args)
-                    {
-                        assert.ok(isObject(arg));
-                        ObjectLogStore.appendObjectOperation(arg, 'read', null, this.getSandbox(), iid);
-                    }
                     assert.ok(isObject(result));
                     ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
                 }
