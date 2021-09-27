@@ -14,6 +14,7 @@ export class ObjectOperationLogger extends Analysis
     public getField: Hooks['getField'] | undefined;
     public literal: Hooks['literal'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
+    public unaryPre: Hooks['unaryPre'] | undefined;
 
     constructor(sandbox: Sandbox)
     {
@@ -29,6 +30,19 @@ export class ObjectOperationLogger extends Analysis
             if (isObject(val))
             {
                 ObjectLogStore.appendObjectOperation(val, 'write', null, this.getSandbox(), iid);
+            }
+        };
+
+        this.unaryPre = (iid, op, left) =>
+        {
+            if (op === 'delete')    // delete obj.a
+            {
+                // left is like [ { a: 1 }, 'a' ]
+                assert.ok(Array.isArray(left) && left.length === 2);
+                assert.ok(isObject(left[0]));
+                const object = left[0];
+                const property = left[1];
+                ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
             }
         };
 

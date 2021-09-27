@@ -21,7 +21,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the result of the read operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    read: (iid: number, name: string, val: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void;
+    read: (iid: number, name: string, val: unknown, isGlobal: boolean, isScriptLocal: boolean) => {result: unknown} | void;
 
     /**
      * This callback is called before a variable is written.
@@ -35,7 +35,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the result of the write operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    write: (iid: number, name: string, val: unknown, lhs: unknown, isGlobal: boolean, isScriptLocal: boolean) => { result: unknown } | void;
+    write: (iid: number, name: string, val: unknown, lhs: unknown, isGlobal: boolean, isScriptLocal: boolean) => {result: unknown} | void;
 
     /**
      * This callback is called after a property of an object is accessed.
@@ -52,7 +52,7 @@ export interface Hooks
      * @returns {{result: *} | undefined} - If an object is returned, the value of the get field operation  is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    getField: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => { result: unknown } | void;
+    getField: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean, isMethodCall: boolean) => {result: unknown} | void;
 
     /**
      * This callback is called before a property of an object is written.
@@ -69,7 +69,7 @@ export interface Hooks
      * property is true, then the put field operation is skipped.  Original <tt>base</tt>, <tt>offset</tt>, and
      * <tt>val</tt> are replaced with that from the returned object if an object is returned.
      * */
-    putFieldPre: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => { base: unknown, offset: unknown, val: unknown, skip: boolean } | void;
+    putFieldPre: (iid: number, base: unknown, offset: string | symbol, val: unknown, isComputed: boolean, isOpAssign: boolean) => {base: unknown, offset: unknown, val: unknown, skip: boolean} | void;
 
     /**
      * This callback is called before the execution of a function body starts.
@@ -97,7 +97,7 @@ export interface Hooks
      * <tt>isBacktrack</tt> can be set to <tt>true</tt> to repeatedly execute the function body as in MultiSE
      * symbolic execution.
      * */
-    functionExit: (iid: number, returnVal: unknown, wrappedExceptionVal: unknown | undefined) => { returnVal: unknown, wrappedExceptionVal: unknown, isBacktrack: boolean } | void;
+    functionExit: (iid: number, returnVal: unknown, wrappedExceptionVal: unknown | undefined) => {returnVal: unknown, wrappedExceptionVal: unknown, isBacktrack: boolean} | void;
 
     /**
      * This callback is called before a function, method, or constructor invocation.
@@ -119,7 +119,7 @@ export interface Hooks
      * Original <tt>f</tt>, <tt>base</tt>, and <tt>args</tt> are replaced with that from the returned object if
      * an object is returned.
      * */
-    invokeFunPre: (iid: number, f: Function, base: object, args: unknown[], isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { f: Function, base: object, args: unknown[], skip: boolean } | void;
+    invokeFunPre: (iid: number, f: Function, base: object, args: unknown[], isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => {f: Function, base: object, args: unknown[], skip: boolean} | void;
 
     /**
      * This callback is called after a function, method, or constructor invocation.
@@ -141,7 +141,7 @@ export interface Hooks
      * replaced with the value stored in the <tt>result</tt> property of the object.  This enables one to change the
      * value that is returned by the actual function invocation.
      * */
-    invokeFun: (iid: number, f: Function, base: unknown, args: unknown[], result: unknown, isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => { result: unknown } | void;
+    invokeFun: (iid: number, f: Function, base: unknown, args: unknown[], result: unknown, isConstructor: boolean, isMethod: boolean, functionIid: number, functionSid: string) => {result: unknown} | void;
 
     /**
      *  `forin` or `forof` support
@@ -187,7 +187,7 @@ export interface Hooks
      * @returns {{result: *}|undefined} - If an object is returned, the result of the unary operation is
      * replaced with the value stored in the <tt>result</tt> property of the object.
      * */
-    unary: (iid: number, op: string, left: unknown, result: unknown) => { result: unknown } | void;
+    unary: (iid: number, op: string, left: unknown, result: unknown) => {result: unknown} | void;
 
     /**
      * @param iid - Static unique instruction identifier of this callback
@@ -196,7 +196,7 @@ export interface Hooks
      * execution has thrown an uncaught exception and the exception is being stored in the <tt>exception</tt>
      * property of the parameter
      * */
-    asyncFunctionExit: (iid: number, result: unknown, exceptionVal: { exception: unknown } | undefined) => void;
+    asyncFunctionExit: (iid: number, result: unknown, exceptionVal: {exception: unknown} | undefined) => void;
 
     asyncFunctionEnter: (iid: number) => void;
 
@@ -219,4 +219,16 @@ export interface Hooks
      * @returns {void} - Any return value is ignored
      */
     endExecution: () => void;
+
+    /**
+     * This callback is called before a unary operation. Unary operations include  +, -, ~, !, typeof, void.
+     *
+     * @param iid - Static unique instruction identifier of this callback
+     * @param op - Operation to be performed
+     * @param left - Left operand
+     * @returns  If an object is returned and the
+     * <tt>skip</tt> property is true, then the unary operation is skipped.  Original <tt>op</tt> and <tt>left</tt>
+     * are replaced with that from the returned object if an object is returned.
+     * */
+    unaryPre: (iid: number, op: string, left: unknown) => {op: unknown, left: unknown, skip: boolean} | void;
 }
