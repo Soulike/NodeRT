@@ -56,7 +56,10 @@ export class ObjectOperationLogger extends Analysis
             }
             else if (isObject(base))
             {
-                ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
+                if (base.hasOwnProperty(offset))
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
+                }
             }
         };
 
