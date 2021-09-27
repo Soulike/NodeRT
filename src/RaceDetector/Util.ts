@@ -7,9 +7,9 @@ import {ViolationInfo} from './ViolationInfo';
 import {EnhancedSet} from '@datastructures-js/set';
 
 /**
- * Check if the violationInfo is a FP
+ * Check if the operations of the ViolationInfo changed the same fields. Otherwise it's a FP
  */
-export function shouldOutput(violationInfo: ViolationInfo, callbackToOperations: [CallbackFunction, readonly ResourceOperation[]][]): boolean
+export function changedSameFields(violationInfo: ViolationInfo, callbackToOperations: [CallbackFunction, readonly ResourceOperation[]][]): boolean
 {
     const {
         resourceDeclaration,
@@ -31,41 +31,75 @@ export function shouldOutput(violationInfo: ViolationInfo, callbackToOperations:
         ] as [ObjectOperation[], ObjectOperation[]];
         const violatorOperations = violator[1] as ObjectOperation[];
 
-        const atomicPair1OperationFieldsSet = new EnhancedSet<any | null>();
+        let atomicPair1OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any>();
         for (const {field} of atomicPairOperations[0]!)
         {
-            if (field === null) // null means all fields may be read/written. returns true
+            if (field === null) // null means all fields may be read/written
             {
-                return true;
+                atomicPair1OperationFieldsSet = null;   // null means all fields
+                break;
             }
             atomicPair1OperationFieldsSet.add(field);
         }
 
-        const atomicPair2OperationFieldsSet = new EnhancedSet<any | null>();
+        let atomicPair2OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
         for (const {field} of atomicPairOperations[1]!)
         {
-            if (field === null)
+            if (field === null) // null means all fields may be read/written
             {
-                return true;
+                atomicPair2OperationFieldsSet = null;   // null means all fields
+                break;
             }
             atomicPair2OperationFieldsSet.add(field);
         }
 
-        const violatorOperationFieldsSet = new EnhancedSet<any | null>();
-        for (const {field} of violatorOperations)
+        let atomicFieldsSet: EnhancedSet<any> | null = null;
+        if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet === null)
         {
-            if (field === null)
-            {
-                return true;
-            }
-            violatorOperationFieldsSet.add(field);
+            atomicFieldsSet = null;
+        }
+        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet === null)
+        {
+            atomicFieldsSet = atomicPair1OperationFieldsSet;
+        }
+        else if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet !== null)
+        {
+            atomicFieldsSet = atomicPair2OperationFieldsSet;
+        }
+        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet !== null)
+        {
+            atomicFieldsSet = atomicPair1OperationFieldsSet.intersect(atomicPair2OperationFieldsSet);
         }
 
-        return atomicPair1OperationFieldsSet
-            .intersect(atomicPair2OperationFieldsSet)
-            .intersect(violatorOperationFieldsSet)
-            .size !== 0;
+        if (atomicFieldsSet === null)   // all fields are atomic
+        {
+            return true;
+        }
 
+        let violatorOperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
+        for (let i = 0; i < violatorOperations.length; i++)
+        {
+            const violatorOperation = violatorOperations[i]!;
+            const {field} = violatorOperation;
+            if (field === null) // null means all fields may be read/written
+            {
+                violatorOperationFieldsSet = null;   // null means all fields
+                break;
+            }
+            if (violatorOperation.getType() === 'write')
+            {
+                violatorOperationFieldsSet.add(field);
+            }
+        }
+
+        if (violatorOperationFieldsSet === null)
+        {
+            return true;
+        }
+        else
+        {
+            return atomicFieldsSet.intersect(violatorOperationFieldsSet).size !== 0;
+        }
     }
     else
     {

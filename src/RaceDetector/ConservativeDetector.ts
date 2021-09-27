@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Detector} from './Detector';
-import {shouldOutput} from './Util';
+import {changedSameFields} from './Util';
 import {ViolationInfo} from './ViolationInfo';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 
@@ -24,6 +24,16 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
 
     const lastCallbackToOperation = callbackToOperationsArray[LENGTH - 1]!;
     const lastCallback = lastCallbackToOperation[0];
+
+    /*
+     * Net servers usually register 'close' event listeners, which are TickObjects and do some clean up work.
+     * However, the 'close' listener are emitted by the server, which considered atomic with the creation of the server.
+     * It's a obvious FP. So we ignore all TickObjects here.
+     */
+    if (lastCallback.type === 'TickObject')
+    {
+        return null;
+    }
 
     // check if the callback has been processed for the resourceDeclaration
     const processedAsyncIds = resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration);
@@ -70,7 +80,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const operations = callbackToOperationsArray[i]![1];
         const callback = callbackToOperationsArray[i]![0];
-        if (!operations.every(operation => operation.getType() !== 'write')
+        if (operations.some(operation => operation.getType() === 'write')
             && callback.asyncId !== lastCallback.asyncId)   // for setInterval callbacks, which have the same asyncId, and do not violate each other
         {
             violatingOperationIndexes.push(i);
@@ -87,7 +97,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
 
-        if (shouldOutput(violationInfo, callbackToOperationsArray))
+        if (changedSameFields(violationInfo, callbackToOperationsArray))
         {
             resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration,
                 (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
