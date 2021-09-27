@@ -19,7 +19,7 @@ export class SocketLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(SocketLogStore.getSocketDeclarations()));
+            outputSync(toJSON(SocketLogStore.getSocketDeclarations()),'socketLogStore.json');
         };
     }
 }

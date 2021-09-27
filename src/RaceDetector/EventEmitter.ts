@@ -32,7 +32,7 @@ const outputs: object[] = [];
 
 process.on('exit', () =>
 {
-    outputSync(toJSON(outputs));
+    outputSync(toJSON(outputs), 'violations.json');
 });
 
 eventEmitter.on('operationAppended', (resourceDeclaration) =>

@@ -19,7 +19,7 @@ export class FileLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(FileLogStore.getFileDeclarations()));
+            outputSync(toJSON(FileLogStore.getFileDeclarations()),'fileLogStore.json');
         };
     }
 }

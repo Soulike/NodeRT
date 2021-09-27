@@ -19,7 +19,7 @@ export class BufferLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(BufferLogStore.getBufferDeclarations()));
+            outputSync(toJSON(BufferLogStore.getBufferDeclarations()), 'bufferLogStore.json');
         };
     }
 }

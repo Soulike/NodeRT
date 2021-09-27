@@ -19,7 +19,7 @@ export class PrimitiveLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()));
+            outputSync(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()),'primitiveLogStore.json');
         };
     }
 }

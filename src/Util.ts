@@ -6,7 +6,6 @@ import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 import fs from 'fs';
-import path from 'path';
 import {isObject} from 'lodash';
 
 export function toJSON(object: unknown): string
@@ -86,9 +85,8 @@ export function isURL(other: unknown): other is URL
     return other instanceof URL;
 }
 
-export function outputSync(message: string | object)
+export function outputSync(message: string | object, filePath:string)
 {
-    const outputFile = path.join('.', 'output.json');
     let output: string;
     if (isObject(message))
     {
@@ -98,7 +96,7 @@ export function outputSync(message: string | object)
     {
         output = message;
     }
-    fs.writeFileSync(outputFile, output + '\n');
+    fs.writeFileSync(filePath, output + '\n');
 }
 
 export function parseErrorStackTrace(stackTrace: string | undefined): string[] | null

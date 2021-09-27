@@ -19,7 +19,7 @@ export class StreamLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(StreamLogStore.getStreamDeclarations()));
+            outputSync(toJSON(StreamLogStore.getStreamDeclarations()),'streamLogStore.json');
         };
     }
 }
