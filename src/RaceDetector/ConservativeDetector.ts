@@ -4,6 +4,7 @@ import {Detector} from './Detector';
 import {changedSameFields} from './Util';
 import {ViolationInfo} from './ViolationInfo';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
+import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
 
 /**
  * For curtain resourceDeclaration, which asyncIds have been reported forming violations
@@ -64,7 +65,8 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     // From the last to the first, check if another callback can form atomic pair with the last callback
     for (let i = callbackToOperationsArray.length - 2; i >= 0; i--)
     {
-        if (lastCallbackAsyncIds.has(callbackToOperationsArray[i]![0].asyncId)) // on the chain
+        if (callbackToOperationsArray[i]![0].asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
+            && lastCallbackAsyncIds.has(callbackToOperationsArray[i]![0].asyncId)) // on the chain
         {
             atomicPairIndex1 = i;
             break;
@@ -81,7 +83,8 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         const operations = callbackToOperationsArray[i]![1];
         const callback = callbackToOperationsArray[i]![0];
         if (operations.some(operation => operation.getType() === 'write')
-            && callback.asyncId !== lastCallback.asyncId)   // for setInterval callbacks, which have the same asyncId, and do not violate each other
+            && callback.asyncId !== lastCallback.asyncId   // for setInterval callbacks, which have the same asyncId, and do not violate each other
+            && callback.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)  // ignore UNKNOWN
         {
             violatingOperationIndexes.push(i);
         }
