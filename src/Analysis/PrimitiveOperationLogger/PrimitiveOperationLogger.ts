@@ -151,6 +151,21 @@ export class PrimitiveOperationLogger extends Analysis
                 {
                     const location = sandbox.iidToLocation(iid);
                     console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
+
+                    // assume the declaration happened in current scope
+                    let newDeclaration = null;
+                    if (isFunction(val))
+                    {
+                        newDeclaration = new PrimitiveDeclaration(iid, name, 'function', currentScope, val);
+                    }
+                    else
+                    {
+                        newDeclaration = new PrimitiveDeclaration(iid, name, 'var', currentScope);
+                    }
+
+                    newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+                    PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
+                    currentScope.declarations.push(newDeclaration);
                 }
             }
         }
