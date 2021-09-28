@@ -70,7 +70,7 @@ export class ObjectOperationLogger extends Analysis
             }
             else if (isObject(base))
             {
-                if (base.hasOwnProperty(offset))
+                if (Object.hasOwnProperty.bind(base)(offset))
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
                 }
