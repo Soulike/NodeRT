@@ -86,24 +86,29 @@ import {ZlibOperationLogger} from './ZlibOperationLogger';
 
         // file
         sandbox.addAnalysis(new FsOperationLogger(sandbox));
-        // sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
+
+        //sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
 
         // buffer
         sandbox.addAnalysis(new BufferLikeOperationLogger(sandbox));
+
         // sandbox.addAnalysis(new BufferLogStoreAnalysis(sandbox));
 
         // primitive
         sandbox.addAnalysis(new PrimitiveOperationLogger(sandbox));
+
         // sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
 
         // socket
         sandbox.addAnalysis(new DgramOperationLogger(sandbox));
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
         sandbox.addAnalysis(new NetOperationLogger(sandbox));
+
         // sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
 
         // stream
         sandbox.addAnalysis(new StreamOperationLogger(sandbox));
+
         // sandbox.addAnalysis(new StreamLogStoreAnalysis(sandbox));
 
         // misc
