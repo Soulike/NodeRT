@@ -40,4 +40,11 @@ export class CallbackFunction
         }
         return this.asyncScope!.isInAsyncScope(asyncScope);
     }
+
+    toJSON()
+    {
+        const copy: {[key: string]: any} = {...this};
+        delete copy['stackTrace'];
+        return copy;
+    }
 }
