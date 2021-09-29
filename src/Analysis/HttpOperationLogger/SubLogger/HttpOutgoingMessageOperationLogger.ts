@@ -5,8 +5,6 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
-import assert from 'assert';
-
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
     public invokeFunPre: Hooks['invokeFunPre'] | undefined;
@@ -36,8 +34,10 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     || f === OutgoingMessage.prototype.end)
                 {
                     const socket = base.socket;
-                    assert.ok(socket !== null);
-                    SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+                    if(socket !== null)
+                    {
+                        SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+                    }
 
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write
                         | typeof OutgoingMessage.prototype.end>;
