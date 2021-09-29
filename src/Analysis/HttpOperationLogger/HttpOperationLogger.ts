@@ -33,7 +33,7 @@ export class HttpOperationLogger extends Analysis
 
                 clientRequest.on('socket', socket =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
