@@ -1,6 +1,5 @@
 // DO NOT INSTRUMENT
 
-import {strict as assert} from 'assert';
 import net from 'net';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
@@ -29,7 +28,7 @@ export class NetOperationLogger extends Analysis
 
                 server.on('connection', (socket) =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
@@ -45,7 +44,7 @@ export class NetOperationLogger extends Analysis
                 || f === net.Socket)
             {
                 const socket = result as ReturnType<typeof net.createConnection>;
-                SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                 socket.on('data', (data) =>
                 {
                     if (isBufferLike(data))
@@ -62,13 +61,14 @@ export class NetOperationLogger extends Analysis
                     || f === net.Socket.prototype.resume
                     || f === net.Socket.prototype.destroy)
                 {
-                    assert.ok(base instanceof net.Socket);
                     const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                 }
                 else if (f === net.Socket.prototype.end
                     || f === net.Socket.prototype.write)
                 {
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read',

@@ -5,6 +5,7 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import assert from 'assert';
 
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
@@ -28,12 +29,16 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const socket = base.socket;
                     if (socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                        SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                     }
                 }
                 else if (f === OutgoingMessage.prototype.write
                     || f === OutgoingMessage.prototype.end)
                 {
+                    const socket = base.socket;
+                    assert.ok(socket !== null);
+                    SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write
                         | typeof OutgoingMessage.prototype.end>;
                     if (isBufferLike(chunk))

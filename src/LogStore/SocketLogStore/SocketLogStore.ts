@@ -20,21 +20,21 @@ export class SocketLogStore
         return SocketLogStore.socketDeclarations;
     }
 
-    public static appendSocketOperation(socket: dgram.Socket | net.Socket, sandbox: Sandbox, iid: number)
+    public static appendSocketOperation(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
-        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, sandbox, iid);
+        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, sandbox, iid);
         socketDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
             new SocketOperation(parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getSocketDeclaration(socket: dgram.Socket | net.Socket, sandbox: Sandbox, iid: number)
+    private static getSocketDeclaration(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const socketDeclaration = SocketLogStore.socketToSocketDeclarations.get(socket);
         if (socketDeclaration === undefined)
         {
             if (socket instanceof net.Socket)    // net.Socket inherits Stream, so a creation of a socket is a creation of a stream
             {
-                StreamLogStore.appendStreamOperation(socket, 'write', sandbox, iid);
+                StreamLogStore.appendStreamOperation(socket, type, sandbox, iid);
             }
 
             const newSocketDeclaration = new SocketDeclaration(socket);

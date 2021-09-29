@@ -28,7 +28,7 @@ export class HttpAgentOperationLogger extends Analysis
                     {
                         if (socket !== undefined)
                         {
-                            SocketLogStore.appendSocketOperation(socket, this.getSandbox(), iid);
+                            SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                         }
                     }
                 }
