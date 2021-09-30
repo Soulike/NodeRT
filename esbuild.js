@@ -7,8 +7,10 @@ esbuild.build({
     },
     bundle: true,
     minifySyntax: true,
+    minifyIdentifiers: true,
     outdir: 'dist',
     platform: 'node',
+    target: 'node14',
     logLevel: 'info',
 })
     .catch(e =>
