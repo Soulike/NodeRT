@@ -24,7 +24,7 @@ export class SocketLogStore
     {
         const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, sandbox, iid);
         socketDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new SocketOperation(parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new SocketOperation(type,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getSocketDeclaration(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
