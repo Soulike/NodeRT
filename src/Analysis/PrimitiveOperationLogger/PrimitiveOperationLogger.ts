@@ -7,6 +7,7 @@ import {strict as assert} from 'assert';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {isFunction} from 'lodash';
 import asyncHooks from 'async_hooks';
+import {Queue} from '@datastructures-js/queue';
 
 export class PrimitiveOperationLogger extends Analysis
 {
@@ -17,18 +18,58 @@ export class PrimitiveOperationLogger extends Analysis
 
     public read: Hooks['read'] | undefined;
     public write: Hooks['write'] | undefined;
+    public awaitPre: Hooks['awaitPre'] | undefined;
+    public awaitPost: Hooks['awaitPost'] | undefined;
 
     public endExecution: Hooks['endExecution'] | undefined;
+
+    private readonly awaitIidToScopeQueue: Map<number, Queue<Scope>>;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.awaitIidToScopeQueue = new Map();
 
         this.registerHooks();
     }
 
     protected override registerHooks()
     {
+        this.awaitPre = iid =>
+        {
+            const currentScope = PrimitiveLogStore.getScopeStack().getTop();
+            assert.ok(currentScope !== undefined);
+            const queue = this.awaitIidToScopeQueue.get(iid);
+            if (queue === undefined)
+            {
+                this.awaitIidToScopeQueue.set(iid, new Queue<Scope>([currentScope]));
+            }
+            else
+            {
+                queue.enqueue(currentScope);
+            }
+        };
+
+        /**
+         * if encounters `awaitPost`, the scope now should be an old scope created before by an `await` function.
+         * And `awaitPost` is invoked after `functionEnter`, which creates a new but wrong scope.
+         * Therefore, delete the new scope and replace it with the correct scope where `await` happened in, which is logged in `awaitPre`
+         *
+         * Using a queue to log `await` with the same iids is not quite precise, but should be enough for analysis.
+         * */
+        this.awaitPost = iid =>
+        {
+            const scopeStack = PrimitiveLogStore.getScopeStack();
+            assert.ok(!scopeStack.isEmpty());
+            const poppedScope = scopeStack.pop();
+            assert.ok(poppedScope !== undefined && poppedScope.declarations.length === 0);
+
+            const scopeQueue = this.awaitIidToScopeQueue.get(iid);
+            assert.ok(scopeQueue !== undefined);
+            assert.ok(!scopeQueue.isEmpty());
+            scopeStack.push(scopeQueue.dequeue());
+        };
+
         this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
             if (literalType === 'FunctionLiteral')

@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@datastructures-js/queue@^4.1.3":
+  version "4.1.3"
+  resolved "https://registry.npmmirror.com/@datastructures-js/queue/download/@datastructures-js/queue-4.1.3.tgz#57bb502621de88ad3f55c9f094e76a36966cd6ca"
+  integrity sha1-V7tQJiHeiK0/VcnwlOdqNpZs1so=
+
 "@datastructures-js/set@^4.1.1":
   version "4.1.1"
   resolved "https://registry.nlark.com/@datastructures-js/set/download/@datastructures-js/set-4.1.1.tgz#c3f0ebc24e248b56e92f8204c45623824ebd5d8d"

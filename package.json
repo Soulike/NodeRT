@@ -16,6 +16,7 @@
     "raw": "node ./dist/bin/node.js"
   },
   "dependencies": {
+    "@datastructures-js/queue": "^4.1.3",
     "@datastructures-js/set": "^4.1.1",
     "@types/graphviz": "^0.0.33",
     "graphviz": "^0.0.9",
