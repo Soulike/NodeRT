@@ -24,7 +24,7 @@ export class StreamLogStore
         const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation();
+            callbackFunction.setHasWriteOperation(streamDeclaration);
         }
         streamDeclaration.appendOperation(callbackFunction,
             new StreamOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));

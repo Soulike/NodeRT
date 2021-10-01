@@ -65,7 +65,7 @@ export class FileLogStore
         const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation();
+            callbackFunction.setHasWriteOperation(fileDeclaration);
         }
         if (fileDeclaration !== undefined)
         {

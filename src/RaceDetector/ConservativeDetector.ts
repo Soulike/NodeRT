@@ -87,7 +87,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     for (let i = atomicPairIndex1 + 1; i < atomicPairIndex2; i++)
     {
         const callback = callbackToOperationsArray[i]![0];
-        if (callback.getHasWriteOperation()
+        if (callback.getHasWriteOperation(resourceDeclaration)
             && callback.asyncId !== lastCallback.asyncId   // for setInterval callbacks, which have the same asyncId, and do not violate each other
             && callback.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)  // ignore UNKNOWN
         {

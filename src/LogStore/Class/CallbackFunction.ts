@@ -1,6 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {SourceCodeInfo} from './SourceCodeInfo';
+import {ResourceDeclaration} from './ResourceDeclaration';
 
 export class CallbackFunction
 {
@@ -17,8 +18,8 @@ export class CallbackFunction
     public asyncScope: CallbackFunction | null;    // null for global
     public readonly registerCodeInfo: SourceCodeInfo | null;
 
-    /** Whether the callback function does any writing operation*/
-    private hasWriteOperation: boolean;
+    /** Whether the callback function does any writing operation on certain resource*/
+    private hasWriteOperationResourcesSet: Set<ResourceDeclaration>;
 
     constructor(func: Function | null, stackTrace: string[] | null, asyncId: number, type: string, asyncScope: CallbackFunction | null, registerCodeInfo: SourceCodeInfo | null)
     {
@@ -29,17 +30,17 @@ export class CallbackFunction
         this.asyncScope = asyncScope; // 被创建时所在的 scope
         this.registerCodeInfo = registerCodeInfo;   // 本 callback 是被什么地方的代码注册执行的
 
-        this.hasWriteOperation = false;
+        this.hasWriteOperationResourcesSet = new Set();
     }
 
-    public setHasWriteOperation()
+    public setHasWriteOperation(resourceDeclaration: ResourceDeclaration)
     {
-        this.hasWriteOperation = true;
+        this.hasWriteOperationResourcesSet.add(resourceDeclaration);
     }
 
-    public getHasWriteOperation()
+    public getHasWriteOperation(resourceDeclaration: ResourceDeclaration): boolean
     {
-        return this.hasWriteOperation;
+        return this.hasWriteOperationResourcesSet.has(resourceDeclaration);
     }
 
     toJSON()

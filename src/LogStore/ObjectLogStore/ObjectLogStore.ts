@@ -23,7 +23,7 @@ export class ObjectLogStore
         const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation();
+            callbackFunction.setHasWriteOperation(objectDeclaration);
         }
         objectDeclaration.appendOperation(callbackFunction,
             new ObjectOperation(type, field, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));

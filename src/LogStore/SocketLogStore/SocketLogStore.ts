@@ -26,7 +26,7 @@ export class SocketLogStore
         const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation();
+            callbackFunction.setHasWriteOperation(socketDeclaration);
         }
         socketDeclaration.appendOperation(callbackFunction,
             new SocketOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));

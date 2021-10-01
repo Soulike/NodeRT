@@ -56,7 +56,7 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
         if (type === 'write')
         {
-            currentCallbackFunction.setHasWriteOperation();
+            currentCallbackFunction.setHasWriteOperation(this);
         }
         if (operations === undefined)
         {

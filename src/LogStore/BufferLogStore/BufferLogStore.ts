@@ -48,7 +48,7 @@ export class BufferLogStore
         const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation();
+            callbackFunction.setHasWriteOperation(bufferDeclaration);
         }
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
