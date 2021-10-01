@@ -47,6 +47,7 @@ export class CallbackFunction
     {
         const copy: { [key: string]: any } = {...this};
         delete copy['stackTrace'];
+        delete copy['hasWriteOperationResourcesSet'];
         return copy;
     }
 }
