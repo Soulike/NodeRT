@@ -12,6 +12,11 @@ import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
  * */
 const resourceDeclarationToProcessedAsyncIds = new WeakMap<ResourceDeclaration, Set<number>>();
 
+/**
+ * lazy calculation
+ */
+const callbackFunctionToAsyncIdsCache = new WeakMap<CallbackFunction, Set<number>>();
+
 export const conservativeDetector: Detector = (resourceDeclaration) =>
 {
     const callbackToOperations = resourceDeclaration.getCallbackFunctionToOperations();
@@ -50,12 +55,17 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     /**
      * asyncId chain for the last callback
      * */
-    const lastCallbackAsyncIds: Set<number> = new Set();
-    let currentCallback = lastCallback.asyncScope;
-    while (currentCallback !== null)    // get the async id chain
+    let lastCallbackAsyncIds: Set<number> | undefined = callbackFunctionToAsyncIdsCache.get(lastCallback);
+    if (lastCallbackAsyncIds === undefined)
     {
-        lastCallbackAsyncIds.add(currentCallback.asyncId);
-        currentCallback = currentCallback.asyncScope;
+        lastCallbackAsyncIds = new Set();
+        let currentCallback = lastCallback.asyncScope;
+        while (currentCallback !== null)    // get the async id chain
+        {
+            lastCallbackAsyncIds.add(currentCallback.asyncId);
+            currentCallback = currentCallback.asyncScope;
+        }
+        callbackFunctionToAsyncIdsCache.set(lastCallback, lastCallbackAsyncIds);
     }
 
     let atomicPairIndex1 = -1;
