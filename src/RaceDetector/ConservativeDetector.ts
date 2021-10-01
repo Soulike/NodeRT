@@ -10,12 +10,12 @@ import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
  * For curtain resourceDeclaration, which asyncIds have been reported forming violations
  * We do not need repeated violation reports for the same asyncId with multiple operations
  * */
-const resourceDeclarationToProcessedAsyncIds = new WeakMap<ResourceDeclaration, Set<number>>();
+const resourceDeclarationToProcessedAsyncIds = new Map<ResourceDeclaration, Set<number>>();
 
 /**
  * lazy calculation
  */
-const callbackFunctionToAsyncIdsCache = new WeakMap<CallbackFunction, Set<number>>();
+const callbackFunctionToAsyncIdsCache = new Map<CallbackFunction, Set<number>>();
 
 export const conservativeDetector: Detector = (resourceDeclaration) =>
 {
@@ -43,11 +43,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
 
     // check if the callback has been processed for the resourceDeclaration
     const processedAsyncIds = resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration);
-    if (processedAsyncIds === undefined)
-    {
-        resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration, new Set([lastCallback.asyncId]));
-    }
-    else if (processedAsyncIds.has(lastCallback.asyncId))
+    if (processedAsyncIds !== undefined && processedAsyncIds.has(lastCallback.asyncId))
     {
         return null;
     }

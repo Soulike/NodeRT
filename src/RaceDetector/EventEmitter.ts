@@ -3,7 +3,6 @@
 import EventEmitter from 'events';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {outputSync, toJSON} from '../Util';
-import {aggressiveDetector} from './AggressiveDetector';
 import {conservativeDetector} from './ConservativeDetector';
 
 type EventName = 'operationAppended';
@@ -66,7 +65,7 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
     }
 });
 
-eventEmitter.on('operationAppended', (resourceDeclaration) =>
+/* eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
     aggressiveDetector(resourceDeclaration);
-});
+}); */
