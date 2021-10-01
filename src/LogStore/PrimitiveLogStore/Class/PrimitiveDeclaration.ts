@@ -52,7 +52,12 @@ export class PrimitiveDeclaration extends ResourceDeclaration
 
     public appendOperation(currentCallbackFunction: CallbackFunction, variableOperation: PrimitiveOperation): void
     {
+        const type = variableOperation.getType();
         const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        if (type === 'write')
+        {
+            currentCallbackFunction.setHasWriteOperation();
+        }
         if (operations === undefined)
         {
             this.callbackFunctionToOperations.set(currentCallbackFunction, [variableOperation]);

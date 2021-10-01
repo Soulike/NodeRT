@@ -20,7 +20,12 @@ export class ObjectLogStore
     public static appendObjectOperation(object: object, type: 'read' | 'write', field: any | null, sandbox: Sandbox, iid: number)
     {
         const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
-        objectDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
+        const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        if (type === 'write')
+        {
+            callbackFunction.setHasWriteOperation();
+        }
+        objectDeclaration.appendOperation(callbackFunction,
             new ObjectOperation(type, field, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 

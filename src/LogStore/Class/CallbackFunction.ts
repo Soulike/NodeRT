@@ -17,6 +17,9 @@ export class CallbackFunction
     public asyncScope: CallbackFunction | null;    // null for global
     public readonly registerCodeInfo: SourceCodeInfo | null;
 
+    /** Whether the callback function does any writing operation*/
+    private hasWriteOperation: boolean;
+
     constructor(func: Function | null, stackTrace: string[] | null, asyncId: number, type: string, asyncScope: CallbackFunction | null, registerCodeInfo: SourceCodeInfo | null)
     {
         this.functionWeakRef = func !== null ? new WeakRef(func) : null;
@@ -25,6 +28,18 @@ export class CallbackFunction
         this.type = type;
         this.asyncScope = asyncScope; // 被创建时所在的 scope
         this.registerCodeInfo = registerCodeInfo;   // 本 callback 是被什么地方的代码注册执行的
+
+        this.hasWriteOperation = false;
+    }
+
+    public setHasWriteOperation()
+    {
+        this.hasWriteOperation = true;
+    }
+
+    public getHasWriteOperation()
+    {
+        return this.hasWriteOperation;
     }
 
     /** Whether asyncScope chain is a sub chain of 'this.asyncScope'. e.g. a->b->c is in async scope a->b */
@@ -43,7 +58,7 @@ export class CallbackFunction
 
     toJSON()
     {
-        const copy: {[key: string]: any} = {...this};
+        const copy: { [key: string]: any } = {...this};
         delete copy['stackTrace'];
         return copy;
     }

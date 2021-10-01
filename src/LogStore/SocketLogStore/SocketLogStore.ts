@@ -23,8 +23,13 @@ export class SocketLogStore
     public static appendSocketOperation(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, sandbox, iid);
-        socketDeclaration.appendOperation(AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId()),
-            new SocketOperation(type,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+        const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        if (type === 'write')
+        {
+            callbackFunction.setHasWriteOperation();
+        }
+        socketDeclaration.appendOperation(callbackFunction,
+            new SocketOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getSocketDeclaration(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
