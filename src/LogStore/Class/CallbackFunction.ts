@@ -42,20 +42,6 @@ export class CallbackFunction
         return this.hasWriteOperation;
     }
 
-    /** Whether asyncScope chain is a sub chain of 'this.asyncScope'. e.g. a->b->c is in async scope a->b */
-    isInAsyncScope(asyncScope: CallbackFunction): boolean
-    {
-        if (asyncScope === CallbackFunction.GLOBAL || asyncScope === CallbackFunction.UNKNOWN || this === asyncScope)
-        {
-            return true;
-        }
-        if (this === CallbackFunction.GLOBAL || this === CallbackFunction.UNKNOWN)
-        {
-            return false;
-        }
-        return this.asyncScope!.isInAsyncScope(asyncScope);
-    }
-
     toJSON()
     {
         const copy: { [key: string]: any } = {...this};
