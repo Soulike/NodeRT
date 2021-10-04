@@ -1,7 +1,7 @@
 const esbuild = require('esbuild');
 
 esbuild.build({
-    entryPoints: ['src/index.ts', 'src/bin/nodeprof.ts', 'src/bin/nodeprof-raw.ts', 'src/bin/node.ts'],
+    entryPoints: ['src/index.ts', 'src/bin/nodeprof.ts', 'src/bin/nodeprof-raw.ts', 'src/bin/node.ts', 'src/bin/nodeprof-no-analysis.ts'],
     banner: {
         js: '// DO NOT INSTRUMENT',
     },
