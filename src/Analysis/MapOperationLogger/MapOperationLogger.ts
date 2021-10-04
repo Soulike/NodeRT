@@ -9,10 +9,14 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 export class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -21,6 +25,8 @@ export class MapOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Map)
             {
                 if (isObject(args[0]))
@@ -66,6 +72,13 @@ export class MapOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'read', key, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Map: ${this.timeConsumed / 1000}s`);
         };
     }
 }

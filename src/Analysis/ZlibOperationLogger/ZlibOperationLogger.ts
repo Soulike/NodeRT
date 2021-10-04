@@ -10,12 +10,16 @@ export class ZlibOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     private readonly pendingCallbacks: WeakSet<zlib.CompressCallback>;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
         this.pendingCallbacks = new WeakSet();
 
         this.registerHooks();
@@ -25,6 +29,8 @@ export class ZlibOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === zlib.createBrotliCompress
                 || f === zlib.createBrotliDecompress
                 || f === zlib.createDeflate
@@ -84,10 +90,14 @@ export class ZlibOperationLogger extends Analysis
                 BufferLogStore.appendBufferOperation(returned, 'write',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.functionEnter = (iid, f, _dis, args) =>
         {
+            const startTimestamp = Date.now();
+
             // @ts-ignore
             if (this.pendingCallbacks.has(f))
             {
@@ -98,6 +108,13 @@ export class ZlibOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Zlib: ${this.timeConsumed / 1000}s`);
         };
     }
 }

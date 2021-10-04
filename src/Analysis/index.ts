@@ -1,6 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../Type/nodeprof';
+import {shouldBeVerbose} from '../Util';
 import {ArrayOperationLogger} from './ArrayOperationLogger';
 import {AsyncContextLogger} from './AsyncContextLogger';
 import {BufferLikeOperationLogger} from './BufferLikeOperationLogger';
@@ -27,6 +28,8 @@ import {ZlibOperationLogger} from './ZlibOperationLogger';
 
 (function (sandbox: Sandbox)
 {
+    const startTimestamp = Date.now();
+
     if (false)
     {
         // basic
@@ -115,5 +118,15 @@ import {ZlibOperationLogger} from './ZlibOperationLogger';
         sandbox.addAnalysis(new CryptoOperationLogger(sandbox));
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
+
+        const endTimestamp = Date.now() - startTimestamp ;
+
+        process.on('exit', () =>
+        {
+            if (shouldBeVerbose())
+            {
+                console.log(`analysis load: ${endTimestamp/1000}s`);
+            }
+        });
     }
 })(J$);

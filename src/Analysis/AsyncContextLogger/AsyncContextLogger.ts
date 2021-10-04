@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
 import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
 import {strict as assert} from 'assert';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 
 /**
@@ -21,6 +21,7 @@ export class AsyncContextLogger extends Analysis
     private lastTriggerAsyncId: number;
 
     private eventCount: number;
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
@@ -29,6 +30,7 @@ export class AsyncContextLogger extends Analysis
         this.lastAsyncId = -1;
         this.lastTriggerAsyncId = -1;
         this.eventCount = 0;
+        this.timeConsumed = 0;
 
         async_hooks.createHook({
             init: this.asyncHookInit,
@@ -43,10 +45,15 @@ export class AsyncContextLogger extends Analysis
         this.endExecution = () =>
         {
             console.log(`eventCount: ${this.eventCount}`);
+            if (shouldBeVerbose())
+            {
+                console.log(`AsyncContext: ${this.timeConsumed / 1000}s`);
+            }
         };
 
         this.functionEnter = (iid, f) =>
         {
+            const startTimestamp = Date.now();
             /*
             The function information logged here may not belong to the actual callback function, since the actual callback function could be located in a source file that is ignored
             
@@ -83,12 +90,16 @@ export class AsyncContextLogger extends Analysis
                 this.lastAsyncId = -1;
                 this.lastTriggerAsyncId = -1;
             }
+
+            this.timeConsumed += (Date.now() - startTimestamp);
         };
     }
 
     // must be an arrow function to fix `this`
     private asyncHookInit = (asyncId: number, type: string, triggerAsyncId: number) =>
     {
+        const startTimestamp = Date.now();
+
         let triggerAsyncFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(triggerAsyncId);
         if (triggerAsyncFunction === undefined)
         {
@@ -100,14 +111,20 @@ export class AsyncContextLogger extends Analysis
             const placeholderAsyncFunction = new CallbackFunction(null, null, asyncId, type, triggerAsyncFunction, null);
             AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
+
+        this.timeConsumed += (Date.now() - startTimestamp);
     };
 
     // must be an arrow function to fix `this`
     private asyncHookBefore = (asyncId: number) =>
     {
+        const startTimestamp = Date.now();
+
         this.asyncContextChanged = true;
         assert.ok(asyncId === async_hooks.executionAsyncId());
         this.lastAsyncId = asyncId;
         this.lastTriggerAsyncId = async_hooks.triggerAsyncId(); // TODO: async 下有可能是 0？是 GraalVM 的 BUG？
+
+        this.timeConsumed += (Date.now() - startTimestamp);
     };
 }

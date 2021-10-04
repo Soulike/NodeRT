@@ -15,10 +15,14 @@ import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 export class FsSyncOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -27,6 +31,8 @@ export class FsSyncOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === fs.appendFileSync)
             {
                 const [path, data] = args as Parameters<typeof fs.appendFileSync>;
@@ -152,6 +158,13 @@ export class FsSyncOperationLogger extends Analysis
                 const [fd] = args as Parameters<typeof fs.fstat>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`FsSync: ${this.timeConsumed / 1000}s`);
         };
     }
 }

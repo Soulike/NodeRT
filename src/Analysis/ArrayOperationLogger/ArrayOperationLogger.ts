@@ -5,25 +5,39 @@ import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
+import {shouldBeVerbose} from '../../Util';
 
 /**Does not support spread expression now*/
 export class ArrayOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
 
     protected override registerHooks()
     {
+        this.endExecution = () =>
+        {
+            if (shouldBeVerbose())
+            {
+                console.log(`Array: ${this.timeConsumed / 1000}s`);
+            }
+        };
+
         // The literals of Arrays are logged in ObjectOperationLogger
 
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Array
                 || f === Array.of)
             {
@@ -96,6 +110,8 @@ export class ArrayOperationLogger extends Analysis
                     assert.ok(isObject(result));
                     ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
                 }
+
+                this.timeConsumed += Date.now() - startTimestamp;
             }
         };
     }

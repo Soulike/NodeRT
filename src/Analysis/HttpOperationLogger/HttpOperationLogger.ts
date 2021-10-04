@@ -13,10 +13,14 @@ import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessag
 export class HttpOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -26,6 +30,8 @@ export class HttpOperationLogger extends Analysis
         // We only care about operations on underlying socket
         this.invokeFun = (iid, f, _base, _args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === http.request || f === http.get)
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
@@ -67,6 +73,13 @@ export class HttpOperationLogger extends Analysis
                     StreamLogStore.appendStreamOperation(res, 'write', this.getSandbox(), iid);
                 });
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Http: ${this.timeConsumed / 1000}s`);
         };
 
         const sandbox = this.getSandbox();

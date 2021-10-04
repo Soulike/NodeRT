@@ -14,10 +14,14 @@ import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 export class FsPromisesOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -26,6 +30,8 @@ export class FsPromisesOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === fsPromise.appendFile)
             {
                 const [path, data] = args as Parameters<typeof fsPromise.appendFile>;
@@ -105,6 +111,13 @@ export class FsPromisesOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`FsPromises: ${this.timeConsumed / 1000}s`);
         };
     }
 }

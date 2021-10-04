@@ -9,10 +9,14 @@ import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 export class SetOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -21,6 +25,8 @@ export class SetOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Set)
             {
                 if (isObject(args[0]))
@@ -54,6 +60,13 @@ export class SetOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Set: ${this.timeConsumed / 1000}s`);
         };
     }
 }

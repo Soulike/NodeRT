@@ -33,8 +33,10 @@ const outputs: object[] = [];
 
 process.on('exit', () =>
 {
+    const startTimestamp = Date.now();
     outputSync(toJSON(outputs), 'violations.json');
-    console.log(`Time consumed in RaceDetector: ${timeConsumed / 1000}s`);
+    timeConsumed += Date.now() - startTimestamp;
+    console.log(`RaceDetector: ${timeConsumed / 1000}s`);
 });
 
 eventEmitter.on('operationAppended', (resourceDeclaration) =>

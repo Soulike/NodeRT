@@ -7,6 +7,7 @@ import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 import fs from 'fs';
 import {isObject} from 'lodash';
+import {VERBOSE} from './CONFIG';
 
 export function toJSON(object: unknown): string
 {
@@ -113,4 +114,9 @@ export function parseErrorStackTrace(stackTrace: string | undefined): string[] |
             .map(stackTrace => stackTrace.trim())
             .filter(stackTrace => !stackTrace.includes(__dirname));
     }
+}
+
+export function shouldBeVerbose()
+{
+    return !!process.env[VERBOSE];
 }

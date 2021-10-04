@@ -10,10 +10,14 @@ import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 export class StreamOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -22,6 +26,8 @@ export class StreamOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (base instanceof Readable || base instanceof Writable)
             {
                 if (f === Writable.prototype.destroy
@@ -106,6 +112,13 @@ export class StreamOperationLogger extends Analysis
                     }
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Stream: ${this.timeConsumed / 1000}s`);
         };
     }
 }

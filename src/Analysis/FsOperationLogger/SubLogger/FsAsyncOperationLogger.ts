@@ -15,14 +15,18 @@ export class FsAsyncOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     // Log information of callback apis
-    private readonly callbackToFilePathOrBuffer: WeakMap<Function, { register: Function, filePathOrBuffer?: string | URL | BufferLike; }>;
+    private readonly callbackToFilePathOrBuffer: WeakMap<Function, {register: Function, filePathOrBuffer?: string | URL | BufferLike;}>;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
         this.callbackToFilePathOrBuffer = new WeakMap();
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -31,6 +35,8 @@ export class FsAsyncOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === fs.appendFile)
             {
                 const [path, data] = args as Parameters<typeof fs.appendFile>;
@@ -152,10 +158,14 @@ export class FsAsyncOperationLogger extends Analysis
                 const [fd] = args as Parameters<typeof fs.fstat>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.functionEnter = (iid, f, _dis, args) =>
         {
+            const startTimestamp = Date.now();
+
             const info = this.callbackToFilePathOrBuffer.get(f);
             if (info !== undefined)
             {
@@ -204,6 +214,13 @@ export class FsAsyncOperationLogger extends Analysis
                     }
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`FsAsync: ${this.timeConsumed / 1000}s`);
         };
     }
 }

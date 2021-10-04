@@ -8,10 +8,14 @@ import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
     public invokeFunPre: Hooks['invokeFunPre'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -20,6 +24,8 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
     {
         this.invokeFunPre = (iid, f, base, args) =>
         {
+            const startTimestamp = Date.now();
+
             if (base instanceof OutgoingMessage)
             {
                 if (f === OutgoingMessage.prototype.destroy)
@@ -48,6 +54,13 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     }
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`HttpOutgoingMessage: ${this.timeConsumed / 1000}s`);
         };
     }
 }

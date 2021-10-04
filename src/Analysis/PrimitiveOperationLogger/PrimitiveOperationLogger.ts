@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from '../../LogStore/PrimitiveLogStore';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
@@ -25,6 +25,8 @@ export class PrimitiveOperationLogger extends Analysis
 
     private readonly awaitIidToScopeQueue: Map<number, Queue<Scope>>;
 
+    private timeConsumed = 0;
+
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
@@ -37,6 +39,8 @@ export class PrimitiveOperationLogger extends Analysis
     {
         this.awaitPre = iid =>
         {
+            const startTimestamp = Date.now();
+
             const currentScope = PrimitiveLogStore.getScopeStack().getTop();
             assert.ok(currentScope !== undefined);
             const queue = this.awaitIidToScopeQueue.get(iid);
@@ -48,6 +52,8 @@ export class PrimitiveOperationLogger extends Analysis
             {
                 queue.enqueue(currentScope);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         /**
@@ -59,6 +65,8 @@ export class PrimitiveOperationLogger extends Analysis
          * */
         this.awaitPost = iid =>
         {
+            const startTimestamp = Date.now();
+
             const scopeStack = PrimitiveLogStore.getScopeStack();
             assert.ok(!scopeStack.isEmpty());
             const poppedScope = scopeStack.pop();
@@ -68,10 +76,14 @@ export class PrimitiveOperationLogger extends Analysis
             assert.ok(scopeQueue !== undefined);
             assert.ok(!scopeQueue.isEmpty());
             scopeStack.push(scopeQueue.dequeue());
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.literal = (iid, val, _fakeHasGetterSetter, literalType) =>
         {
+            const startTimestamp = Date.now();
+
             if (literalType === 'FunctionLiteral')
             {
                 assert.ok(typeof val === 'function');
@@ -84,10 +96,14 @@ export class PrimitiveOperationLogger extends Analysis
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 currentScope.declarations.push(declaration);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.functionEnter = (iid, f) =>
         {
+            const startTimestamp = Date.now();
+
             const functionDeclaration = PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(f);
             if (functionDeclaration === null)
             {
@@ -103,19 +119,27 @@ export class PrimitiveOperationLogger extends Analysis
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(newScope);
                 PrimitiveLogStore.getScopeStack().push(newScope);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.functionExit = () =>
         {
+            const startTimestamp = Date.now();
+
             const scopeStack = PrimitiveLogStore.getScopeStack();
             assert.ok(!scopeStack.isEmpty());
             const poppedScope = scopeStack.pop();
             assert.ok(poppedScope !== undefined);
             PrimitiveLogStore.clearPendingPrimitiveDeclarations(poppedScope);
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.declare = (iid, name, _type, kind) =>
         {
+            const startTimestamp = Date.now();
+
             // Can't distinguish between normal declarations (var i) from parameters of functions. Should be a write operation to functions parameters when functions are called.
             if (kind !== 'FunctionDeclaration')
             {
@@ -123,21 +147,35 @@ export class PrimitiveOperationLogger extends Analysis
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 PrimitiveLogStore.addPendingPrimitiveDeclaration(declaration);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.read = (iid, name, val, isGlobal) =>
         {
+            const startTimestamp = Date.now();
+
             this.onVariableOperation('read', iid, name, val, isGlobal);
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.write = (iid, name, val, _lhs, isGlobal) =>
         {
+            const startTimestamp = Date.now();
+
             this.onVariableOperation('write', iid, name, val, isGlobal);
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.endExecution = () =>
         {
             assert.ok(PrimitiveLogStore.getPendingPrimitiveDeclarations().length === 0);
+            if (shouldBeVerbose())
+            {
+                console.log(`Primitive: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 

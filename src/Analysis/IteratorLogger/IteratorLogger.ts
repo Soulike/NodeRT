@@ -9,10 +9,14 @@ import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
 export class IteratorLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -21,6 +25,8 @@ export class IteratorLogger extends Analysis
     {
         this.invokeFun = (iid, _f, base) =>
         {
+            const startTimestamp = Date.now();
+
             if (IteratorLogStore.hasIterator(base as any))
             {
                 const iteratee = IteratorLogStore.getIteratee(base as IterableIterator<any>)!;
@@ -34,6 +40,13 @@ export class IteratorLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(iteratee, 'read', null, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Iterator: ${this.timeConsumed / 1000}s`);
         };
     }
 }

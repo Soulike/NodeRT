@@ -36,10 +36,14 @@ export class TypedArrayOperationLogger extends Analysis
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -48,6 +52,8 @@ export class TypedArrayOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             // @ts-ignore
             if (TypedArrayOperationLogger.constructors.has(f)
                 || TypedArrayOperationLogger.ofApis.has(f))
@@ -159,31 +165,50 @@ export class TypedArrayOperationLogger extends Analysis
                     // pass
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.getField = (iid, base, offset, _val, isComputed) =>
         {
+            const startTimestamp = Date.now();
+
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))    // ignore Buffers, the same below
             {
                 BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.putFieldPre = (iid, base, offset, _val, isComputed) =>
         {
+            const startTimestamp = Date.now();
+
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.forObject = (iid, isForIn) =>
         {
+            const startTimestamp = Date.now();
+
             const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && util.types.isTypedArray(lastExpressionValue) && !Buffer.isBuffer(lastExpressionValue))
             {
                 BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`TypedArray: ${this.timeConsumed / 1000}s`);
         };
     }
 }

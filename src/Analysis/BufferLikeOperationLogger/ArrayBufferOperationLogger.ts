@@ -9,10 +9,14 @@ import {getSourceCodeInfoFromIid} from '../../Util';
 export class ArrayBufferOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -21,6 +25,8 @@ export class ArrayBufferOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, _args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === ArrayBuffer
                 || f === SharedArrayBuffer)
             {
@@ -44,6 +50,13 @@ export class ArrayBufferOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`ArrayBuffer: ${this.timeConsumed / 1000}s`);
         };
     }
 

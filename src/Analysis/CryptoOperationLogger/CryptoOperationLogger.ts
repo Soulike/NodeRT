@@ -26,13 +26,16 @@ export class CryptoOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
     public functionEnter: Hooks['functionEnter'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     private readonly callbackToRegisterFunction: WeakMap<Function, Function>;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
+        this.timeConsumed = 0;
         this.callbackToRegisterFunction = new WeakMap();
 
         this.registerHooks();
@@ -42,6 +45,8 @@ export class CryptoOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, _base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Certificate.exportChallenge
                 || f === Certificate.exportPublicKey
                 || f === Certificate.prototype.exportChallenge
@@ -399,10 +404,13 @@ export class CryptoOperationLogger extends Analysis
                 }
             }
 
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.functionEnter = (iid, f, _dis, args) =>
         {
+            const startTimestamp = Date.now();
+
             const registerFunction = this.callbackToRegisterFunction.get(f);
             if (registerFunction !== undefined)
             {
@@ -439,6 +447,13 @@ export class CryptoOperationLogger extends Analysis
                     }
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Crypto: ${this.timeConsumed / 1000}s`);
         };
     }
 }

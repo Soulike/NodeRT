@@ -71,10 +71,14 @@ export class BufferOperationLogger extends Analysis
     public forObject: Hooks['forObject'] | undefined;
     public getField: Hooks['getField'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -83,6 +87,8 @@ export class BufferOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Buffer.alloc)
             {
                 if (isBufferLike(args[1]))
@@ -225,31 +231,50 @@ export class BufferOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.getField = (iid, base, offset, _val, isComputed) =>
         {
+            const startTimestamp = Date.now();
+
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.putFieldPre = (iid, base, offset, _val, isComputed) =>
         {
+            const startTimestamp = Date.now();
+
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
                 BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.forObject = (iid, isForIn) =>
         {
+            const startTimestamp = Date.now();
+
             const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
                 BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`Buffer: ${this.timeConsumed / 1000}s`);
         };
     }
 }

@@ -15,26 +15,42 @@ export class ObjectOperationLogger extends Analysis
     public literal: Hooks['literal'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
     public unaryPre: Hooks['unaryPre'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
 
     protected override registerHooks(): void
     {
+        this.endExecution = () =>
+        {
+            console.log(`Object: ${this.timeConsumed/1000}s`);
+            
+        }
+
         this.literal = (iid, val, _fakeHasGetterSetter) =>
         {
+            const startTimestamp = Date.now();
+
             if (isObject(val))
             {
                 ObjectLogStore.appendObjectOperation(val, 'write', null, this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.unaryPre = (iid, op, left) =>
         {
+            const startTimestamp = Date.now();
+
             if (op === 'delete')    // delete obj.a
             {
                 // left is like [ { a: 1 }, 'a' ]
@@ -44,10 +60,14 @@ export class ObjectOperationLogger extends Analysis
                 const property = left[1];
                 ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.forObject = (iid, isForIn) =>
         {
+            const startTimestamp = Date.now();
+
             if (!isForIn)
             {
                 const lastExpressValue = LastExpressionValueLogStore.getLastExpressionValue();
@@ -57,10 +77,14 @@ export class ObjectOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', null, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.getField = (iid, base, offset) =>
         {
+            const startTimestamp = Date.now();
+
             if (isBufferLike(base))
             {
                 if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
@@ -75,10 +99,14 @@ export class ObjectOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         this.putFieldPre = (iid, base, offset) =>
         {
+            const startTimestamp = Date.now();
+
             if (isBufferLike(base))
             {
                 if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
@@ -90,11 +118,15 @@ export class ObjectOperationLogger extends Analysis
             {
                 ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
 
         // Object.prototype and Object static methods only
         this.invokeFun = (iid, f, base, args, result) =>
         {
+            const startTimestamp = Date.now();
+
             if (f === Object)
             {
                 if (args.length === 0 || !isObject(args[0]))
@@ -151,6 +183,8 @@ export class ObjectOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
         };
     }
 }

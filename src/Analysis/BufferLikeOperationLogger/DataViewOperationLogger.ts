@@ -28,10 +28,14 @@ export class DataViewOperationLogger extends Analysis
         DataView.prototype.setFloat64,
     ]);
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
+
+    private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.timeConsumed = 0;
 
         this.registerHooks();
     }
@@ -40,6 +44,8 @@ export class DataViewOperationLogger extends Analysis
     {
         this.invokeFun = (iid, f, base) =>
         {
+            const startTimestamp = Date.now();
+
             if (util.types.isDataView(base))
             {
                 if (DataViewOperationLogger.getApis.has(f))
@@ -53,6 +59,13 @@ export class DataViewOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.endExecution = () =>
+        {
+            console.log(`DataView: ${this.timeConsumed / 1000}s`);
         };
     }
 }
