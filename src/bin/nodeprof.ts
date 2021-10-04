@@ -20,7 +20,7 @@ const {error} = childProcess.spawnSync(`graalnode`, [
     '--nodeprof.ExcludeSource=test',
     '--nodeprof', path.resolve(ROOT, './lib/nodeprof.js/src/ch.usi.inf.nodeprof/js/jalangi.js'),
     '--analysis', path.resolve(ROOT, './dist/'),
-    ...process.argv.slice(3),
+    ...process.argv.slice(2),
 ], {
     env: process.env,
     stdio: 'inherit',
