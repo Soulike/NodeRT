@@ -55,7 +55,6 @@ export class AsyncContextLogger extends Analysis
             if (this.asyncContextChanged)
             {
                 this.eventCount++;
-
                 const asyncId = this.lastAsyncId;
                 const triggerAsyncId = this.lastTriggerAsyncId;
 
@@ -67,8 +66,8 @@ export class AsyncContextLogger extends Analysis
 
                 // skip asyncIds without related function calls until global or unknown
                 while (triggerAsyncFunction.functionWeakRef === null
-                && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
-                && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
+                    && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
+                    && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
                 {
                     triggerAsyncFunction = triggerAsyncFunction.asyncScope;    // won't be null, ensured by triggerAsyncFunction.asyncId !== ...
                     assert.ok(triggerAsyncFunction !== undefined && triggerAsyncFunction !== null);
