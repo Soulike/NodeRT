@@ -14,10 +14,13 @@ import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 export class AsyncContextLogger extends Analysis
 {
     public functionEnter: Hooks['functionEnter'] | undefined;
+    public endExecution: Hooks['endExecution'] | undefined;
 
     private asyncContextChanged: boolean;
     private lastAsyncId: number;
     private lastTriggerAsyncId: number;
+
+    private eventCount: number;
 
     constructor(sandbox: Sandbox)
     {
@@ -25,6 +28,7 @@ export class AsyncContextLogger extends Analysis
         this.asyncContextChanged = false;
         this.lastAsyncId = -1;
         this.lastTriggerAsyncId = -1;
+        this.eventCount = 0;
 
         async_hooks.createHook({
             init: this.asyncHookInit,
@@ -36,6 +40,11 @@ export class AsyncContextLogger extends Analysis
 
     protected override registerHooks()
     {
+        this.endExecution = () =>
+        {
+            console.log(`eventCount: ${this.eventCount}`);
+        };
+
         this.functionEnter = (iid, f) =>
         {
             /*
@@ -45,6 +54,8 @@ export class AsyncContextLogger extends Analysis
             */
             if (this.asyncContextChanged)
             {
+                this.eventCount++;
+
                 const asyncId = this.lastAsyncId;
                 const triggerAsyncId = this.lastTriggerAsyncId;
 
