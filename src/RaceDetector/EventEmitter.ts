@@ -27,15 +27,20 @@ class RaceDetectorEventEmitter extends EventEmitter
 
 export const eventEmitter = new RaceDetectorEventEmitter();
 
+let timeConsumed = 0;   // ms
+
 const outputs: object[] = [];
 
 process.on('exit', () =>
 {
     outputSync(toJSON(outputs), 'violations.json');
+    console.log(`Time consumed in RaceDetector: ${timeConsumed / 1000}s`);
 });
 
 eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
+    const startTimestamp = Date.now();
+
     const violationInfos = conservativeDetector(resourceDeclaration);
     if (violationInfos !== null)
     {
@@ -63,6 +68,8 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
             outputs.push(output);
         }
     }
+
+    timeConsumed += (Date.now() - startTimestamp);
 });
 
 /* eventEmitter.on('operationAppended', (resourceDeclaration) =>
