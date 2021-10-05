@@ -187,10 +187,10 @@ export class PrimitiveOperationLogger extends Analysis
         }
 
         const currentScope = PrimitiveLogStore.getScopeStack().getTop();
-        assert.ok(currentScope !== undefined);
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-        const declaration = currentScope.getDeclarationByName(name);
+        // default parameter may cause operation occurs when scope is undefined
+        const declaration = currentScope !== undefined ? currentScope.getDeclarationByName(name): null;
         const currentCallbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
 
         if (declaration === null)
@@ -231,20 +231,23 @@ export class PrimitiveOperationLogger extends Analysis
                     const location = sandbox.iidToLocation(iid);
                     console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
 
-                    // assume the declaration happened in current scope
-                    let newDeclaration = null;
-                    if (isFunction(val))
+                    if (currentScope !== undefined)
                     {
-                        newDeclaration = new PrimitiveDeclaration(iid, name, 'function', currentScope, val);
-                    }
-                    else
-                    {
-                        newDeclaration = new PrimitiveDeclaration(iid, name, 'var', currentScope);
-                    }
+                        // assume the declaration happened in current scope
+                        let newDeclaration = null;
+                        if (isFunction(val))
+                        {
+                            newDeclaration = new PrimitiveDeclaration(iid, name, 'function', currentScope, val);
+                        }
+                        else
+                        {
+                            newDeclaration = new PrimitiveDeclaration(iid, name, 'var', currentScope);
+                        }
 
-                    newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
-                    PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
-                    currentScope.declarations.push(newDeclaration);
+                        newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+                        PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
+                        currentScope.declarations.push(newDeclaration);
+                    }
                 }
             }
         }
