@@ -12,6 +12,7 @@ process.on('exit', () =>
 const {error} = childProcess.spawnSync(`node`, process.argv.slice(2), {
     env: process.env,
     stdio: 'inherit',
+    shell: true,
 });
 
 if (error)
