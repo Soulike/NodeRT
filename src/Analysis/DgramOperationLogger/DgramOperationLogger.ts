@@ -3,7 +3,7 @@
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import dgram from 'dgram';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {isObject} from 'lodash';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
@@ -70,7 +70,10 @@ export class DgramOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Dgram: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Dgram: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

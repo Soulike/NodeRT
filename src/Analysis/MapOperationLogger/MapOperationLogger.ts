@@ -5,6 +5,7 @@ import {isObject} from 'lodash';
 import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {shouldBeVerbose} from '../../Util';
 
 export class MapOperationLogger extends Analysis
 {
@@ -78,7 +79,10 @@ export class MapOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Map: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Map: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

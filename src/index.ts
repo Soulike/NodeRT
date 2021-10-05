@@ -1,10 +1,14 @@
 // DO NOT INSTRUMENT
 
 import './Analysis';
+import {shouldBeVerbose} from './Util';
 
 console.time('entry');
 
 process.on('exit', () =>
 {
-    console.timeEnd('entry');
+    if (shouldBeVerbose())
+    {
+        console.timeEnd('entry');
+    }
 });

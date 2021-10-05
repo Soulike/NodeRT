@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 import util from 'util';
 
 export class DataViewOperationLogger extends Analysis
@@ -65,7 +65,10 @@ export class DataViewOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`DataView: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`DataView: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

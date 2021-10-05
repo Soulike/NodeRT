@@ -3,7 +3,7 @@
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import fsPromise from 'fs/promises';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {isObject} from 'lodash';
@@ -117,7 +117,10 @@ export class FsPromisesOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`FsPromises: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`FsPromises: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

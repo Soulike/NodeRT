@@ -2,6 +2,7 @@
 
 import {Dir} from 'fs';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 
 export class FsDirOperationLogger extends Analysis
@@ -39,7 +40,10 @@ export class FsDirOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`FsDir: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`FsDir: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

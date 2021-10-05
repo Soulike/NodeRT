@@ -4,7 +4,7 @@ import net from 'net';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class NetOperationLogger extends Analysis
 {
@@ -88,7 +88,10 @@ export class NetOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Net: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Net: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

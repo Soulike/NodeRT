@@ -8,7 +8,7 @@ import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class TypedArrayOperationLogger extends Analysis
 {
@@ -208,7 +208,10 @@ export class TypedArrayOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`TypedArray: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`TypedArray: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

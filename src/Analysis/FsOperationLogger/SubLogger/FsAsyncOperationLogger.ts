@@ -5,7 +5,7 @@ import {BufferLike} from '../../Type/BufferLike';
 import {strict as assert} from 'assert';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {isObject} from 'lodash';
@@ -220,7 +220,10 @@ export class FsAsyncOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`FsAsync: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`FsAsync: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

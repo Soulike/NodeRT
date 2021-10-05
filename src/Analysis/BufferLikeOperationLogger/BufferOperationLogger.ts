@@ -5,7 +5,7 @@ import {strict as assert} from 'assert';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike, shouldBeVerbose} from '../../Util';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import util from 'util';
 import {isObject} from 'lodash';
@@ -274,7 +274,10 @@ export class BufferOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Buffer: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Buffer: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

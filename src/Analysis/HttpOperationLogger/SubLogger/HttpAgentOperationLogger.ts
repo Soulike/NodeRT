@@ -3,6 +3,7 @@
 import {Agent} from 'http';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {shouldBeVerbose} from '../../../Util';
 
 export class HttpAgentOperationLogger extends Analysis
 {
@@ -45,7 +46,10 @@ export class HttpAgentOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`HttpAgent: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`HttpAgent: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

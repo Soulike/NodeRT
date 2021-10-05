@@ -3,6 +3,7 @@
 import {IncomingMessage} from 'http';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {shouldBeVerbose} from '../../../Util';
 
 export class HttpIncomingMessageOperationLogger extends Analysis
 {
@@ -42,7 +43,10 @@ export class HttpIncomingMessageOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`HttpIncomingMessage: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`HttpIncomingMessage: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

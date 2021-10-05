@@ -4,7 +4,7 @@ import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import util from 'util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
+import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 
 export class ArrayBufferOperationLogger extends Analysis
 {
@@ -56,7 +56,10 @@ export class ArrayBufferOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`ArrayBuffer: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`ArrayBuffer: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 

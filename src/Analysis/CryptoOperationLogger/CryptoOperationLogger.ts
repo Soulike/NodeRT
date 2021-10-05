@@ -18,7 +18,7 @@ import {isFunction, isObject} from 'lodash';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 import {Readable, Transform, Writable} from 'stream';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 
@@ -453,7 +453,10 @@ export class CryptoOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Crypto: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Crypto: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

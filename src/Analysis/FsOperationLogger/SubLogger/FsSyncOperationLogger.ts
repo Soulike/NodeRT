@@ -3,7 +3,7 @@
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import fs from 'fs';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {isObject} from 'lodash';
@@ -164,7 +164,10 @@ export class FsSyncOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`FsSync: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`FsSync: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

@@ -5,6 +5,7 @@ import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
+import {shouldBeVerbose} from '../../Util';
 
 export class SetOperationLogger extends Analysis
 {
@@ -66,7 +67,10 @@ export class SetOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Set: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Set: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

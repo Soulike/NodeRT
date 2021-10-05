@@ -3,7 +3,7 @@
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {FileHandle} from 'fs/promises';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
@@ -114,7 +114,10 @@ export class FileHandleOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`FileHandler: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`FileHandle: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

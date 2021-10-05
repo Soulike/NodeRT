@@ -5,7 +5,7 @@ import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
 import {HttpIncomingMessageOperationLogger} from './SubLogger/HttpIncomingMessageOperationLogger';
 import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessageOperationLogger';
@@ -79,7 +79,10 @@ export class HttpOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Http: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Http: ${this.timeConsumed / 1000}s`);
+            }
         };
 
         const sandbox = this.getSandbox();

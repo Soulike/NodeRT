@@ -4,7 +4,7 @@ import zlib from 'zlib';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class ZlibOperationLogger extends Analysis
 {
@@ -114,7 +114,10 @@ export class ZlibOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Zlib: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Zlib: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

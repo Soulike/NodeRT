@@ -4,7 +4,7 @@ import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class IteratorLogger extends Analysis
 {
@@ -46,7 +46,10 @@ export class IteratorLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Iterator: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Iterator: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

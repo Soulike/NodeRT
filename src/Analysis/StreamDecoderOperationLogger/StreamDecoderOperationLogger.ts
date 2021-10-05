@@ -3,7 +3,7 @@
 import {StringDecoder} from 'string_decoder';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class StringDecoderOperationLogger extends Analysis
 {
@@ -50,7 +50,10 @@ export class StringDecoderOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`StringDecoder: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`StringDecoder: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

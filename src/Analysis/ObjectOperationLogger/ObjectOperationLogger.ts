@@ -5,7 +5,7 @@ import {isObject, isSymbol} from 'lodash';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {isBufferLike} from '../../Util';
+import {isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class ObjectOperationLogger extends Analysis
 {
@@ -31,9 +31,11 @@ export class ObjectOperationLogger extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(`Object: ${this.timeConsumed/1000}s`);
-            
-        }
+            if (shouldBeVerbose())
+            {
+                console.log(`Object: ${this.timeConsumed / 1000}s`);
+            }
+        };
 
         this.literal = (iid, val, _fakeHasGetterSetter) =>
         {

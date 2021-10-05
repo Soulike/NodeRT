@@ -5,7 +5,7 @@ import {pipeline, Readable, Transform, Writable} from 'stream';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike} from '../../Util';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class StreamOperationLogger extends Analysis
 {
@@ -118,7 +118,10 @@ export class StreamOperationLogger extends Analysis
 
         this.endExecution = () =>
         {
-            console.log(`Stream: ${this.timeConsumed / 1000}s`);
+            if (shouldBeVerbose())
+            {
+                console.log(`Stream: ${this.timeConsumed / 1000}s`);
+            }
         };
     }
 }

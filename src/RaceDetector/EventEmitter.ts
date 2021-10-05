@@ -2,7 +2,7 @@
 
 import EventEmitter from 'events';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
-import {outputSync, toJSON} from '../Util';
+import {outputSync, shouldBeVerbose, toJSON} from '../Util';
 import {conservativeDetector} from './ConservativeDetector';
 
 type EventName = 'operationAppended';
@@ -36,7 +36,10 @@ process.on('exit', () =>
     const startTimestamp = Date.now();
     outputSync(toJSON(outputs), 'violations.json');
     timeConsumed += Date.now() - startTimestamp;
-    console.log(`RaceDetector: ${timeConsumed / 1000}s`);
+    if (shouldBeVerbose())
+    {
+        console.log(`RaceDetector: ${timeConsumed / 1000}s`);
+    }
 });
 
 eventEmitter.on('operationAppended', (resourceDeclaration) =>
