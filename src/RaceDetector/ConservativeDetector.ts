@@ -63,6 +63,10 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         }
         callbackFunctionToAsyncIdsCache.set(lastCallback, lastCallbackAsyncIds);
     }
+    if (lastCallbackAsyncIds.has(CallbackFunction.UNKNOWN_ASYNC_ID))
+    {
+        return null;
+    }
 
     let atomicPairIndex1 = -1;
     let atomicPairIndex2 = LENGTH - 1;
