@@ -47,31 +47,28 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
     const startTimestamp = Date.now();
 
     const violationInfos = conservativeDetector(resourceDeclaration);
-    if (violationInfos !== null)
+    for (const violationInfo of violationInfos)
     {
-        for (const violationInfo of violationInfos)
-        {
-            const {
-                resourceDeclaration,
-                atomicOperationsPairIndexes,
-                violatingOperationIndex,
-            } = violationInfo;
-            const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
-            const modifiedResourceDeclaration: any = {...resourceDeclaration};
-            delete modifiedResourceDeclaration.callbackFunctionToOperations;
-            delete modifiedResourceDeclaration.operations;
+        const {
+            resourceDeclaration,
+            atomicOperationsPairIndexes,
+            violatingOperationIndex,
+        } = violationInfo;
+        const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
+        const modifiedResourceDeclaration: any = {...resourceDeclaration};
+        delete modifiedResourceDeclaration.callbackFunctionToOperations;
+        delete modifiedResourceDeclaration.operations;
 
-            const output = {
-                resource: modifiedResourceDeclaration,
-                atomicPair: [
-                    callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
-                    callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
-                ],
-                violator: callbackFunctionToOperationsArray[violatingOperationIndex],
-            };
+        const output = {
+            resource: modifiedResourceDeclaration,
+            atomicPair: [
+                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
+                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
+            ],
+            violator: callbackFunctionToOperationsArray[violatingOperationIndex],
+        };
 
-            outputs.push(output);
-        }
+        outputs.push(output);
     }
 
     timeConsumed += (Date.now() - startTimestamp);

@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
 import {Detector} from './Detector';
-import {changedSameFields} from './Util';
 import {ViolationInfo} from './ViolationInfo';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {CallbackFunction} from '../LogStore/Class/CallbackFunction';
+import {Filter} from './Filter';
 
 /**
  * For curtain resourceDeclaration, which asyncIds have been reported forming violations
@@ -23,7 +23,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     const LENGTH = callbackToOperations.size;
     if (LENGTH <= 2)    // no conflict if there are only 2 operations
     {
-        return null;
+        return [];
     }
 
     const callbackToOperationsArray = Array.from(callbackToOperations.entries());
@@ -35,7 +35,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     const processedAsyncIds = resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration);
     if (processedAsyncIds !== undefined && processedAsyncIds.has(lastCallback.asyncId))
     {
-        return null;
+        return [];
     }
 
     /**
@@ -55,7 +55,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     }
     if (lastCallbackAsyncIds.has(CallbackFunction.UNKNOWN_ASYNC_ID))
     {
-        return null;
+        return [];
     }
 
     let atomicPairIndex1 = -1;
@@ -74,7 +74,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     }
     if (atomicPairIndex1 === -1)
     {
-        return null;
+        return [];
     }
 
     // check whether there is another callback between the atomic pair above writes to the resource
@@ -90,7 +90,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     }
     if (violatingOperationIndexes.length === 0)
     {
-        return null;
+        return [];
     }
 
     const violationInfos: ViolationInfo[] = [];
@@ -99,16 +99,16 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
 
-        if (changedSameFields(violationInfo, callbackToOperationsArray))
+        if (!Filter.hasReported(violationInfo))
         {
-            resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration,
-                (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
-                    .add(lastCallback.asyncId));
-            violationInfos.push(violationInfo);
-        }
-        else
-        {
-            return null;
+            if (Filter.changedSameFields(violationInfo))
+            {
+                resourceDeclarationToProcessedAsyncIds.set(resourceDeclaration,
+                    (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
+                        .add(lastCallback.asyncId));
+                violationInfos.push(violationInfo);
+                Filter.addReported(violationInfo);
+            }
         }
     }
 

@@ -27,6 +27,11 @@
   resolved "https://registry.nlark.com/@types/node/download/@types/node-16.7.1.tgz#c6b9198178da504dfca1fd0be9b2e1002f1586f0"
   integrity sha1-xrkZgXjaUE38of0L6bLhAC8VhvA=
 
+"@types/object-hash@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.npmmirror.com/@types/object-hash/download/@types/object-hash-2.2.1.tgz?cache=0&sync_timestamp=1632412359579&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fobject-hash%2Fdownload%2F%40types%2Fobject-hash-2.2.1.tgz#67c169f8f033e0b62abbf81df2d00f4598d540b9"
+  integrity sha1-Z8Fp+PAz4LYqu/gd8tAPRZjVQLk=
+
 esbuild@^0.12.27:
   version "0.12.27"
   resolved "https://registry.nlark.com/esbuild/download/esbuild-0.12.27.tgz?cache=0&sync_timestamp=1631497049767&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fesbuild%2Fdownload%2Fesbuild-0.12.27.tgz#9bcfb837111c5e89b189188dde339515b213a724"
@@ -43,6 +48,11 @@ lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.nlark.com/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
+
+object-hash@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.nlark.com/object-hash/download/object-hash-2.2.0.tgz#5ad518581eefc443bd763472b8ff2e9c2c0d54a5"
+  integrity sha1-WtUYWB7vxEO9djRyuP8unCwNVKU=
 
 temp@~0.4.0:
   version "0.4.0"
