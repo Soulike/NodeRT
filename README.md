@@ -1,6 +1,6 @@
-# NodeProfAnalysis
+# NodeRAL
 
-Node.js analysis running on NodeProf.js
+Node.js analysis that locates race conditions, based on NodeProf.js
 
 ## Usage
 
