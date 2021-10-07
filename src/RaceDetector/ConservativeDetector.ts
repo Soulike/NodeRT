@@ -31,16 +31,6 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     const lastCallbackToOperation = callbackToOperationsArray[LENGTH - 1]!;
     const lastCallback = lastCallbackToOperation[0];
 
-    /*
-     * Net servers usually register 'close' event listeners, which are TickObjects and do some clean up work.
-     * However, the 'close' listener are emitted by the server, which considered atomic with the creation of the server.
-     * It's a obvious FP. So we ignore all TickObjects here.
-     */
-    if (lastCallback.type === 'TickObject')
-    {
-        return null;
-    }
-
     // check if the callback has been processed for the resourceDeclaration
     const processedAsyncIds = resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration);
     if (processedAsyncIds !== undefined && processedAsyncIds.has(lastCallback.asyncId))
@@ -75,8 +65,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     // From the last to the first, check if another callback can form atomic pair with the last callback
     for (let i = callbackToOperationsArray.length - 2; i >= 0; i--)
     {
-        if (callbackToOperationsArray[i]![0].type !== 'TickObject'  // ignore TickObject
-            && callbackToOperationsArray[i]![0].asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
+        if (callbackToOperationsArray[i]![0].asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
             && lastCallbackAsyncIds.has(callbackToOperationsArray[i]![0].asyncId)) // on the chain
         {
             atomicPairIndex1 = i;
@@ -92,8 +81,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     for (let i = atomicPairIndex1 + 1; i < atomicPairIndex2; i++)
     {
         const callback = callbackToOperationsArray[i]![0];
-        if (callbackToOperationsArray[i]![0].type !== 'TickObject'  // ignore TickObject
-            && callback.getHasWriteOperation(resourceDeclaration)
+        if (callback.getHasWriteOperation(resourceDeclaration)
             && callback.asyncId !== lastCallback.asyncId   // for setInterval callbacks, which have the same asyncId, and do not violate each other
             && callback.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)  // ignore UNKNOWN
         {
