@@ -12,7 +12,7 @@ process.on('exit', () =>
 
 const ROOT = path.resolve(__dirname, '..', '..');
 
-const {error} = childProcess.spawnSync(`graalnode`, [
+const {error} = childProcess.spawnSync(`cd ${process.argv.slice(2, 3)} && graalnode`, [
     '--jvm',
     '--experimental-options',
     `--vm.Dtruffle.class.path.append=${path.resolve(ROOT, './lib/nodeprof.jar')}`,
@@ -20,7 +20,7 @@ const {error} = childProcess.spawnSync(`graalnode`, [
     '--nodeprof.ExcludeSource=test',
     '--nodeprof', path.resolve(ROOT, './lib/nodeprof.js/src/ch.usi.inf.nodeprof/js/jalangi.js'),
     '--analysis', path.resolve(ROOT, './dist/'),
-    ...process.argv.slice(2),
+    ...process.argv.slice(3),
 ], {
     env: process.env,
     stdio: 'inherit',
