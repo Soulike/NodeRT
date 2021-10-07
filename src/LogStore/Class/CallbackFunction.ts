@@ -11,12 +11,12 @@ export class CallbackFunction
     public static readonly GLOBAL_ASYNC_ID = 1;
     public static readonly GLOBAL = new CallbackFunction(null, null, CallbackFunction.GLOBAL_ASYNC_ID, 'GLOBAL', null, null);
 
-    public readonly functionWeakRef: WeakRef<Function> | null;
-    public readonly stackTrace: string[] | null;
-    public readonly asyncId: number;
-    public readonly type: string;
+    public functionWeakRef: WeakRef<Function> | null;
+    public stackTrace: string[] | null;
+    public asyncId: number;
+    public type: string;
     public asyncScope: CallbackFunction | null;    // null for global
-    public readonly registerCodeInfo: SourceCodeInfo | null;
+    public registerCodeInfo: SourceCodeInfo | null;
 
     /** Whether the callback function does any writing operation on certain resource*/
     private hasWriteOperationResourcesSet: Set<ResourceDeclaration>;
@@ -31,6 +31,16 @@ export class CallbackFunction
         this.registerCodeInfo = registerCodeInfo;   // 本 callback 是被什么地方的代码注册执行的
 
         this.hasWriteOperationResourcesSet = new Set();
+    }
+
+    public resetAll(func: Function, stackTrace: string[] | null, asyncId: number, type: string, asyncScope: CallbackFunction, registerCodeInfo: SourceCodeInfo)
+    {
+        this.functionWeakRef = new WeakRef(func);
+        this.stackTrace = stackTrace;
+        this.asyncId = asyncId;
+        this.type = type;
+        this.asyncScope = asyncScope; 
+        this.registerCodeInfo = registerCodeInfo;
     }
 
     public setHasWriteOperation(resourceDeclaration: ResourceDeclaration)

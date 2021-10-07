@@ -3,10 +3,12 @@ import {ObjectDeclaration, ObjectOperation} from '../LogStore/ObjectLogStore';
 import {ViolationInfo} from './ViolationInfo';
 import objectHash from 'object-hash';
 import assert from 'assert';
+import {toJSON} from '../Util';
+import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 
 export class Filter
 {
-    private static readonly reportedViolation = new Set<string>();
+    private static readonly reportedViolation = new Map<ResourceDeclaration, Set<string>>();
 
     /**
      * Check if the operations of the ViolationInfo changed the same fields. Otherwise it's a FP
@@ -111,7 +113,7 @@ export class Filter
         }
     }
 
-    private static getViolationInoHash(violationInfo: ViolationInfo): string
+    private static getViolationInfoHash(violationInfo: ViolationInfo): string
     {
         const {
             resourceDeclaration,
@@ -126,7 +128,14 @@ export class Filter
             callbackToOperations[atomicOperationsPairIndexes[1]]![0].functionWeakRef,
         ];
         const violator = callbackToOperations[violatingOperationIndex]![0].functionWeakRef;
-
+        if (callback2 === null)
+        {
+            console.log(toJSON(callbackToOperations[atomicOperationsPairIndexes[1]]![0]));
+        }
+        if (violator === null)
+        {
+            console.log(toJSON(callbackToOperations[violatingOperationIndex]![0]));
+        }
         assert.ok(callback2 !== null);
         assert.ok(violator !== null);
         const callbackFunction1Ref = callback1 === null ? null : callback1.deref;
@@ -147,15 +156,22 @@ export class Filter
     /**
      * Check if the ViolationInfo has been reported
      */
-    public static hasReported(violationInfo: ViolationInfo): boolean
+    public static hasReported(resourceDeclaration: ResourceDeclaration,violationInfo: ViolationInfo): boolean
     {
-        const hash = Filter.getViolationInoHash(violationInfo);
-        return Filter.reportedViolation.has(hash);
+        const hashes = Filter.reportedViolation.get(resourceDeclaration);
+        if (hashes === undefined)
+        {
+            return false;
+        }
+        const hash = Filter.getViolationInfoHash(violationInfo);
+        return hashes.has(hash);
     }
 
-    public static addReported(violationInfo: ViolationInfo): void
+    public static addReported(resourceDeclaration: ResourceDeclaration,violationInfo: ViolationInfo): void
     {
-        const hash = Filter.getViolationInoHash(violationInfo);
-        Filter.reportedViolation.add(hash);
+        let hashes = Filter.reportedViolation.get(resourceDeclaration) ?? new Set();
+        const hash = Filter.getViolationInfoHash(violationInfo);
+        hashes.add(hash);
+        Filter.reportedViolation.set(resourceDeclaration, hashes);
     }
 }

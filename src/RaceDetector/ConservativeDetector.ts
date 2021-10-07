@@ -99,7 +99,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
 
-        if (!Filter.hasReported(violationInfo))
+        if (!Filter.hasReported(resourceDeclaration,violationInfo))
         {
             if (Filter.changedSameFields(violationInfo))
             {
@@ -107,7 +107,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
                     (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
                         .add(lastCallback.asyncId));
                 violationInfos.push(violationInfo);
-                Filter.addReported(violationInfo);
+                Filter.addReported(resourceDeclaration,violationInfo);
             }
         }
     }

@@ -83,8 +83,8 @@ export class AsyncContextLogger extends Analysis
                 const placeholderAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
-                const asyncFunction = new CallbackFunction(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
-                AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, asyncFunction);
+                // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
+                placeholderAsyncFunction.resetAll(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;
