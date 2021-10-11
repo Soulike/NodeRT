@@ -3,7 +3,6 @@ import {ObjectDeclaration, ObjectOperation} from '../LogStore/ObjectLogStore';
 import {ViolationInfo} from './ViolationInfo';
 import objectHash from 'object-hash';
 import assert from 'assert';
-import {toJSON} from '../Util';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 
 export class Filter
@@ -112,8 +111,10 @@ export class Filter
             return true;
         }
     }
-
-    private static getViolationInfoHash(violationInfo: ViolationInfo): string
+    /**
+     * if any of the callbacks is invoked by C++ modules, which is not able to be hashed, returns null
+     */
+    private static getViolationInfoHash(violationInfo: ViolationInfo): string | null
     {
         const {
             resourceDeclaration,
@@ -130,14 +131,12 @@ export class Filter
         const violator = callbackToOperations[violatingOperationIndex]![0].functionWeakRef;
         if (callback2 === null)
         {
-            console.log(toJSON(callbackToOperations[atomicOperationsPairIndexes[1]]![0]));
+            return null;
         }
         if (violator === null)
         {
-            console.log(toJSON(callbackToOperations[violatingOperationIndex]![0]));
+            return null;
         }
-        assert.ok(callback2 !== null);
-        assert.ok(violator !== null);
         const callbackFunction1Ref = callback1 === null ? null : callback1.deref;
         const callbackFunction2Ref = callback2.deref;
         const violatorFunctionRef = violator.deref;
@@ -156,7 +155,7 @@ export class Filter
     /**
      * Check if the ViolationInfo has been reported
      */
-    public static hasReported(resourceDeclaration: ResourceDeclaration,violationInfo: ViolationInfo): boolean
+    public static hasReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): boolean
     {
         const hashes = Filter.reportedViolation.get(resourceDeclaration);
         if (hashes === undefined)
@@ -164,14 +163,24 @@ export class Filter
             return false;
         }
         const hash = Filter.getViolationInfoHash(violationInfo);
-        return hashes.has(hash);
+        if (hash === null)
+        {
+            return false;
+        }
+        else
+        {
+            return hashes.has(hash);
+        }
     }
 
-    public static addReported(resourceDeclaration: ResourceDeclaration,violationInfo: ViolationInfo): void
+    public static addReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): void
     {
         let hashes = Filter.reportedViolation.get(resourceDeclaration) ?? new Set();
         const hash = Filter.getViolationInfoHash(violationInfo);
-        hashes.add(hash);
+        if (hash !== null)
+        {
+            hashes.add(hash);
+        }
         Filter.reportedViolation.set(resourceDeclaration, hashes);
     }
 }
