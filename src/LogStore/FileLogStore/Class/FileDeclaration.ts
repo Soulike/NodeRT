@@ -4,6 +4,7 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {FileOperation} from './FileOperation';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class FileDeclaration extends ResourceDeclaration
 {
@@ -15,6 +16,7 @@ export class FileDeclaration extends ResourceDeclaration
         super();
         this.filePath = filePath;
         this.callbackFunctionToOperations = new Map();
+        StatisticsStore.addFileCount();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, fileOperation: FileOperation): void

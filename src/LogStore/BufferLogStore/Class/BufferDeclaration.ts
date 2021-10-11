@@ -7,6 +7,7 @@ import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import util from 'util';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
@@ -18,6 +19,7 @@ export class BufferDeclaration extends ResourceDeclaration
         super();
         this.bufferWeakRef = new WeakRef(buffer);
         this.callbackFunctionToOperations = new Map();
+        StatisticsStore.addBufferCount();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, bufferOperation: BufferOperation): void

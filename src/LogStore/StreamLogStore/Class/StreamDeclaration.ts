@@ -5,6 +5,7 @@ import {CallbackFunction} from '../../Class/CallbackFunction';
 import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class StreamDeclaration extends ResourceDeclaration
 {
@@ -16,6 +17,7 @@ export class StreamDeclaration extends ResourceDeclaration
         super();
         this.streamWeakRef = new WeakRef(stream);
         this.operations = new Map();
+        StatisticsStore.addStreamCount();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, streamOperation: StreamOperation): void

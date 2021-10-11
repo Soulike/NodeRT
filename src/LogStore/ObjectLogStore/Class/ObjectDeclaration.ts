@@ -6,6 +6,7 @@ import {ObjectOperation} from './ObjectOperation';
 import assert from 'assert';
 import {isObject} from 'lodash';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class ObjectDeclaration extends ResourceDeclaration
 {
@@ -18,6 +19,7 @@ export class ObjectDeclaration extends ResourceDeclaration
         assert.ok(isObject(object));
         this.objectWeakRef = new WeakRef(object);
         this.operations = new Map();
+        StatisticsStore.addObjectCount();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, objectOperation: ObjectOperation): void

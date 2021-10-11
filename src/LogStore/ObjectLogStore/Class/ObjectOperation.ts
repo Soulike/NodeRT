@@ -2,6 +2,7 @@
 
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class ObjectOperation extends ResourceOperation
 {
@@ -14,5 +15,6 @@ export class ObjectOperation extends ResourceOperation
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.field = field;
+        StatisticsStore.addObjectOperationCount();
     }
 }

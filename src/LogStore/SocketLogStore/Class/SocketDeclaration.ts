@@ -6,6 +6,7 @@ import {SocketOperation} from './SocketOperation';
 import dgram from 'dgram';
 import net from 'net';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketDeclaration extends ResourceDeclaration
 {
@@ -17,6 +18,7 @@ export class SocketDeclaration extends ResourceDeclaration
         super();
         this.socketWeakRef = new WeakRef(socket);
         this.operations = new Map();
+        StatisticsStore.addSocketCount();
     }
 
     public appendOperation(currentCallbackFunction: CallbackFunction, socketOperation: SocketOperation): void

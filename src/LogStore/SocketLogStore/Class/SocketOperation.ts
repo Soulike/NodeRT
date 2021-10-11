@@ -2,6 +2,7 @@
 
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketOperation extends ResourceOperation
 {
@@ -9,5 +10,6 @@ export class SocketOperation extends ResourceOperation
     {
         // only write for socket
         super(type, stackTrace, sourceCodeScopeInfo);
+        StatisticsStore.addSocketOperationCount();
     }
 }

@@ -6,6 +6,7 @@ import {Scope} from './Scope';
 import {CallbackFunction} from '../../Class/CallbackFunction';
 import {isFunction} from 'lodash';
 import {RaceDetector} from '../../../RaceDetector';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
@@ -38,6 +39,8 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         {
             this.functionWhenDefinedWeakRef = null;
         }
+
+        StatisticsStore.addPrimitiveCount();
     }
 
     public getScope()

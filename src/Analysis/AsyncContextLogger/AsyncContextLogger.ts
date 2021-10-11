@@ -6,6 +6,7 @@ import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
 import {strict as assert} from 'assert';
 import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
+import {StatisticsStore} from '../../LogStore/StatisticsStore';
 
 /**
  * Logging all callback function content information into `AsyncContextLogStore`.
@@ -20,7 +21,6 @@ export class AsyncContextLogger extends Analysis
     private lastAsyncId: number;
     private lastTriggerAsyncId: number;
 
-    private eventCount: number;
     private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
@@ -29,7 +29,6 @@ export class AsyncContextLogger extends Analysis
         this.asyncContextChanged = false;
         this.lastAsyncId = -1;
         this.lastTriggerAsyncId = -1;
-        this.eventCount = 0;
         this.timeConsumed = 0;
 
         async_hooks.createHook({
@@ -44,7 +43,6 @@ export class AsyncContextLogger extends Analysis
     {
         this.endExecution = () =>
         {
-            console.log(`eventCount: ${this.eventCount}`);
             if (shouldBeVerbose())
             {
                 console.log(`AsyncContext: ${this.timeConsumed / 1000}s`);
@@ -61,7 +59,7 @@ export class AsyncContextLogger extends Analysis
             */
             if (this.asyncContextChanged)
             {
-                this.eventCount++;
+                StatisticsStore.addEventCount();
                 const asyncId = this.lastAsyncId;
                 const triggerAsyncId = this.lastTriggerAsyncId;
 
