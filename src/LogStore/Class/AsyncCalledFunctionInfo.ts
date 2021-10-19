@@ -53,11 +53,12 @@ export class AsyncCalledFunctionInfo
         return this.hasWriteOperationResourcesSet.has(resourceDeclaration);
     }
 
-    toJSON()
+    public toJSON(): Record<keyof this, any>
     {
-        const copy: { [key: string]: any } = {...this};
-        delete copy['stackTrace'];
-        delete copy['hasWriteOperationResourcesSet'];
-        return copy;
+        return {
+            ...this,
+            functionWeakRef: undefined,
+            hasWriteOperationResourcesSet: undefined,
+        };
     }
 }

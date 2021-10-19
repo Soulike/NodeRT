@@ -1,19 +1,25 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
+import {ResourceInfo} from '../LogStore/Class/ResourceInfo';
+import {AsyncCalledFunctionInfo} from '../LogStore/Class/AsyncCalledFunctionInfo';
+import {ResourceOperation} from '../LogStore/Class/ResourceOperation';
 
 export class ViolationInfo
 {
-    public readonly resourceDeclaration: ResourceDeclaration;
+    public readonly resourceInfo: ResourceInfo;
 
-    // indexes of resourceOperations in ResourceDeclaration.operations
-    public readonly atomicOperationsPairIndexes: [number, number];
-    public readonly violatingOperationIndex: number;
+    public readonly atomicAsyncContextToOperations1: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
+    public readonly atomicAsyncContextToOperations2: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
+    public readonly violatingAsyncContextToOperations: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
 
-    constructor(resourceDeclaration: ResourceDeclaration, atomicOperationsPairIndexes: [number, number], violatingOperationIndex: number)
+    constructor(resourceInfo: ResourceInfo,
+                atomicAsyncContextToOperations1: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]],
+                atomicAsyncContextToOperations2: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]],
+                violatingAsyncContextToOperations: readonly  [AsyncCalledFunctionInfo, readonly ResourceOperation[]])
     {
-        this.resourceDeclaration = resourceDeclaration;
-        this.atomicOperationsPairIndexes = atomicOperationsPairIndexes;
-        this.violatingOperationIndex = violatingOperationIndex;
+        this.resourceInfo = resourceInfo;
+        this.atomicAsyncContextToOperations1 = atomicAsyncContextToOperations1;
+        this.atomicAsyncContextToOperations2 = atomicAsyncContextToOperations2;
+        this.violatingAsyncContextToOperations = violatingAsyncContextToOperations;
     }
 }

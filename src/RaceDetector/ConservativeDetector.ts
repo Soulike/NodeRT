@@ -15,7 +15,7 @@ const resourceDeclarationToProcessedAsyncIds = new Map<ResourceDeclaration, Set<
 /**
  * lazy calculation
  */
-const AsyncCalledFunctionInfoToAsyncIdsCache = new Map<AsyncCalledFunctionInfo, Set<number>>();
+const asyncContextToAsyncIdsCache = new Map<AsyncCalledFunctionInfo, Set<number>>();
 
 export const conservativeDetector: Detector = (resourceDeclaration) =>
 {
@@ -41,8 +41,8 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     /**
      * asyncId chain for the last callback
      * */
-    let lastAsyncContextAsyncIds: Set<number> | undefined = AsyncCalledFunctionInfoToAsyncIdsCache.get(lastAsyncContext);
-    if (lastAsyncContextAsyncIds === undefined)
+    let lastAsyncContextAsyncIds: Set<number> | undefined = asyncContextToAsyncIdsCache.get(lastAsyncContext);
+    if (lastAsyncContextAsyncIds === undefined) // cache miss
     {
         lastAsyncContextAsyncIds = new Set();
         let currentAsyncContext = lastAsyncContext.asyncContext;
@@ -51,16 +51,17 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
             lastAsyncContextAsyncIds.add(currentAsyncContext.asyncId);
             currentAsyncContext = currentAsyncContext.asyncContext;
         }
-        AsyncCalledFunctionInfoToAsyncIdsCache.set(lastAsyncContext, lastAsyncContextAsyncIds);
+        asyncContextToAsyncIdsCache.set(lastAsyncContext, lastAsyncContextAsyncIds); // cache set
     }
-    if (lastAsyncContextAsyncIds.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID))
+
+    if (lastAsyncContextAsyncIds.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)) // ignore asyncId=0 due to GraalVM bug
     {
         return [];
     }
 
-    let atomicPairIndex1 = -1;
-    let atomicPairIndex2 = LENGTH - 1;
-    let violatingOperationIndexes = [];
+    let atomicAsyncContextToOperations1Index = -1;
+    let atomicAsyncContextToOperations2Index = LENGTH - 1;
+    let violatingAsyncContextToOperationsIndexes = [];
 
     // From the last to the first, check if another callback can form atomic pair with the last callback
     for (let i = asyncContextToOperationsArray.length - 2; i >= 0; i--)
@@ -68,38 +69,41 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         if (asyncContextToOperationsArray[i]![0].asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
             && lastAsyncContextAsyncIds.has(asyncContextToOperationsArray[i]![0].asyncId)) // on the chain
         {
-            atomicPairIndex1 = i;
+            atomicAsyncContextToOperations1Index = i;
             break;
         }
     }
-    if (atomicPairIndex1 === -1)
+    if (atomicAsyncContextToOperations1Index === -1)
     {
         return [];
     }
 
     // check whether there is another callback between the atomic pair above writes to the resource
-    for (let i = atomicPairIndex1 + 1; i < atomicPairIndex2; i++)
+    for (let i = atomicAsyncContextToOperations1Index + 1; i < atomicAsyncContextToOperations2Index; i++)
     {
         const callback = asyncContextToOperationsArray[i]![0];
         if (callback.getHasWriteOperation(resourceDeclaration)
             && callback.asyncId !== lastAsyncContext.asyncId   // for setInterval callbacks, which have the same asyncId, and do not violate each other
             && callback.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)  // ignore UNKNOWN
         {
-            violatingOperationIndexes.push(i);
+            violatingAsyncContextToOperationsIndexes.push(i);
         }
     }
-    if (violatingOperationIndexes.length === 0)
+    if (violatingAsyncContextToOperationsIndexes.length === 0)
     {
         return [];
     }
 
     const violationInfos: ViolationInfo[] = [];
 
-    for (const violatingOperationIndex of violatingOperationIndexes)
+    for (const violatingAsyncContextToOperationsIndex of violatingAsyncContextToOperationsIndexes)
     {
-        const violationInfo = new ViolationInfo(resourceDeclaration, [atomicPairIndex1, atomicPairIndex2], violatingOperationIndex);
+        const violationInfo = new ViolationInfo(resourceDeclaration.getResourceInfo(),
+            asyncContextToOperationsArray[atomicAsyncContextToOperations1Index]!,
+            asyncContextToOperationsArray[atomicAsyncContextToOperations2Index]!,
+            asyncContextToOperationsArray[violatingAsyncContextToOperationsIndex]!);
 
-        if (!Filter.hasReported(resourceDeclaration,violationInfo))
+        if (!Filter.hasReported(resourceDeclaration, violationInfo))
         {
             if (Filter.changedSameFields(violationInfo))
             {
@@ -107,7 +111,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
                     (resourceDeclarationToProcessedAsyncIds.get(resourceDeclaration) ?? new Set<number>())
                         .add(lastAsyncContext.asyncId));
                 violationInfos.push(violationInfo);
-                Filter.addReported(resourceDeclaration,violationInfo);
+                Filter.addReported(resourceDeclaration, violationInfo);
             }
         }
     }

@@ -1,9 +1,10 @@
 import {EnhancedSet} from '@datastructures-js/set';
-import {ObjectDeclaration, ObjectOperation} from '../LogStore/ObjectLogStore';
+import {ObjectOperation} from '../LogStore/ObjectLogStore';
 import {ViolationInfo} from './ViolationInfo';
 import objectHash from 'object-hash';
 import assert from 'assert';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
+import {ObjectInfo} from '../LogStore/ObjectLogStore/Class/ObjectInfo';
 
 export class Filter
 {
@@ -15,26 +16,18 @@ export class Filter
     public static changedSameFields(violationInfo: ViolationInfo): boolean
     {
         const {
-            resourceDeclaration,
-            atomicOperationsPairIndexes,
-            violatingOperationIndex,
+            resourceInfo,
+            atomicAsyncContextToOperations1, atomicAsyncContextToOperations2,
+            violatingAsyncContextToOperations,
         } = violationInfo;
 
         // Check if the operations read/write on the same fields
-        if (resourceDeclaration instanceof ObjectDeclaration)
+        if (resourceInfo instanceof ObjectInfo)
         {
-            const callbackToOperations = Array.from(resourceDeclaration.getAsyncContextToOperations());
-
-            const atomicPair = [
-                callbackToOperations[atomicOperationsPairIndexes[0]],
-                callbackToOperations[atomicOperationsPairIndexes[1]],
-            ];
-            const violator = callbackToOperations[violatingOperationIndex]!;
-
             const atomicPairOperations = [
-                atomicPair[0]![1], atomicPair[1]![1],
+                atomicAsyncContextToOperations1[1], atomicAsyncContextToOperations2[1],
             ] as [ObjectOperation[], ObjectOperation[]];
-            const violatorOperations = violator[1] as ObjectOperation[];
+            const violatorOperations = violatingAsyncContextToOperations[1] as ObjectOperation[];
 
             let atomicPair1OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any>();
             for (const {field} of atomicPairOperations[0]!)
@@ -111,35 +104,34 @@ export class Filter
             return true;
         }
     }
+
     /**
+     * Calculate an unique hash for a ViolationInfo
      * if any of the callbacks is invoked by C++ modules, which is not able to be hashed, returns null
      */
     private static getViolationInfoHash(violationInfo: ViolationInfo): string | null
     {
         const {
-            resourceDeclaration,
-            atomicOperationsPairIndexes,
-            violatingOperationIndex,
+            atomicAsyncContextToOperations1, atomicAsyncContextToOperations2,
+            violatingAsyncContextToOperations,
         } = violationInfo;
 
-        const callbackToOperations = Array.from(resourceDeclaration.getAsyncContextToOperations());
-
-        const [callback1, callback2] = [
-            callbackToOperations[atomicOperationsPairIndexes[0]]![0].functionWeakRef,
-            callbackToOperations[atomicOperationsPairIndexes[1]]![0].functionWeakRef,
+        const [atomicAsyncCalledFunction1, atomicAsyncCalledFunction2] = [
+            atomicAsyncContextToOperations1[0].functionWeakRef,
+            atomicAsyncContextToOperations2[0].functionWeakRef,
         ];
-        const violator = callbackToOperations[violatingOperationIndex]![0].functionWeakRef;
-        if (callback2 === null)
+        const violatingAsyncCalledFunction = violatingAsyncContextToOperations[0].functionWeakRef;
+        if (atomicAsyncCalledFunction2 === null)
         {
             return null;
         }
-        if (violator === null)
+        if (violatingAsyncCalledFunction === null)
         {
             return null;
         }
-        const callbackFunction1Ref = callback1 === null ? null : callback1.deref;
-        const callbackFunction2Ref = callback2.deref;
-        const violatorFunctionRef = violator.deref;
+        const callbackFunction1Ref = atomicAsyncCalledFunction1 === null ? null : atomicAsyncCalledFunction1.deref;
+        const callbackFunction2Ref = atomicAsyncCalledFunction2.deref;
+        const violatorFunctionRef = violatingAsyncCalledFunction.deref;
 
         assert.ok(callbackFunction1Ref !== undefined);
         assert.ok(callbackFunction2Ref !== undefined);

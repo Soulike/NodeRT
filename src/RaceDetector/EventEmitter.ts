@@ -49,26 +49,7 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
     const violationInfos = conservativeDetector(resourceDeclaration);
     for (const violationInfo of violationInfos)
     {
-        const {
-            resourceDeclaration,
-            atomicOperationsPairIndexes,
-            violatingOperationIndex,
-        } = violationInfo;
-        const asyncContextToOperationsArray = Array.from(resourceDeclaration.getAsyncContextToOperations());
-        const modifiedResourceDeclaration: any = {...resourceDeclaration};
-        delete modifiedResourceDeclaration.asyncContextToOperations;
-        delete modifiedResourceDeclaration.operations;
-
-        const output = {
-            resource: modifiedResourceDeclaration,
-            atomicPair: [
-                asyncContextToOperationsArray[atomicOperationsPairIndexes[0]],
-                asyncContextToOperationsArray[atomicOperationsPairIndexes[1]],
-            ],
-            violator: asyncContextToOperationsArray[violatingOperationIndex],
-        };
-
-        outputs.push(output);
+        outputs.push(violationInfo);
     }
 
     timeConsumed += (Date.now() - startTimestamp);
