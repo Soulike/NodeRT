@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
 import {RaceDetector} from '../../../RaceDetector';
@@ -10,22 +10,22 @@ import {StatisticsStore} from '../../StatisticsStore';
 export class StreamDeclaration extends ResourceDeclaration
 {
     private readonly streamWeakRef: WeakRef<Readable | Writable>;
-    private readonly operations: Map<CallbackFunction, StreamOperation[]>;
+    private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, StreamOperation[]>;
 
     constructor(stream: Readable | Writable)
     {
         super();
         this.streamWeakRef = new WeakRef(stream);
-        this.operations = new Map();
+        this.asyncContextToOperations = new Map();
         StatisticsStore.addStreamCount();
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, streamOperation: StreamOperation): void
+    public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, streamOperation: StreamOperation): void
     {
-        const operations = this.operations.get(currentCallbackFunction);
+        const operations = this.asyncContextToOperations.get(currentCallbackFunction);
         if (operations === undefined)
         {
-            this.operations.set(currentCallbackFunction, [streamOperation]);
+            this.asyncContextToOperations.set(currentCallbackFunction, [streamOperation]);
         }
         else
         {
@@ -34,9 +34,9 @@ export class StreamDeclaration extends ResourceDeclaration
         RaceDetector.emit('operationAppended', this);
     }
 
-    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, StreamOperation[]>
+    public getAsyncContextToOperations(): ReadonlyMap<AsyncCalledFunctionInfo, StreamOperation[]>
     {
-        return this.operations;
+        return this.asyncContextToOperations;
     }
 
     public is(other: unknown): boolean

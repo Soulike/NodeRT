@@ -190,8 +190,8 @@ export class PrimitiveOperationLogger extends Analysis
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
         // default parameter may cause operation occurs when scope is undefined
-        const declaration = currentScope !== undefined ? currentScope.getDeclarationByName(name): null;
-        const currentCallbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        const declaration = currentScope !== undefined ? currentScope.getDeclarationByName(name) : null;
+        const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
 
         if (declaration === null)
         {
@@ -207,7 +207,7 @@ export class PrimitiveOperationLogger extends Analysis
                     newDeclaration = new PrimitiveDeclaration(iid, name, 'var', Scope.GLOBAL_SCOPE);
                 }
 
-                newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+                newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -220,7 +220,7 @@ export class PrimitiveOperationLogger extends Analysis
                     const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
                     if (pendingDeclaration.name === name)
                     {
-                        pendingDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+                        pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
                         found = true;
                         break;
                     }
@@ -244,7 +244,7 @@ export class PrimitiveOperationLogger extends Analysis
                             newDeclaration = new PrimitiveDeclaration(iid, name, 'var', currentScope);
                         }
 
-                        newDeclaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+                        newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
                         PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                         currentScope.declarations.push(newDeclaration);
                     }
@@ -253,7 +253,7 @@ export class PrimitiveOperationLogger extends Analysis
         }
         else
         {
-            declaration.appendOperation(currentCallbackFunction, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
+            declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
         }
     }
 }

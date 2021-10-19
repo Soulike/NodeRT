@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
@@ -12,22 +12,22 @@ import {StatisticsStore} from '../../StatisticsStore';
 export class BufferDeclaration extends ResourceDeclaration
 {
     private readonly bufferWeakRef: WeakRef<ArrayBufferLike>;
-    private readonly callbackFunctionToOperations: Map<CallbackFunction, BufferOperation[]>;
+    private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, BufferOperation[]>;
 
     constructor(buffer: ArrayBufferLike)
     {
         super();
         this.bufferWeakRef = new WeakRef(buffer);
-        this.callbackFunctionToOperations = new Map();
+        this.asyncContextToOperations = new Map();
         StatisticsStore.addBufferCount();
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, bufferOperation: BufferOperation): void
+    public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, bufferOperation: BufferOperation): void
     {
-        const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        const operations = this.asyncContextToOperations.get(currentCallbackFunction);
         if (operations === undefined)
         {
-            this.callbackFunctionToOperations.set(currentCallbackFunction, [bufferOperation]);
+            this.asyncContextToOperations.set(currentCallbackFunction, [bufferOperation]);
         }
         else
         {
@@ -36,9 +36,9 @@ export class BufferDeclaration extends ResourceDeclaration
         RaceDetector.emit('operationAppended', this);
     }
 
-    public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, BufferOperation[]>
+    public override getAsyncContextToOperations(): ReadonlyMap<AsyncCalledFunctionInfo, BufferOperation[]>
     {
-        return this.callbackFunctionToOperations;
+        return this.asyncContextToOperations;
     }
 
     public is(otherBuffer: BufferLike): boolean

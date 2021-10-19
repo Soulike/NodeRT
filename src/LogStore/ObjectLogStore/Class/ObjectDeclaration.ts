@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {ObjectOperation} from './ObjectOperation';
 import assert from 'assert';
 import {isObject} from 'lodash';
@@ -11,23 +11,23 @@ import {StatisticsStore} from '../../StatisticsStore';
 export class ObjectDeclaration extends ResourceDeclaration
 {
     private readonly objectWeakRef: WeakRef<object>;
-    private readonly operations: Map<CallbackFunction, ObjectOperation[]>;
+    private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, ObjectOperation[]>;
 
     constructor(object: object)
     {
         super();
         assert.ok(isObject(object));
         this.objectWeakRef = new WeakRef(object);
-        this.operations = new Map();
+        this.asyncContextToOperations = new Map();
         StatisticsStore.addObjectCount();
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, objectOperation: ObjectOperation): void
+    public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, objectOperation: ObjectOperation): void
     {
-        const operations = this.operations.get(currentCallbackFunction);
+        const operations = this.asyncContextToOperations.get(currentCallbackFunction);
         if (operations === undefined)
         {
-            this.operations.set(currentCallbackFunction, [objectOperation]);
+            this.asyncContextToOperations.set(currentCallbackFunction, [objectOperation]);
         }
         else
         {
@@ -36,9 +36,9 @@ export class ObjectDeclaration extends ResourceDeclaration
         RaceDetector.emit('operationAppended', this);
     }
 
-    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, ObjectOperation[]>
+    public getAsyncContextToOperations(): ReadonlyMap<AsyncCalledFunctionInfo, ObjectOperation[]>
     {
-        return this.operations;
+        return this.asyncContextToOperations;
     }
 
     public is(other: unknown): boolean

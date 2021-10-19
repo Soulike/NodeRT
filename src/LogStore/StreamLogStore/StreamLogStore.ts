@@ -21,12 +21,12 @@ export class StreamLogStore
     public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
-        const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation(streamDeclaration);
+            asyncContext.setHasWriteOperation(streamDeclaration);
         }
-        streamDeclaration.appendOperation(callbackFunction,
+        streamDeclaration.appendOperation(asyncContext,
             new StreamOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 

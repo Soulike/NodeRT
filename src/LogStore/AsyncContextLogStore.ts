@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {CallbackFunction} from './Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from './Class/AsyncCalledFunctionInfo';
 
 /**
  * Global shared static class that logs callback function context information.
@@ -9,20 +9,20 @@ import {CallbackFunction} from './Class/CallbackFunction';
  * */
 export class AsyncContextLogStore
 {
-    private static readonly asyncIdToFunctionCall: Map<number, CallbackFunction> = new Map([
-        [CallbackFunction.UNKNOWN_ASYNC_ID, CallbackFunction.UNKNOWN],
-        [CallbackFunction.GLOBAL_ASYNC_ID, CallbackFunction.GLOBAL],
+    private static readonly asyncIdToAsyncCalledFunctionInfo: Map<number, AsyncCalledFunctionInfo> = new Map([
+        [AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID, AsyncCalledFunctionInfo.UNKNOWN],
+        [AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, AsyncCalledFunctionInfo.GLOBAL],
     ]);
 
-    public static setAsyncIdToFunctionCall(asyncId: number, functionCall: CallbackFunction)
+    public static setAsyncIdToAsyncContext(asyncId: number, asyncCalledFunctionInfo: AsyncCalledFunctionInfo)
     {
-        AsyncContextLogStore.asyncIdToFunctionCall.set(asyncId, functionCall);
+        AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.set(asyncId, asyncCalledFunctionInfo);
     }
 
-    public static getFunctionCallFromAsyncId(asyncId: number): CallbackFunction
+    public static getAsyncContextFromAsyncId(asyncId: number): AsyncCalledFunctionInfo
     {
-        const callbackFunction = AsyncContextLogStore.asyncIdToFunctionCall.get(asyncId);
-        assert.ok(callbackFunction !== undefined);
-        return callbackFunction;
+        const asyncContext = AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.get(asyncId);
+        assert.ok(asyncContext !== undefined);
+        return asyncContext;
     }
 }

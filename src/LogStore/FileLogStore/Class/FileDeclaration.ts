@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {FileOperation} from './FileOperation';
 import {RaceDetector} from '../../../RaceDetector';
 import {StatisticsStore} from '../../StatisticsStore';
@@ -9,22 +9,22 @@ import {StatisticsStore} from '../../StatisticsStore';
 export class FileDeclaration extends ResourceDeclaration
 {
     private readonly filePath: string;
-    private readonly callbackFunctionToOperations: Map<CallbackFunction, FileOperation[]>;
+    private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, FileOperation[]>;
 
     constructor(filePath: string)
     {
         super();
         this.filePath = filePath;
-        this.callbackFunctionToOperations = new Map();
+        this.asyncContextToOperations = new Map();
         StatisticsStore.addFileCount();
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, fileOperation: FileOperation): void
+    public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, fileOperation: FileOperation): void
     {
-        const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        const operations = this.asyncContextToOperations.get(currentCallbackFunction);
         if (operations === undefined)
         {
-            this.callbackFunctionToOperations.set(currentCallbackFunction, [fileOperation]);
+            this.asyncContextToOperations.set(currentCallbackFunction, [fileOperation]);
         }
         else
         {
@@ -33,9 +33,9 @@ export class FileDeclaration extends ResourceDeclaration
         RaceDetector.emit('operationAppended', this);
     }
 
-    public override getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, FileOperation[]>
+    public override getAsyncContextToOperations(): ReadonlyMap<AsyncCalledFunctionInfo, FileOperation[]>
     {
-        return this.callbackFunctionToOperations;
+        return this.asyncContextToOperations;
     }
 
     public getFilePath()

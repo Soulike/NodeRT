@@ -23,7 +23,7 @@ export class Filter
         // Check if the operations read/write on the same fields
         if (resourceDeclaration instanceof ObjectDeclaration)
         {
-            const callbackToOperations = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
+            const callbackToOperations = Array.from(resourceDeclaration.getAsyncContextToOperations());
 
             const atomicPair = [
                 callbackToOperations[atomicOperationsPairIndexes[0]],
@@ -122,7 +122,7 @@ export class Filter
             violatingOperationIndex,
         } = violationInfo;
 
-        const callbackToOperations = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
+        const callbackToOperations = Array.from(resourceDeclaration.getAsyncContextToOperations());
 
         const [callback1, callback2] = [
             callbackToOperations[atomicOperationsPairIndexes[0]]![0].functionWeakRef,

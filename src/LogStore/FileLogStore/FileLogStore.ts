@@ -62,14 +62,14 @@ export class FileLogStore
     public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const fileDeclaration = FileLogStore.getFileDeclaration(filePath);
-        const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation(fileDeclaration);
+            asyncContext.setHasWriteOperation(fileDeclaration);
         }
         if (fileDeclaration !== undefined)
         {
-            fileDeclaration.appendOperation(callbackFunction,
+            fileDeclaration.appendOperation(asyncContext,
                 new FileOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
         }
     }

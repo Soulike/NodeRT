@@ -3,7 +3,7 @@
 import {PrimitiveOperation} from './PrimitiveOperation';
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {Scope} from './Scope';
-import {CallbackFunction} from '../../Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {isFunction} from 'lodash';
 import {RaceDetector} from '../../../RaceDetector';
 import {StatisticsStore} from '../../StatisticsStore';
@@ -17,7 +17,7 @@ export class PrimitiveDeclaration extends ResourceDeclaration
     /** used for finding correct function call */
     public readonly functionWhenDefinedWeakRef: WeakRef<Function> | null;
 
-    private readonly callbackFunctionToOperations: Map<CallbackFunction, PrimitiveOperation[]>;
+    private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
     private scope: Scope | null;    // null for pending ones
 
     constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, func: Function)
@@ -29,7 +29,7 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         this.name = name;
         this.typeWhenDefined = typeWhenDefined;
         this.scope = scope;
-        this.callbackFunctionToOperations = new Map();
+        this.asyncContextToOperations = new Map();
 
         if (typeWhenDefined === 'function' && isFunction(func))
         {
@@ -53,17 +53,17 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         this.scope = scope;
     }
 
-    public appendOperation(currentCallbackFunction: CallbackFunction, variableOperation: PrimitiveOperation): void
+    public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, variableOperation: PrimitiveOperation): void
     {
         const type = variableOperation.getType();
-        const operations = this.callbackFunctionToOperations.get(currentCallbackFunction);
+        const operations = this.asyncContextToOperations.get(currentCallbackFunction);
         if (type === 'write')
         {
             currentCallbackFunction.setHasWriteOperation(this);
         }
         if (operations === undefined)
         {
-            this.callbackFunctionToOperations.set(currentCallbackFunction, [variableOperation]);
+            this.asyncContextToOperations.set(currentCallbackFunction, [variableOperation]);
         }
         else
         {
@@ -72,14 +72,14 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         RaceDetector.emit('operationAppended', this);
     }
 
-    public getCallbackFunctionToOperations(): ReadonlyMap<CallbackFunction, PrimitiveOperation[]>
+    public getAsyncContextToOperations(): ReadonlyMap<AsyncCalledFunctionInfo, PrimitiveOperation[]>
     {
-        return this.callbackFunctionToOperations;
+        return this.asyncContextToOperations;
     }
 
-    public getOperations(): ReadonlyMap<CallbackFunction, PrimitiveOperation[]>
+    public getOperations(): ReadonlyMap<AsyncCalledFunctionInfo, PrimitiveOperation[]>
     {
-        return this.callbackFunctionToOperations;
+        return this.asyncContextToOperations;
     }
 
     public is(name: string): boolean

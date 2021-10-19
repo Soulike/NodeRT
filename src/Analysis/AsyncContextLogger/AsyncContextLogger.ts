@@ -2,7 +2,7 @@
 
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import async_hooks from 'async_hooks';
-import {CallbackFunction} from '../../LogStore/Class/CallbackFunction';
+import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {strict as assert} from 'assert';
 import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
@@ -66,23 +66,23 @@ export class AsyncContextLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                let triggerAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(triggerAsyncId);
+                let triggerAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(triggerAsyncId);
                 assert.ok(triggerAsyncFunction !== undefined);
 
                 // skip asyncIds without related function calls until global or unknown
                 while (triggerAsyncFunction.functionWeakRef === null
-                    && triggerAsyncFunction.asyncId !== CallbackFunction.GLOBAL_ASYNC_ID
-                    && triggerAsyncFunction.asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID)
+                && triggerAsyncFunction.asyncId !== AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID
+                && triggerAsyncFunction.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)
                 {
-                    triggerAsyncFunction = triggerAsyncFunction.asyncScope;    // won't be null, ensured by triggerAsyncFunction.asyncId !== ...
+                    triggerAsyncFunction = triggerAsyncFunction.asyncContext;    // won't be null, ensured by triggerAsyncFunction.asyncId !== ...
                     assert.ok(triggerAsyncFunction !== undefined && triggerAsyncFunction !== null);
                 }
 
-                const placeholderAsyncFunction: CallbackFunction | null | undefined = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncId);
+                const placeholderAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
                 // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                placeholderAsyncFunction.resetAll(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.type, triggerAsyncFunction, sourceCodeInfo);
+                placeholderAsyncFunction.setInfo(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;
@@ -98,16 +98,16 @@ export class AsyncContextLogger extends Analysis
     {
         const startTimestamp = Date.now();
 
-        let triggerAsyncFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(triggerAsyncId);
+        let triggerAsyncFunction = AsyncContextLogStore.getAsyncContextFromAsyncId(triggerAsyncId);
         if (triggerAsyncFunction === undefined)
         {
             console.warn(`undefined triggerAsyncFunction with triggerAsyncId ${triggerAsyncId}`);
-            triggerAsyncFunction = CallbackFunction.UNKNOWN;
+            triggerAsyncFunction = AsyncCalledFunctionInfo.UNKNOWN;
         }
-        if (asyncId !== CallbackFunction.UNKNOWN_ASYNC_ID && asyncId !== CallbackFunction.GLOBAL_ASYNC_ID)
+        if (asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID && asyncId !== AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID)
         {
-            const placeholderAsyncFunction = new CallbackFunction(null, null, asyncId, type, triggerAsyncFunction, null);
-            AsyncContextLogStore.setAsyncIdToFunctionCall(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
+            const placeholderAsyncFunction = new AsyncCalledFunctionInfo(null, null, asyncId, type, triggerAsyncFunction, null);
+            AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
 
         this.timeConsumed += (Date.now() - startTimestamp);

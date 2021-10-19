@@ -5,14 +5,14 @@ import {SourceCodeInfo} from './SourceCodeInfo';
 export abstract class ResourceOperation
 {
     private readonly type: 'read' | 'write';
-    private readonly sourceCodeScopeInfo: SourceCodeInfo;
+    private readonly scopeCodeInfo: SourceCodeInfo;
     private readonly stackTrace: string[] | null;
 
     protected constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         this.type = type;
         this.stackTrace = stackTrace;
-        this.sourceCodeScopeInfo = sourceCodeScopeInfo;
+        this.scopeCodeInfo = sourceCodeScopeInfo;
     }
 
     public getType()
@@ -20,9 +20,9 @@ export abstract class ResourceOperation
         return this.type;
     }
 
-    public getSourceCodeScopeInfo()
+    public getScopeCodeInfo()
     {
-        return this.sourceCodeScopeInfo;
+        return this.scopeCodeInfo;
     }
 
     public getStackTrace()

@@ -45,20 +45,20 @@ export class BufferLogStore
     public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
         const bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer);
-        const callbackFunction = AsyncContextLogStore.getFunctionCallFromAsyncId(asyncHooks.executionAsyncId());
+        const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
-            callbackFunction.setHasWriteOperation(bufferDeclaration);
+            asyncContext.setHasWriteOperation(bufferDeclaration);
         }
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
-            bufferDeclaration.appendOperation(callbackFunction,
+            bufferDeclaration.appendOperation(asyncContext,
                 new BufferOperation(type, parseErrorStackTrace(new Error().stack), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
-            bufferDeclaration.appendOperation(callbackFunction,
+            bufferDeclaration.appendOperation(asyncContext,
                 new BufferOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }

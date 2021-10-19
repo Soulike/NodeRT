@@ -54,18 +54,18 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
             atomicOperationsPairIndexes,
             violatingOperationIndex,
         } = violationInfo;
-        const callbackFunctionToOperationsArray = Array.from(resourceDeclaration.getCallbackFunctionToOperations());
+        const asyncContextToOperationsArray = Array.from(resourceDeclaration.getAsyncContextToOperations());
         const modifiedResourceDeclaration: any = {...resourceDeclaration};
-        delete modifiedResourceDeclaration.callbackFunctionToOperations;
+        delete modifiedResourceDeclaration.asyncContextToOperations;
         delete modifiedResourceDeclaration.operations;
 
         const output = {
             resource: modifiedResourceDeclaration,
             atomicPair: [
-                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[0]],
-                callbackFunctionToOperationsArray[atomicOperationsPairIndexes[1]],
+                asyncContextToOperationsArray[atomicOperationsPairIndexes[0]],
+                asyncContextToOperationsArray[atomicOperationsPairIndexes[1]],
             ],
-            violator: callbackFunctionToOperationsArray[violatingOperationIndex],
+            violator: asyncContextToOperationsArray[violatingOperationIndex],
         };
 
         outputs.push(output);
