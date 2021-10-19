@@ -19,7 +19,10 @@ export class AsyncCalledFunctionInfo
     public codeInfo: SourceCodeInfo | null;
 
     /** Whether the callback function does any writing operation on certain resource*/
-    private hasWriteOperationResourcesSet: Set<ResourceDeclaration>;
+    private hasWriteOperationOnResourcesSet: Set<ResourceDeclaration>;
+
+    /** Lazy calculation for getAsyncContextChainAsyncIds() */
+    private asyncContextChainAsyncIdsCache: Set<number> | undefined;
 
     constructor(func: Function | null, stackTrace: string[] | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null, codeInfo: SourceCodeInfo | null)
     {
@@ -30,7 +33,7 @@ export class AsyncCalledFunctionInfo
         this.asyncContext = asyncContext; // 被创建时所在的 scope
         this.codeInfo = codeInfo;   // 本 callback 是被什么地方的代码注册执行的
 
-        this.hasWriteOperationResourcesSet = new Set();
+        this.hasWriteOperationOnResourcesSet = new Set();
     }
 
     public setInfo(func: Function, stackTrace: string[] | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo)
@@ -45,20 +48,42 @@ export class AsyncCalledFunctionInfo
 
     public setHasWriteOperation(resourceDeclaration: ResourceDeclaration)
     {
-        this.hasWriteOperationResourcesSet.add(resourceDeclaration);
+        this.hasWriteOperationOnResourcesSet.add(resourceDeclaration);
     }
 
-    public getHasWriteOperation(resourceDeclaration: ResourceDeclaration): boolean
+    public getHasWriteOperationOn(resourceDeclaration: ResourceDeclaration): boolean
     {
-        return this.hasWriteOperationResourcesSet.has(resourceDeclaration);
+        return this.hasWriteOperationOnResourcesSet.has(resourceDeclaration);
     }
 
-    public toJSON(): Record<keyof this, any>
+    public toJSON(): Partial<this>
     {
         return {
             ...this,
             functionWeakRef: undefined,
-            hasWriteOperationResourcesSet: undefined,
+            hasWriteOperationOnResourcesSet: undefined,
+            asyncContextChainAsyncIdsCache: undefined,
         };
+    }
+
+    /** get all asyncIds on the async context chain */
+    public getAsyncContextChainAsyncIds(): Set<number>
+    {
+        if (this.asyncContextChainAsyncIdsCache)
+        {
+            return this.asyncContextChainAsyncIdsCache;
+        }
+        else
+        {
+            const asyncContextChainAsyncIdsCache = new Set<number>();
+            let currentAsyncContext: AsyncCalledFunctionInfo | null = this;
+            while (currentAsyncContext !== null)    // get the async id chain
+            {
+                asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
+                currentAsyncContext = currentAsyncContext.asyncContext;
+            }
+            this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
+            return asyncContextChainAsyncIdsCache;
+        }
     }
 }
