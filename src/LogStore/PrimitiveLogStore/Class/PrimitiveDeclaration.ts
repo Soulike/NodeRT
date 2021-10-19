@@ -4,53 +4,31 @@ import {PrimitiveOperation} from './PrimitiveOperation';
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {Scope} from './Scope';
 import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {isFunction} from 'lodash';
 import {RaceDetector} from '../../../RaceDetector';
-import {StatisticsStore} from '../../StatisticsStore';
+import {PrimitiveInfo} from './PrimitiveInfo';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
-    public readonly iid: number;
-    public readonly name: string;
-    public readonly typeWhenDefined: 'function' | 'var';
-
-    /** used for finding correct function call */
-    public readonly functionWhenDefinedWeakRef: WeakRef<Function> | null;
-
+    private readonly primitiveInfo: PrimitiveInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
-    private scope: Scope | null;    // null for pending ones
 
     constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, func: Function)
     constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null)
     constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, func?: Function)
     {
         super();
-        this.iid = iid;
-        this.name = name;
-        this.typeWhenDefined = typeWhenDefined;
-        this.scope = scope;
+        this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, func);
         this.asyncContextToOperations = new Map();
-
-        if (typeWhenDefined === 'function' && isFunction(func))
-        {
-            this.functionWhenDefinedWeakRef = new WeakRef(func);
-        }
-        else
-        {
-            this.functionWhenDefinedWeakRef = null;
-        }
-
-        StatisticsStore.addPrimitiveCount();
     }
 
     public getScope()
     {
-        return this.scope;
+        return this.primitiveInfo.getScope();
     }
 
     public setScope(scope: Scope)
     {
-        this.scope = scope;
+        this.primitiveInfo.setScope(scope);
     }
 
     public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, variableOperation: PrimitiveOperation): void
@@ -84,6 +62,11 @@ export class PrimitiveDeclaration extends ResourceDeclaration
 
     public is(name: string): boolean
     {
-        return name === this.name;
+        return this.primitiveInfo.is(name);
+    }
+
+    public getResourceInfo(): PrimitiveInfo
+    {
+        return this.primitiveInfo;
     }
 }

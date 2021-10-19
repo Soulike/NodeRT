@@ -115,7 +115,7 @@ export class PrimitiveOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const newScope = new Scope('function', functionDeclaration.name, functionDeclaration.getScope(), [], sourceCodeInfo);
+                const newScope = new Scope('function', functionDeclaration.getResourceInfo().getName(), functionDeclaration.getScope(), [], sourceCodeInfo);
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(newScope);
                 PrimitiveLogStore.getScopeStack().push(newScope);
             }
@@ -218,7 +218,7 @@ export class PrimitiveOperationLogger extends Analysis
                 for (let i = pendingPrimitiveDeclarations.length - 1; i >= 0; i--)
                 {
                     const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
-                    if (pendingDeclaration.name === name)
+                    if (pendingDeclaration.getResourceInfo().getName() === name)
                     {
                         pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, parseErrorStackTrace(new Error().stack), sourceCodeInfo));
                         found = true;

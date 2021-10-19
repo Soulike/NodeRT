@@ -5,21 +5,19 @@ import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
-import util from 'util';
 import {RaceDetector} from '../../../RaceDetector';
-import {StatisticsStore} from '../../StatisticsStore';
+import {BufferInfo} from './BufferInfo';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
-    private readonly bufferWeakRef: WeakRef<ArrayBufferLike>;
+    private readonly bufferInfo: BufferInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, BufferOperation[]>;
 
     constructor(buffer: ArrayBufferLike)
     {
         super();
-        this.bufferWeakRef = new WeakRef(buffer);
+        this.bufferInfo = new BufferInfo(buffer);
         this.asyncContextToOperations = new Map();
-        StatisticsStore.addBufferCount();
     }
 
     public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, bufferOperation: BufferOperation): void
@@ -43,18 +41,11 @@ export class BufferDeclaration extends ResourceDeclaration
 
     public is(otherBuffer: BufferLike): boolean
     {
-        if (util.types.isAnyArrayBuffer(otherBuffer))
-        {
-            return this.bufferWeakRef.deref() === otherBuffer;
-        }
-        else
-        {
-            return this.bufferWeakRef.deref() === otherBuffer.buffer;
-        }
+        return this.bufferInfo.is(otherBuffer);
     }
 
-    public toJSON()
+    getResourceInfo(): BufferInfo
     {
-        return {...this, bufferWeakRef: '<Buffer>'};
+        return this.bufferInfo;
     }
 }

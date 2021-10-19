@@ -6,19 +6,18 @@ import {SocketOperation} from './SocketOperation';
 import dgram from 'dgram';
 import net from 'net';
 import {RaceDetector} from '../../../RaceDetector';
-import {StatisticsStore} from '../../StatisticsStore';
+import {SocketInfo} from './SocketInfo';
 
 export class SocketDeclaration extends ResourceDeclaration
 {
-    private readonly socketWeakRef: WeakRef<dgram.Socket | net.Socket>;
+    private readonly socketInfo: SocketInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, SocketOperation[]>;
 
     constructor(socket: dgram.Socket | net.Socket)
     {
         super();
-        this.socketWeakRef = new WeakRef(socket);
+        this.socketInfo = new SocketInfo(socket);
         this.asyncContextToOperations = new Map();
-        StatisticsStore.addSocketCount();
     }
 
     public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, socketOperation: SocketOperation): void
@@ -42,14 +41,11 @@ export class SocketDeclaration extends ResourceDeclaration
 
     public is(other: unknown): boolean
     {
-        return this.socketWeakRef.deref() === other;
+        return this.socketInfo.is(other);
     }
 
-    public toJSON()
+    public override getResourceInfo(): SocketInfo
     {
-        return {
-            ...this,
-            socketWeakRef: '<Socket>',
-        };
+        return this.socketInfo;
     }
 }

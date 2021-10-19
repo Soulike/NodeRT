@@ -5,19 +5,23 @@ import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
 import {RaceDetector} from '../../../RaceDetector';
-import {StatisticsStore} from '../../StatisticsStore';
+import {StreamInfo} from './StreamInfo';
 
 export class StreamDeclaration extends ResourceDeclaration
 {
-    private readonly streamWeakRef: WeakRef<Readable | Writable>;
+    private readonly streamInfo: StreamInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, StreamOperation[]>;
 
     constructor(stream: Readable | Writable)
     {
         super();
-        this.streamWeakRef = new WeakRef(stream);
+        this.streamInfo = new StreamInfo(stream);
         this.asyncContextToOperations = new Map();
-        StatisticsStore.addStreamCount();
+    }
+
+    public override getResourceInfo(): StreamInfo
+    {
+        return this.streamInfo;
     }
 
     public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, streamOperation: StreamOperation): void
@@ -41,14 +45,6 @@ export class StreamDeclaration extends ResourceDeclaration
 
     public is(other: unknown): boolean
     {
-        return this.streamWeakRef.deref() === other;
-    }
-
-    public toJSON()
-    {
-        return {
-            ...this,
-            streamWeakRef: '<Stream>',
-        };
+        return this.streamInfo.is(other);
     }
 }

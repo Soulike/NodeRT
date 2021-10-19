@@ -30,7 +30,7 @@ export class Scope
     {
         for (let i = this.declarations.length - 1; i >= 0; i--)
         {
-            if (this.declarations[i]!.name === name)
+            if (this.declarations[i]!.getResourceInfo().getName() === name)
             {
                 return this.declarations[i]!;
             }
@@ -49,7 +49,7 @@ export class Scope
     {
         for (const declaration of this.declarations)
         {
-            if (declaration.iid === iid)
+            if (declaration.getResourceInfo().getIid() === iid)
             {
                 return declaration;
             }
@@ -68,7 +68,7 @@ export class Scope
     {
         return {
             ...this,
-            declarations: '[declarations]',
+            declarations: undefined,
         };
     }
 }

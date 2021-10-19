@@ -48,9 +48,13 @@ export class PrimitiveLogStore
     public static findFunctionDeclarationFromPrimitiveDeclarations(func: Function): PrimitiveDeclaration | null
     {
         const functionDeclaration = PrimitiveLogStore.primitiveDeclarations
-            .find(declaration => declaration.typeWhenDefined === 'function'
-                && declaration.functionWhenDefinedWeakRef !== null
-                && declaration.functionWhenDefinedWeakRef.deref() === func);
+            .find(declaration =>
+            {
+                const functionWhenDefinedWeakRef = declaration.getResourceInfo().getFunctionWhenDefinedWeakRef();
+                return declaration.getResourceInfo().getTypeWhenDefined() === 'function'
+                    && functionWhenDefinedWeakRef !== null
+                    && functionWhenDefinedWeakRef.deref() === func;
+            });
         return functionDeclaration === undefined ? null : functionDeclaration;
     }
 }

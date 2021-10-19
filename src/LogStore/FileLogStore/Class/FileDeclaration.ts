@@ -4,19 +4,23 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {FileOperation} from './FileOperation';
 import {RaceDetector} from '../../../RaceDetector';
-import {StatisticsStore} from '../../StatisticsStore';
+import {FileInfo} from './FileInfo';
 
 export class FileDeclaration extends ResourceDeclaration
 {
-    private readonly filePath: string;
+    private readonly fileInfo: FileInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, FileOperation[]>;
 
     constructor(filePath: string)
     {
         super();
-        this.filePath = filePath;
+        this.fileInfo = new FileInfo(filePath);
         this.asyncContextToOperations = new Map();
-        StatisticsStore.addFileCount();
+    }
+
+    public override getResourceInfo(): FileInfo
+    {
+        return this.fileInfo;
     }
 
     public appendOperation(currentCallbackFunction: AsyncCalledFunctionInfo, fileOperation: FileOperation): void
@@ -38,13 +42,8 @@ export class FileDeclaration extends ResourceDeclaration
         return this.asyncContextToOperations;
     }
 
-    public getFilePath()
-    {
-        return this.filePath;
-    }
-
     public is(filePath: string): boolean
     {
-        return this.filePath === filePath;
+        return this.fileInfo.is(filePath);
     }
 }
