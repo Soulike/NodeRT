@@ -36,8 +36,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                         SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                     }
                 }
-                else if (f === OutgoingMessage.prototype.write
-                    || f === OutgoingMessage.prototype.end)
+                else if (f === OutgoingMessage.prototype.write)
                 {
                     const socket = base.socket;
                     if(socket !== null)
@@ -45,8 +44,22 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                         SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
                     }
 
-                    const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write
-                        | typeof OutgoingMessage.prototype.end>;
+                    const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write>;
+                    if (isBufferLike(chunk))
+                    {
+                        BufferLogStore.appendBufferOperation(chunk, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                }
+                else if (f === OutgoingMessage.prototype.end)
+                {
+                    const socket = base.socket;
+                    if (socket !== null)
+                    {
+                        SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    }
+
+                    const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.end>;
                     if (isBufferLike(chunk))
                     {
                         BufferLogStore.appendBufferOperation(chunk, 'read',

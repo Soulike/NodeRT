@@ -36,13 +36,23 @@ export class StreamOperationLogger extends Analysis
                 {
                     StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
                 }
-                else if (f === Writable.prototype.end
-                    || f === Writable.prototype.write)
+                else if (f === Writable.prototype.write)
                 {
-                    const [chunk] = args as Parameters<typeof Writable.prototype.end | typeof Writable.prototype.write>;
+                    StreamLogStore.appendStreamOperation(base, 'read', this.getSandbox(), iid);
+                    const [chunk] = args as Parameters<typeof Writable.prototype.write>;
                     if (isBufferLike(chunk))
                     {
                         BufferLogStore.appendBufferOperation(chunk, 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                }
+                else if (f === Writable.prototype.end)
+                {
+                    StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
+                    const [chunk] = args as Parameters<typeof Writable.prototype.end>;
+                    if (isBufferLike(chunk))
+                    {
+                        BufferLogStore.appendBufferOperation(chunk, 'write',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }
@@ -51,6 +61,7 @@ export class StreamOperationLogger extends Analysis
                     assert.ok(base instanceof Readable);
                     const [destination] = args;
                     assert.ok(destination instanceof Writable);
+                    StreamLogStore.appendStreamOperation(base, 'read', this.getSandbox(), iid);
                     StreamLogStore.appendStreamOperation(destination, 'write', this.getSandbox(), iid);
                 }
                 else if (f === Readable.prototype.read)

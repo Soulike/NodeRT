@@ -70,11 +70,20 @@ export class NetOperationLogger extends Analysis
                     const socket = base;
                     SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                 }
-                else if (f === net.Socket.prototype.end
-                    || f === net.Socket.prototype.write)
+                else if (f === net.Socket.prototype.write)
                 {
                     const socket = base;
                     SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+                    if (isBufferLike(args[0]))
+                    {
+                        BufferLogStore.appendBufferOperation(args[0], 'read',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                }
+                else if (f === net.Socket.prototype.end)
+                {
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read',
