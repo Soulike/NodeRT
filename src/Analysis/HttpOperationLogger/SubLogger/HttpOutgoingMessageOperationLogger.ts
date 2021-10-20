@@ -5,6 +5,7 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
     public invokeFunPre: Hooks['invokeFunPre'] | undefined;
@@ -33,7 +34,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const socket = base.socket;
                     if (socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                        SocketLogStore.appendSocketOperation(socket, 'write', 'destroy', this.getSandbox(), iid);
                     }
                 }
                 else if (f === OutgoingMessage.prototype.write)
@@ -41,7 +42,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const socket = base.socket;
                     if(socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+                        SocketLogStore.appendSocketOperation(socket, 'read', 'write', this.getSandbox(), iid);
                     }
 
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write>;
@@ -56,7 +57,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const socket = base.socket;
                     if (socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                        SocketLogStore.appendSocketOperation(socket, 'write', 'end', this.getSandbox(), iid);
                     }
 
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.end>;

@@ -37,21 +37,24 @@ export class DgramOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(msg, 'write',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
-                SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
             }
             else if (base instanceof dgram.Socket)
             {
                 // change the internal state of the socket, seen as write operation
                 if (f === dgram.Socket.prototype.bind
-                    || f === dgram.Socket.prototype.close
-                    || f === dgram.Socket.prototype.connect
+                    || f === dgram.Socket.prototype.connect)
+                {
+                    SocketLogStore.appendSocketOperation(base, 'write', 'construct', this.getSandbox(), iid);
+                }
+                if (f === dgram.Socket.prototype.close
                     || f === dgram.Socket.prototype.disconnect)
                 {
-                    SocketLogStore.appendSocketOperation(base, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(base, 'write', 'destroy', this.getSandbox(), iid);
                 }
                 else if (f === dgram.Socket.prototype.send)
                 {
-                    SocketLogStore.appendSocketOperation(base, 'read', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(base, 'read', 'write', this.getSandbox(), iid);
                     const [msg] = args as Parameters<typeof dgram.Socket.prototype.send>;
                     if (isBufferLike(msg))
                     {

@@ -33,7 +33,7 @@ export class HttpIncomingMessageOperationLogger extends Analysis
                     const socket = base.socket;
                     if (socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                        SocketLogStore.appendSocketOperation(socket, 'write', 'destroy', this.getSandbox(), iid);
                     }
                 }
             }

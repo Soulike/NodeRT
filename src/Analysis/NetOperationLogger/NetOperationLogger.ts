@@ -34,7 +34,7 @@ export class NetOperationLogger extends Analysis
 
                 server.on('connection', (socket) =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
@@ -50,7 +50,7 @@ export class NetOperationLogger extends Analysis
                 || f === net.Socket)
             {
                 const socket = result as ReturnType<typeof net.createConnection>;
-                SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
                 socket.on('data', (data) =>
                 {
                     if (isBufferLike(data))
@@ -62,18 +62,30 @@ export class NetOperationLogger extends Analysis
             }
             else if (base instanceof net.Socket)
             {
-                if (f === net.Socket.prototype.connect
-                    || f === net.Socket.prototype.pause
-                    || f === net.Socket.prototype.resume
-                    || f === net.Socket.prototype.destroy)
+                if (f === net.Socket.prototype.connect)
                 {
                     const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
+                }
+                else if (f === net.Socket.prototype.pause)
+                {
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'pause', this.getSandbox(), iid);
+                }
+                else if (f === net.Socket.prototype.resume)
+                {
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'resume', this.getSandbox(), iid);
+                }
+                else if (f === net.Socket.prototype.destroy)
+                {
+                    const socket = base;
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'destroy', this.getSandbox(), iid);
                 }
                 else if (f === net.Socket.prototype.write)
                 {
                     const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'read', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'read', 'write', this.getSandbox(), iid);
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read',
@@ -83,7 +95,7 @@ export class NetOperationLogger extends Analysis
                 else if (f === net.Socket.prototype.end)
                 {
                     const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'end', this.getSandbox(), iid);
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read',

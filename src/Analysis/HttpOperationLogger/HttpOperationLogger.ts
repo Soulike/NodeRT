@@ -39,7 +39,7 @@ export class HttpOperationLogger extends Analysis
 
                 clientRequest.on('socket', socket =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
@@ -56,7 +56,7 @@ export class HttpOperationLogger extends Analysis
 
                 server.on('connection', socket =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, 'write', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
