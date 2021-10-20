@@ -20,6 +20,10 @@ export class SocketLogStore
         return SocketLogStore.socketDeclarations;
     }
 
+    /** 
+     * If an action changes the internal state of the socket (e.g. destroy(), end()), we say that the action does a 'write' operation.
+     * If an action uses the socket (e.g. write()), we say that the action does a 'read' operation
+    */
     public static appendSocketOperation(socket: dgram.Socket | net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
         const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, sandbox, iid);
