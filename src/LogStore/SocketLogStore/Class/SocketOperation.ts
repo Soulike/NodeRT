@@ -6,7 +6,7 @@ import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketOperation extends ResourceOperation
 {
-    private readonly operationKind: 'construct' | 'destroy' | 'pause' | 'resume' | 'write' | 'end';
+    private readonly operationKind: 'construct' | 'destroy' | 'write' | 'end';
 
     constructor(type: 'read' | 'write', operationKind: SocketOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {

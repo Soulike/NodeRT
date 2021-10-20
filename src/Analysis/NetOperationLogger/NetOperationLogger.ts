@@ -67,16 +67,6 @@ export class NetOperationLogger extends Analysis
                     const socket = base;
                     SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
                 }
-                else if (f === net.Socket.prototype.pause)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'pause', this.getSandbox(), iid);
-                }
-                else if (f === net.Socket.prototype.resume)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'resume', this.getSandbox(), iid);
-                }
                 else if (f === net.Socket.prototype.destroy)
                 {
                     const socket = base;
