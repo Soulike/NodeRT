@@ -1,14 +1,16 @@
 // DO NOT INSTRUMENT
 
-import {OutgoingMessage} from 'http';
+import {ClientRequest, OutgoingMessage, ServerResponse} from 'http';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {OutgoingMessageLogStore} from '../../../LogStore/OutgoingMessageLogStore';
+import assert from 'assert';
 
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
-    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
+    public invokeFun: Hooks['invokeFun'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
     private timeConsumed: number;
@@ -23,14 +25,21 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFunPre = (iid, f, base, args) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             const startTimestamp = Date.now();
-
-            if (base instanceof OutgoingMessage)
+            if (f === ClientRequest || f === ServerResponse)
+            {
+                assert.ok(result instanceof OutgoingMessage);
+                OutgoingMessageLogStore.appendOutgoingMessageOperation(result, 'write', 'construct',
+                    this.getSandbox(), iid);
+            }
+            else if (base instanceof OutgoingMessage)
             {
                 if (f === OutgoingMessage.prototype.destroy)
                 {
+                    OutgoingMessageLogStore.appendOutgoingMessageOperation(base, 'write', 'destroy',
+                        this.getSandbox(), iid);
                     const socket = base.socket;
                     if (socket !== null)
                     {
@@ -39,8 +48,10 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                 }
                 else if (f === OutgoingMessage.prototype.write)
                 {
+                    OutgoingMessageLogStore.appendOutgoingMessageOperation(base, 'read', 'write',
+                        this.getSandbox(), iid);
                     const socket = base.socket;
-                    if(socket !== null)
+                    if (socket !== null)
                     {
                         SocketLogStore.appendSocketOperation(socket, 'read', 'write', this.getSandbox(), iid);
                     }
@@ -54,10 +65,13 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                 }
                 else if (f === OutgoingMessage.prototype.end)
                 {
+                    OutgoingMessageLogStore.appendOutgoingMessageOperation(base, 'write', 'end',
+                        this.getSandbox(), iid);
                     const socket = base.socket;
                     if (socket !== null)
                     {
-                        SocketLogStore.appendSocketOperation(socket, 'write', 'end', this.getSandbox(), iid);
+                        // socket may not does 'end()'
+                        SocketLogStore.appendSocketOperation(socket, 'read', 'write', this.getSandbox(), iid);
                     }
 
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.end>;

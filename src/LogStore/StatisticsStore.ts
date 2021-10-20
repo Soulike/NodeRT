@@ -1,13 +1,14 @@
 export class StatisticsStore
 {
     private static eventCount = 0;
-    
+
     private static bufferCount = 0;
     private static fileCount = 0;
     private static objectCount = 0;
     private static primitiveCount = 0;
     private static socketCount = 0;
     private static streamCount = 0;
+    private static outgoingMessageCount = 0;
 
     private static bufferOperationCount = 0;
     private static fileOperationCount = 0;
@@ -15,6 +16,7 @@ export class StatisticsStore
     private static primitiveOperationCount = 0;
     private static socketOperationCount = 0;
     private static streamOperationCount = 0;
+    private static outgoingMessageOperationCount = 0;
 
     public static getEventCount()
     {
@@ -28,7 +30,8 @@ export class StatisticsStore
             + StatisticsStore.objectCount
             + StatisticsStore.primitiveCount
             + StatisticsStore.socketCount
-            + StatisticsStore.streamCount;
+            + StatisticsStore.streamCount
+            + StatisticsStore.outgoingMessageCount;
     }
 
     public static getTotalResourceOperationCount()
@@ -38,7 +41,8 @@ export class StatisticsStore
             + StatisticsStore.objectOperationCount
             + StatisticsStore.primitiveOperationCount
             + StatisticsStore.socketOperationCount
-            + StatisticsStore.streamOperationCount;
+            + StatisticsStore.streamOperationCount
+            + StatisticsStore.outgoingMessageOperationCount;
     }
 
     public static addEventCount()
@@ -76,6 +80,11 @@ export class StatisticsStore
         StatisticsStore.streamCount++;
     }
 
+    public static addOutgoingMessageCount()
+    {
+        StatisticsStore.outgoingMessageCount++;
+    }
+
     public static addBufferOperationCount()
     {
         StatisticsStore.bufferOperationCount++;
@@ -104,5 +113,10 @@ export class StatisticsStore
     public static addStreamOperationCount()
     {
         StatisticsStore.streamOperationCount++;
+    }
+
+    public static addOutgoingMessageOperationCount()
+    {
+        StatisticsStore.outgoingMessageOperationCount++;
     }
 }

@@ -7,6 +7,8 @@ import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {ObjectInfo} from '../LogStore/ObjectLogStore/Class/ObjectInfo';
 import {SocketInfo} from '../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../LogStore/SocketLogStore/Class/SocketOperation';
+import {OutgoingMessageInfo} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
+import {OutgoingMessageOperation} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
 
 export class Filter
 {
@@ -22,9 +24,9 @@ export class Filter
         {
             return Filter.changedSameFields(violationInfo);
         }
-        else if (resourceInfo instanceof SocketInfo)
+        else if (resourceInfo instanceof SocketInfo || resourceInfo instanceof OutgoingMessageInfo)
         {
-            return Filter.isSocketsViolationTP(violationInfo);
+            return Filter.isSocketOrOutgoingMessageViolationTP(violationInfo);
         }
         else
         {
@@ -121,15 +123,16 @@ export class Filter
         }
     }
 
-    private static isSocketsViolationTP(violationInfo: ViolationInfo): boolean
+    private static isSocketOrOutgoingMessageViolationTP(violationInfo: ViolationInfo): boolean
     {
         const {resourceInfo, atomicAsyncContextToOperations2} = violationInfo;
-        assert.ok(resourceInfo instanceof SocketInfo);
+        assert.ok(resourceInfo instanceof SocketInfo || resourceInfo instanceof OutgoingMessageInfo);
 
         const atomicAsyncContextToOperations2Operations = atomicAsyncContextToOperations2[1];
         const atomicAsyncContextToOperations2LastOperation =
             atomicAsyncContextToOperations2Operations[atomicAsyncContextToOperations2Operations.length - 1];
-        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof SocketOperation);
+        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof SocketOperation
+            || atomicAsyncContextToOperations2LastOperation instanceof OutgoingMessageOperation);
 
         return atomicAsyncContextToOperations2LastOperation.getOperationKind() !== 'destroy';
     }

@@ -9,6 +9,7 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Uti
 import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
 import {HttpIncomingMessageOperationLogger} from './SubLogger/HttpIncomingMessageOperationLogger';
 import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessageOperationLogger';
+import {OutgoingMessageLogStore} from '../../LogStore/OutgoingMessageLogStore';
 
 export class HttpOperationLogger extends Analysis
 {
@@ -36,6 +37,8 @@ export class HttpOperationLogger extends Analysis
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
                 StreamLogStore.appendStreamOperation(clientRequest, 'write', this.getSandbox(), iid);
+                OutgoingMessageLogStore.appendOutgoingMessageOperation(clientRequest, 'write', 'construct',
+                    this.getSandbox(), iid);
 
                 clientRequest.on('socket', socket =>
                 {
