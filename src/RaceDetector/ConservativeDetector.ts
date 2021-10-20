@@ -70,7 +70,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
 
         if (!Filter.hasReported(resourceDeclaration, violationInfo))
         {
-            if (Filter.changedSameFields(violationInfo))
+            if (Filter.isTruePositive(violationInfo))
             {
                 violationInfos.push(violationInfo);
                 Filter.addReported(resourceDeclaration, violationInfo);

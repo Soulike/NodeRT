@@ -5,15 +5,37 @@ import objectHash from 'object-hash';
 import assert from 'assert';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {ObjectInfo} from '../LogStore/ObjectLogStore/Class/ObjectInfo';
+import {SocketInfo} from '../LogStore/SocketLogStore/Class/SocketInfo';
+import {SocketOperation} from '../LogStore/SocketLogStore/Class/SocketOperation';
 
 export class Filter
 {
     private static readonly reportedViolation = new Map<ResourceDeclaration, Set<string>>();
 
+    public static isTruePositive(violationInfo: ViolationInfo): boolean
+    {
+        const {
+            resourceInfo,
+        } = violationInfo;
+
+        if (resourceInfo instanceof ObjectInfo)
+        {
+            return Filter.changedSameFields(violationInfo);
+        }
+        else if (resourceInfo instanceof SocketInfo)
+        {
+            return Filter.isSocketsViolationTP(violationInfo);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
     /**
      * Check if the operations of the ViolationInfo changed the same fields. Otherwise it's a FP
      */
-    public static changedSameFields(violationInfo: ViolationInfo): boolean
+    private static changedSameFields(violationInfo: ViolationInfo): boolean
     {
         const {
             resourceInfo,
@@ -21,88 +43,95 @@ export class Filter
             violatingAsyncContextToOperations,
         } = violationInfo;
 
+        assert.ok(resourceInfo instanceof ObjectInfo);
         // Check if the operations read/write on the same fields
-        if (resourceInfo instanceof ObjectInfo)
+        const atomicPairOperations = [
+            atomicAsyncContextToOperations1[1], atomicAsyncContextToOperations2[1],
+        ] as [ObjectOperation[], ObjectOperation[]];
+        const violatorOperations = violatingAsyncContextToOperations[1] as ObjectOperation[];
+
+        let atomicPair1OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any>();
+        for (const {field} of atomicPairOperations[0]!)
         {
-            const atomicPairOperations = [
-                atomicAsyncContextToOperations1[1], atomicAsyncContextToOperations2[1],
-            ] as [ObjectOperation[], ObjectOperation[]];
-            const violatorOperations = violatingAsyncContextToOperations[1] as ObjectOperation[];
-
-            let atomicPair1OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any>();
-            for (const {field} of atomicPairOperations[0]!)
+            if (field === null) // null means all fields may be read/written
             {
-                if (field === null) // null means all fields may be read/written
-                {
-                    atomicPair1OperationFieldsSet = null;   // null means all fields
-                    break;
-                }
-                atomicPair1OperationFieldsSet.add(field);
+                atomicPair1OperationFieldsSet = null;   // null means all fields
+                break;
             }
-
-            let atomicPair2OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
-            for (const {field} of atomicPairOperations[1]!)
-            {
-                if (field === null) // null means all fields may be read/written
-                {
-                    atomicPair2OperationFieldsSet = null;   // null means all fields
-                    break;
-                }
-                atomicPair2OperationFieldsSet.add(field);
-            }
-
-            let atomicFieldsSet: EnhancedSet<any> | null = null;
-            if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet === null)
-            {
-                atomicFieldsSet = null;
-            }
-            else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet === null)
-            {
-                atomicFieldsSet = atomicPair1OperationFieldsSet;
-            }
-            else if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet !== null)
-            {
-                atomicFieldsSet = atomicPair2OperationFieldsSet;
-            }
-            else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet !== null)
-            {
-                atomicFieldsSet = atomicPair1OperationFieldsSet.intersect(atomicPair2OperationFieldsSet);
-            }
-
-            if (atomicFieldsSet === null)   // all fields are atomic
-            {
-                return true;
-            }
-
-            let violatorOperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
-            for (let i = 0; i < violatorOperations.length; i++)
-            {
-                const violatorOperation = violatorOperations[i]!;
-                const {field} = violatorOperation;
-                if (field === null) // null means all fields may be read/written
-                {
-                    violatorOperationFieldsSet = null;   // null means all fields
-                    break;
-                }
-                if (violatorOperation.getType() === 'write')
-                {
-                    violatorOperationFieldsSet.add(field);
-                }
-            }
-
-            if (violatorOperationFieldsSet === null)
-            {
-                return true;
-            }
-            else
-            {
-                return atomicFieldsSet.intersect(violatorOperationFieldsSet).size !== 0;
-            }
+            atomicPair1OperationFieldsSet.add(field);
         }
-        else
+
+        let atomicPair2OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
+        for (const {field} of atomicPairOperations[1]!)
+        {
+            if (field === null) // null means all fields may be read/written
+            {
+                atomicPair2OperationFieldsSet = null;   // null means all fields
+                break;
+            }
+            atomicPair2OperationFieldsSet.add(field);
+        }
+
+        let atomicFieldsSet: EnhancedSet<any> | null = null;
+        if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet === null)
+        {
+            atomicFieldsSet = null;
+        }
+        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet === null)
+        {
+            atomicFieldsSet = atomicPair1OperationFieldsSet;
+        }
+        else if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet !== null)
+        {
+            atomicFieldsSet = atomicPair2OperationFieldsSet;
+        }
+        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet !== null)
+        {
+            atomicFieldsSet = atomicPair1OperationFieldsSet.intersect(atomicPair2OperationFieldsSet);
+        }
+
+        if (atomicFieldsSet === null)   // all fields are atomic
         {
             return true;
         }
+
+        let violatorOperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
+        for (let i = 0; i < violatorOperations.length; i++)
+        {
+            const violatorOperation = violatorOperations[i]!;
+            const {field} = violatorOperation;
+            if (field === null) // null means all fields may be read/written
+            {
+                violatorOperationFieldsSet = null;   // null means all fields
+                break;
+            }
+            if (violatorOperation.getType() === 'write')
+            {
+                violatorOperationFieldsSet.add(field);
+            }
+        }
+
+        if (violatorOperationFieldsSet === null)
+        {
+            return true;
+        }
+        else
+        {
+            return atomicFieldsSet.intersect(violatorOperationFieldsSet).size !== 0;
+        }
+    }
+
+    private static isSocketsViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {resourceInfo, atomicAsyncContextToOperations2} = violationInfo;
+        assert.ok(resourceInfo instanceof SocketInfo);
+
+        const atomicAsyncContextToOperations2Operations = atomicAsyncContextToOperations2[1];
+        const atomicAsyncContextToOperations2LastOperation =
+            atomicAsyncContextToOperations2Operations[atomicAsyncContextToOperations2Operations.length - 1];
+        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof SocketOperation);
+
+        return atomicAsyncContextToOperations2LastOperation.getOperationKind() !== 'destroy';
     }
 
     /**
