@@ -44,20 +44,17 @@ export class SetOperationLogger extends Analysis
                     || f === Set.prototype.values)
                 {
                     assert.ok(isObject(result));
-                    assert.ok(isObject(base));
                     IteratorLogStore.addIterator(result as Iterator<any>, base);
                 }
                 else if (f === Set.prototype.add
                     || f === Set.prototype.clear
                     || f === Set.prototype.delete)
                 {
-                    assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
                 }
                 else if (f === Set.prototype.forEach
                     || f === Set.prototype.has)
                 {
-                    assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
             }
