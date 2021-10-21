@@ -22,7 +22,7 @@ import {NetOperationLogger} from './NetOperationLogger';
 import {ObjectOperationLogger} from './ObjectOperationLogger';
 import {PrimitiveOperationLogger} from './PrimitiveOperationLogger';
 import {SetOperationLogger} from './SetOperationLogger';
-import {StringDecoderOperationLogger} from './StreamDecoderOperationLogger';
+import {StringDecoderOperationLogger} from './StringDecoderOperationLogger';
 import {StreamOperationLogger} from './StreamOperationLogger';
 import {ZlibOperationLogger} from './ZlibOperationLogger';
 import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLogStoreAnalysis';
