@@ -60,14 +60,22 @@ export function isPrimitive(value: unknown): boolean
     return !(Object(value) === value);
 }
 
-export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox)
+export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox): SourceCodeInfo
 {
-    const {name: fileName, loc} = sandbox.iidToSourceObject(iid);
-    return new SourceCodeInfo(fileName, new Range(
-        loc.start.line,
-        loc.start.column,
-        loc.end.line,
-        loc.end.column));
+    const sourceObject = sandbox.iidToSourceObject(iid);
+    if (!sourceObject)
+    {
+        return new SourceCodeInfo();
+    }
+    else
+    {
+        const {name: fileName, loc} = sourceObject;
+        return new SourceCodeInfo(fileName, new Range(
+            loc.start.line,
+            loc.start.column,
+            loc.end.line,
+            loc.end.column));
+    }
 }
 
 export function isBufferLike(other: any): other is BufferLike
@@ -86,7 +94,7 @@ export function isURL(other: unknown): other is URL
     return other instanceof URL;
 }
 
-export function outputSync(message: string | object, filePath:string)
+export function outputSync(message: string | object, filePath: string)
 {
     let output: string;
     if (isObject(message))

@@ -4,14 +4,16 @@ import {Range} from './Range';
 
 export class SourceCodeInfo
 {
-    public readonly file: string;
-    public readonly range: Readonly<Range>;
+    public readonly file?: string;
+    public readonly range?: Readonly<Range>;
 
+    constructor()
     /**
      * @param file - code file path
      * @param range
      * */
     constructor(file: string, range: Readonly<Range>)
+    constructor(file?: string, range?: Readonly<Range>)
     {
         this.file = file;
         this.range = Object.freeze(range);
