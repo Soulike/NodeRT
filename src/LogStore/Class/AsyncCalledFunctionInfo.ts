@@ -73,6 +73,14 @@ export class AsyncCalledFunctionInfo
         {
             return this.asyncContextChainAsyncIdsCache;
         }
+        else if (this.asyncType === 'TickObject')   // Treat TickObject as happens from nowhere
+        {
+            const asyncContextChainAsyncIdsCache = new Set<number>();
+            asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
+            asyncContextChainAsyncIdsCache.add(this.asyncId);
+            this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
+            return asyncContextChainAsyncIdsCache;
+        }
         else
         {
             const asyncContextChainAsyncIdsCache = new Set<number>();

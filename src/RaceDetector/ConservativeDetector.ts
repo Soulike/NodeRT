@@ -32,6 +32,7 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const asyncContext = asyncContextToOperations[i]![0];
         if (asyncContext.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
+            && asyncContext.asyncType !== 'TickObject'  // ignore TickObject
             && lastAsyncContextAsyncIds.has(asyncContext.asyncId)) // on the chain
         {
             atomicAsyncContextToOperations1Index = i;
