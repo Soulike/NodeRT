@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import async_hooks from 'async_hooks';
-import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {strict as assert} from 'assert';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
+import async_hooks from 'async_hooks';
 import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
+import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {StatisticsStore} from '../../LogStore/StatisticsStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 
 /**
  * Logging all callback function content information into `AsyncContextLogStore`.
@@ -35,8 +35,6 @@ export class AsyncContextLogger extends Analysis
             init: this.asyncHookInit,
             before: this.asyncHookBefore,
         }).enable();
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

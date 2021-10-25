@@ -12,15 +12,15 @@ import crypto, {
     KeyObject,
     Sign,
     Verify,
-    X509Certificate,
+    X509Certificate
 } from 'crypto';
 import {isFunction, isObject} from 'lodash';
+import {Readable, Transform, Writable} from 'stream';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
-import {Readable, Transform, Writable} from 'stream';
-import {StreamLogStore} from '../../LogStore/StreamLogStore';
 
 export class CryptoOperationLogger extends Analysis
 {
@@ -37,8 +37,6 @@ export class CryptoOperationLogger extends Analysis
         super(sandbox);
         this.timeConsumed = 0;
         this.callbackToRegisterFunction = new WeakMap();
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

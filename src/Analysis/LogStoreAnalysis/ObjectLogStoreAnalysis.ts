@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {outputSync, toJSON} from '../../Util';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 
 export class ObjectLogStoreAnalysis extends Analysis
 {
@@ -11,8 +11,6 @@ export class ObjectLogStoreAnalysis extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
-        this.registerHooks();
     }
 
     protected registerHooks(): void

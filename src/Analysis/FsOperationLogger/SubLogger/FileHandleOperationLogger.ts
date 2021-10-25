@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
-import {FileLogStore} from '../../../LogStore/FileLogStore';
-import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {FileHandle} from 'fs/promises';
+import {isObject} from 'lodash';
+import {BufferLogStore} from '../../../LogStore/BufferLogStore';
+import {FileLogStore} from '../../../LogStore/FileLogStore';
+import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {isObject} from 'lodash';
-import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
-import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 
 export class FileHandleOperationLogger extends Analysis
 {
@@ -21,8 +21,6 @@ export class FileHandleOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

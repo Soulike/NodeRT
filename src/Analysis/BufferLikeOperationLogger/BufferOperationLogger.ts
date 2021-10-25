@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import buffer from 'buffer';
 import {strict as assert} from 'assert';
+import buffer from 'buffer';
+import {isObject} from 'lodash';
+import util from 'util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isArrayAccess, isBufferLike, shouldBeVerbose} from '../../Util';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
-import util from 'util';
-import {isObject} from 'lodash';
-import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
 
 export class BufferOperationLogger extends Analysis
 {
@@ -79,8 +79,6 @@ export class BufferOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

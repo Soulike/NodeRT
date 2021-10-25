@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import util from 'util';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 
 export class ArrayBufferOperationLogger extends Analysis
@@ -17,8 +17,6 @@ export class ArrayBufferOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

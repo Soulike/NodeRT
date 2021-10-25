@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {strict as assert} from 'assert';
 import fs from 'fs';
-import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {isObject} from 'lodash';
+import {Readable, Writable} from 'stream';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
-import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
-import {Readable, Writable} from 'stream';
-import {strict as assert} from 'assert';
 import {StreamLogStore} from '../../../LogStore/StreamLogStore';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 
 export class FsSyncOperationLogger extends Analysis
 {
@@ -23,8 +23,6 @@ export class FsSyncOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

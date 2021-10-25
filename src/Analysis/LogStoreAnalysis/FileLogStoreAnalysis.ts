@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
+import {FileLogStore} from '../../LogStore/FileLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {outputSync, toJSON} from '../../Util';
-import {FileLogStore} from '../../LogStore/FileLogStore';
 
 export class FileLogStoreAnalysis extends Analysis
 {
@@ -11,8 +11,6 @@ export class FileLogStoreAnalysis extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
-        this.registerHooks();
     }
 
     protected registerHooks(): void

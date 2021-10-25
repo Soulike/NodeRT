@@ -23,8 +23,6 @@ export class ObjectOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

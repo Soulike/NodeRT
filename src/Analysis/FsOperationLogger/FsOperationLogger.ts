@@ -12,8 +12,6 @@ export class FsOperationLogger extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

@@ -20,7 +20,6 @@ export class NetOperationLogger extends Analysis
         this.timeConsumed = 0;
 
         this.doMonkeyPatch();
-        this.registerHooks();
     }
 
     protected override doMonkeyPatch()

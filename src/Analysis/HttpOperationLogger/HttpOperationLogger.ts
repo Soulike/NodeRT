@@ -2,6 +2,7 @@
 
 import http from 'http';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {OutgoingMessageLogStore} from '../../LogStore/OutgoingMessageLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
@@ -9,7 +10,6 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Uti
 import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
 import {HttpIncomingMessageOperationLogger} from './SubLogger/HttpIncomingMessageOperationLogger';
 import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessageOperationLogger';
-import {OutgoingMessageLogStore} from '../../LogStore/OutgoingMessageLogStore';
 
 export class HttpOperationLogger extends Analysis
 {
@@ -22,8 +22,6 @@ export class HttpOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 import util from 'util';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 
 export class DataViewOperationLogger extends Analysis
 {
@@ -36,8 +36,6 @@ export class DataViewOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected registerHooks(): void

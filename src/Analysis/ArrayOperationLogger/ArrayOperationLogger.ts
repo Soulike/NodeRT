@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {strict as assert} from 'assert';
 import {isObject} from 'lodash';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {IteratorLogStore} from '../../LogStore/IteratorLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {shouldBeVerbose} from '../../Util';
 
 /**Does not support spread expression now*/
@@ -18,8 +18,6 @@ export class ArrayOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

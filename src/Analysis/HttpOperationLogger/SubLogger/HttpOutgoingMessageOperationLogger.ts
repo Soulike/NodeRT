@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
+import assert from 'assert';
 import {ClientRequest, OutgoingMessage, ServerResponse} from 'http';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
+import {OutgoingMessageLogStore} from '../../../LogStore/OutgoingMessageLogStore';
 import {SocketLogStore} from '../../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
-import {OutgoingMessageLogStore} from '../../../LogStore/OutgoingMessageLogStore';
-import assert from 'assert';
 
 export class HttpOutgoingMessageOperationLogger extends Analysis
 {
@@ -19,8 +19,6 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

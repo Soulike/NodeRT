@@ -21,8 +21,6 @@ export class ZlibOperationLogger extends Analysis
         super(sandbox);
         this.timeConsumed = 0;
         this.pendingCallbacks = new WeakSet();
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

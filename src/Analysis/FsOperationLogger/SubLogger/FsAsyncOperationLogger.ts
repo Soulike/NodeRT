@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
-import {BufferLike} from '../../Type/BufferLike';
 import {strict as assert} from 'assert';
-import {FileLogStore} from '../../../LogStore/FileLogStore';
-import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
-import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
-import {BufferLogStore} from '../../../LogStore/BufferLogStore';
-import {isObject} from 'lodash';
 import fs from 'fs';
+import {isObject} from 'lodash';
+import {BufferLogStore} from '../../../LogStore/BufferLogStore';
+import {FileLogStore} from '../../../LogStore/FileLogStore';
+import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {BufferLike} from '../../Type/BufferLike';
+import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 
 export class FsAsyncOperationLogger extends Analysis
 {
@@ -24,11 +24,8 @@ export class FsAsyncOperationLogger extends Analysis
 
     constructor(sandbox: Sandbox)
     {
-        super(sandbox);
-        this.callbackToFilePathOrBuffer = new WeakMap();
+        super(sandbox);        this.callbackToFilePathOrBuffer = new WeakMap();
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

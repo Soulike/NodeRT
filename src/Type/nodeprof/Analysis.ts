@@ -9,6 +9,8 @@ export abstract class Analysis
     protected constructor(sandbox: Sandbox)
     {
         this.sandbox = sandbox;
+
+        this.registerHooks();
     }
 
     public getSandbox()

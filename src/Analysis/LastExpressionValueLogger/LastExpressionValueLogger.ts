@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {shouldBeVerbose} from '../../Util';
 
 export class LastExpressionValueLogger extends Analysis
@@ -15,8 +15,6 @@ export class LastExpressionValueLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

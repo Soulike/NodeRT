@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
+import {PrimitiveLogStore} from '../../LogStore/PrimitiveLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {outputSync, toJSON} from '../../Util';
-import {PrimitiveLogStore} from '../../LogStore/PrimitiveLogStore';
 
 export class PrimitiveLogStoreAnalysis extends Analysis
 {
@@ -11,8 +11,6 @@ export class PrimitiveLogStoreAnalysis extends Analysis
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
-
-        this.registerHooks();
     }
 
     protected registerHooks(): void

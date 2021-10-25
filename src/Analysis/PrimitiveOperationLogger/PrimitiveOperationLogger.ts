@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
-import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from '../../LogStore/PrimitiveLogStore';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {strict as assert} from 'assert';
-import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
-import {isFunction} from 'lodash';
-import asyncHooks from 'async_hooks';
 import {Queue} from '@datastructures-js/queue';
+import {strict as assert} from 'assert';
+import asyncHooks from 'async_hooks';
+import {isFunction} from 'lodash';
+import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
+import {PrimitiveDeclaration, PrimitiveLogStore, PrimitiveOperation, Scope} from '../../LogStore/PrimitiveLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
 
 export class PrimitiveOperationLogger extends Analysis
 {
@@ -31,8 +31,6 @@ export class PrimitiveOperationLogger extends Analysis
     {
         super(sandbox);
         this.awaitIidToScopeQueue = new Map();
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

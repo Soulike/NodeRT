@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import fsPromise from 'fs/promises';
-import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {isObject} from 'lodash';
+import {Readable, Writable} from 'stream';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
-import {isObject} from 'lodash';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
-import {Readable, Writable} from 'stream';
 import {StreamLogStore} from '../../../LogStore/StreamLogStore';
+import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 
 export class FsPromisesOperationLogger extends Analysis
 {
@@ -22,8 +22,6 @@ export class FsPromisesOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks()

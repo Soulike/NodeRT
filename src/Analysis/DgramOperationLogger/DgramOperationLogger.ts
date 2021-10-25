@@ -1,12 +1,12 @@
 // DO NOT INSTRUMENT
 
-import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import dgram from 'dgram';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
-import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {isObject} from 'lodash';
+import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
+import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class DgramOperationLogger extends Analysis
 {
@@ -19,8 +19,6 @@ export class DgramOperationLogger extends Analysis
     {
         super(sandbox);
         this.timeConsumed = 0;
-
-        this.registerHooks();
     }
 
     protected override registerHooks(): void

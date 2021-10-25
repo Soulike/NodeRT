@@ -1,10 +1,10 @@
 // DO NOT INSTRUMENT
 
 import {Analysis, Sandbox} from '../../Type/nodeprof';
-import {BufferOperationLogger} from './BufferOperationLogger';
-import {TypedArrayOperationLogger} from './TypedArrayOperationLogger';
-import {DataViewOperationLogger} from './DataViewOperationLogger';
 import {ArrayBufferOperationLogger} from './ArrayBufferOperationLogger';
+import {BufferOperationLogger} from './BufferOperationLogger';
+import {DataViewOperationLogger} from './DataViewOperationLogger';
+import {TypedArrayOperationLogger} from './TypedArrayOperationLogger';
 
 export class BufferLikeOperationLogger extends Analysis
 {
