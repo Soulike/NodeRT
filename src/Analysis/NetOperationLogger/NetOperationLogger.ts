@@ -28,13 +28,15 @@ export class NetOperationLogger extends Analysis
 
         const originalSocketWrite = net.Socket.prototype.write;
         net.Socket.prototype.write = function (...args: any[])
-        {   
+        {
+            const startTimestamp = Date.now();
             SocketLogStore.appendSocketOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
             if (isBufferLike(args[0]))
             {
                 BufferLogStore.appendBufferOperation(args[0], 'read',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
             }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketWrite.call(this, ...args);
         }
@@ -42,12 +44,14 @@ export class NetOperationLogger extends Analysis
         const originalSocketEnd = net.Socket.prototype.end;
         net.Socket.prototype.end = function (...args: any[])
         {
+            const startTimestamp = Date.now();
             SocketLogStore.appendSocketOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTop());
             if (isBufferLike(args[0]))
             {
                 BufferLogStore.appendBufferOperation(args[0], 'read',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
             }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketEnd.call(this, ...args);
         }
@@ -55,7 +59,9 @@ export class NetOperationLogger extends Analysis
         const originalSocketDestroy = net.Socket.prototype.destroy;
         net.Socket.prototype.destroy = function (...args: any[])
         {
+            const startTimestamp = Date.now();
             SocketLogStore.appendSocketOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketDestroy.call(this, ...args);
         }
@@ -63,7 +69,9 @@ export class NetOperationLogger extends Analysis
         const originalSocketConnect = net.Socket.prototype.connect;
         net.Socket.prototype.connect = function (...args: any[])
         {
+            const startTimestamp = Date.now();
             SocketLogStore.appendSocketOperation(this, 'write', 'construct', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketConnect.call(this, ...args);
         }
