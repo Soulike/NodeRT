@@ -26,6 +26,7 @@ import {StringDecoderOperationLogger} from './StringDecoderOperationLogger';
 import {StreamOperationLogger} from './StreamOperationLogger';
 import {ZlibOperationLogger} from './ZlibOperationLogger';
 import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLogStoreAnalysis';
+import {CallStackLogger} from './CallStackLogger';
 
 (function (sandbox: Sandbox)
 {
@@ -80,6 +81,7 @@ import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLo
         sandbox.addAnalysis(new AsyncContextLogger(sandbox));
         sandbox.addAnalysis(new LastExpressionValueLogger(sandbox));
         sandbox.addAnalysis(new IteratorLogger(sandbox));
+        sandbox.addAnalysis(new CallStackLogger(sandbox));
 
         // object
         sandbox.addAnalysis(new ArrayOperationLogger(sandbox));
@@ -109,7 +111,7 @@ import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLo
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
         sandbox.addAnalysis(new NetOperationLogger(sandbox));
 
-        // sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
+        sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
         // sandbox.addAnalysis(new OutgoingMessageStoreAnalysis(sandbox));
 
         // stream
