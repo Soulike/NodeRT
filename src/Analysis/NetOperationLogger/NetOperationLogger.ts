@@ -2,13 +2,14 @@
 
 import net from 'net';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
-
 export class NetOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public functionEnter: Hooks['functionEnter'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
     private timeConsumed: number;
@@ -18,13 +19,61 @@ export class NetOperationLogger extends Analysis
         super(sandbox);
         this.timeConsumed = 0;
 
+        this.doMonkeyPatch();
         this.registerHooks();
+    }
+
+    protected override doMonkeyPatch()
+    {
+        const loggerThis = this;
+
+        const originalSocketWrite = net.Socket.prototype.write;
+        net.Socket.prototype.write = function (...args: any[])
+        {   
+            SocketLogStore.appendSocketOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            if (isBufferLike(args[0]))
+            {
+                BufferLogStore.appendBufferOperation(args[0], 'read',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            // @ts-ignore
+            return originalSocketWrite.call(this, ...args);
+        }
+
+        const originalSocketEnd = net.Socket.prototype.end;
+        net.Socket.prototype.end = function (...args: any[])
+        {
+            SocketLogStore.appendSocketOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            if (isBufferLike(args[0]))
+            {
+                BufferLogStore.appendBufferOperation(args[0], 'read',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            // @ts-ignore
+            return originalSocketEnd.call(this, ...args);
+        }
+
+        const originalSocketDestroy = net.Socket.prototype.destroy;
+        net.Socket.prototype.destroy = function (...args: any[])
+        {
+            SocketLogStore.appendSocketOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            // @ts-ignore
+            return originalSocketDestroy.call(this, ...args);
+        }
+
+        const originalSocketConnect = net.Socket.prototype.connect;
+        net.Socket.prototype.connect = function (...args: any[])
+        {
+            SocketLogStore.appendSocketOperation(this, 'write', 'construct', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            // @ts-ignore
+            return originalSocketConnect.call(this, ...args);
+        }
     }
 
     protected override registerHooks()
     {
         // We only care about operations on underlying socket;
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFun = (iid, f, _base, _args, result) =>
         {
             const startTimestamp = Date.now();
 
@@ -60,40 +109,6 @@ export class NetOperationLogger extends Analysis
                     }
                 });
             }
-            else if (base instanceof net.Socket)
-            {
-                if (f === net.Socket.prototype.connect)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
-                }
-                else if (f === net.Socket.prototype.destroy)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'destroy', this.getSandbox(), iid);
-                }
-                else if (f === net.Socket.prototype.write)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'read', 'write', this.getSandbox(), iid);
-                    if (isBufferLike(args[0]))
-                    {
-                        BufferLogStore.appendBufferOperation(args[0], 'read',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-                else if (f === net.Socket.prototype.end)
-                {
-                    const socket = base;
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'end', this.getSandbox(), iid);
-                    if (isBufferLike(args[0]))
-                    {
-                        BufferLogStore.appendBufferOperation(args[0], 'read',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-            }
-
             this.timeConsumed += Date.now() - startTimestamp;
         };
 

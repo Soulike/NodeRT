@@ -17,4 +17,9 @@ export abstract class Analysis
     }
 
     protected abstract registerHooks(): void;
+
+    protected doMonkeyPatch(): void
+    {
+        // DO NOTHING
+    }
 }
