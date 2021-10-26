@@ -3,7 +3,6 @@
 import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {SocketOperation} from './SocketOperation';
-import dgram from 'dgram';
 import net from 'net';
 import {RaceDetector} from '../../../RaceDetector';
 import {SocketInfo} from './SocketInfo';
@@ -13,7 +12,7 @@ export class SocketDeclaration extends ResourceDeclaration
     private readonly socketInfo: SocketInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, SocketOperation[]>;
 
-    constructor(socket: dgram.Socket | net.Socket)
+    constructor(socket: net.Socket)
     {
         super();
         this.socketInfo = new SocketInfo(socket);

@@ -6,7 +6,6 @@ import {ArrayOperationLogger} from './ArrayOperationLogger';
 import {AsyncContextLogger} from './AsyncContextLogger';
 import {BufferLikeOperationLogger} from './BufferLikeOperationLogger';
 import {CryptoOperationLogger} from './CryptoOperationLogger';
-import {DgramOperationLogger} from './DgramOperationLogger';
 import {FsOperationLogger} from './FsOperationLogger';
 import {HttpOperationLogger} from './HttpOperationLogger';
 import {IteratorLogger} from './IteratorLogger';
@@ -60,7 +59,6 @@ import {CallStackLogger} from './CallStackLogger';
         sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
 
         // socket
-        sandbox.addAnalysis(new DgramOperationLogger(sandbox));
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
         sandbox.addAnalysis(new NetOperationLogger(sandbox));
         sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
@@ -107,7 +105,6 @@ import {CallStackLogger} from './CallStackLogger';
         // sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
 
         // socket
-        sandbox.addAnalysis(new DgramOperationLogger(sandbox));
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
         sandbox.addAnalysis(new NetOperationLogger(sandbox));
 

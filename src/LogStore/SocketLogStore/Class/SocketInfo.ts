@@ -1,13 +1,12 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
-import dgram from 'dgram';
 import net from 'net';
 import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketInfo extends ResourceInfo
 {
-    private readonly socketWeakRef: WeakRef<dgram.Socket | net.Socket>;
+    private readonly socketWeakRef: WeakRef<net.Socket>;
 
-    constructor(socket: dgram.Socket | net.Socket)
+    constructor(socket: net.Socket)
     {
         super('socket');
         this.socketWeakRef = new WeakRef(socket);
