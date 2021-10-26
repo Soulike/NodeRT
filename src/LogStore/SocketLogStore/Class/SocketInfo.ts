@@ -27,6 +27,7 @@ export class SocketInfo extends ResourceInfo
     {
         return {
             ...this,
+            remoteAddress: this.socketWeakRef.deref()?.address(),
             socketWeakRef: undefined,
         };
     }

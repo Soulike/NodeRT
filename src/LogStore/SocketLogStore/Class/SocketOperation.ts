@@ -1,12 +1,13 @@
 // DO NOT INSTRUMENT
 
+import {SocketOperationKind} from '../Type/OperationKind';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketOperation extends ResourceOperation
 {
-    private readonly operationKind: 'construct' | 'destroy' | 'write' | 'end';
+    private readonly operationKind: SocketOperationKind;
 
     constructor(type: 'read' | 'write', operationKind: SocketOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {

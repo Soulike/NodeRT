@@ -70,7 +70,7 @@ export class NetOperationLogger extends Analysis
         net.Socket.prototype.connect = function (...args: any[])
         {
             const startTimestamp = Date.now();
-            SocketLogStore.appendSocketOperation(this, 'write', 'construct', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            SocketLogStore.appendSocketOperation(this, 'write', 'connection', loggerThis.getSandbox(), CallStackLogStore.getTop());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketConnect.call(this, ...args);
@@ -90,13 +90,13 @@ export class NetOperationLogger extends Analysis
 
                 server.on('connection', (socket) =>
                 {
-                    SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
+                    SocketLogStore.appendSocketOperation(socket, 'write', 'construction', this.getSandbox(), iid);
                     socket.on('data', (data) =>
                     {
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write',
-                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                                getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
                         }
                     });
                 });
@@ -106,13 +106,13 @@ export class NetOperationLogger extends Analysis
                 || f === net.Socket)
             {
                 const socket = result as ReturnType<typeof net.createConnection>;
-                SocketLogStore.appendSocketOperation(socket, 'write', 'construct', this.getSandbox(), iid);
+                SocketLogStore.appendSocketOperation(socket, 'write', 'construction', this.getSandbox(), iid);
                 socket.on('data', (data) =>
                 {
                     if (isBufferLike(data))
                     {
                         BufferLogStore.appendBufferOperation(data, 'write',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                            getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
                     }
                 });
             }

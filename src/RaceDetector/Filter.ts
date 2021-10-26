@@ -24,9 +24,13 @@ export class Filter
         {
             return Filter.changedSameFields(violationInfo);
         }
-        else if (resourceInfo instanceof SocketInfo || resourceInfo instanceof OutgoingMessageInfo)
+        else if (resourceInfo instanceof OutgoingMessageInfo)
         {
-            return Filter.isSocketOrOutgoingMessageViolationTP(violationInfo);
+            return Filter.isOutgoingMessageViolationTP(violationInfo);
+        }
+        else if (resourceInfo instanceof SocketInfo)
+        {
+            return Filter.isSocketViolationTP(violationInfo);
         }
         else
         {
@@ -123,18 +127,41 @@ export class Filter
         }
     }
 
-    private static isSocketOrOutgoingMessageViolationTP(violationInfo: ViolationInfo): boolean
+    private static isOutgoingMessageViolationTP(violationInfo: ViolationInfo): boolean
     {
         const {resourceInfo, atomicAsyncContextToOperations2} = violationInfo;
-        assert.ok(resourceInfo instanceof SocketInfo || resourceInfo instanceof OutgoingMessageInfo);
+        assert.ok(resourceInfo instanceof OutgoingMessageInfo);
 
         const atomicAsyncContextToOperations2Operations = atomicAsyncContextToOperations2[1];
         const atomicAsyncContextToOperations2LastOperation =
             atomicAsyncContextToOperations2Operations[atomicAsyncContextToOperations2Operations.length - 1];
-        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof SocketOperation
-            || atomicAsyncContextToOperations2LastOperation instanceof OutgoingMessageOperation);
+        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof OutgoingMessageOperation);
 
         return atomicAsyncContextToOperations2LastOperation.getOperationKind() !== 'destroy';
+    }
+
+    private static isSocketViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {resourceInfo, atomicAsyncContextToOperations2, violatingAsyncContextToOperations} = violationInfo;
+        assert.ok(resourceInfo instanceof SocketInfo);
+
+        const violatingAsyncContextToOperationsOperations = violatingAsyncContextToOperations[1];
+        const violatingAsyncContextToOperationsLastOperation =
+            violatingAsyncContextToOperationsOperations[violatingAsyncContextToOperationsOperations.length - 1];
+        assert.ok(violatingAsyncContextToOperationsLastOperation instanceof SocketOperation);
+
+        const atomicAsyncContextToOperations2Operations = atomicAsyncContextToOperations2[1];
+        const atomicAsyncContextToOperations2LastOperation =
+            atomicAsyncContextToOperations2Operations[atomicAsyncContextToOperations2Operations.length - 1];
+        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof SocketOperation);
+
+        const atomicAsyncContextToOperations2LastOperationKind = atomicAsyncContextToOperations2LastOperation.getOperationKind();
+        const atomicAsyncContextToOperations2LastOperationType = atomicAsyncContextToOperations2LastOperation.getType();
+
+        const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
+
+        return !(atomicAsyncContextToOperations2LastOperationKind === 'destroy'
+            || (violatingAsyncContextToOperationsLastOperationKind === 'connection' && atomicAsyncContextToOperations2LastOperationType === 'write'));
     }
 
     /**
