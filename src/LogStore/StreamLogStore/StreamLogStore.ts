@@ -18,7 +18,7 @@ export class StreamLogStore
         return StreamLogStore.streamDeclarations;
     }
 
-    public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', operationKind: StreamOperation['operationKind'], sandbox: Sandbox, iid: number)
     {
         const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
@@ -27,7 +27,7 @@ export class StreamLogStore
             asyncContext.setHasWriteOperation(streamDeclaration);
         }
         streamDeclaration.appendOperation(asyncContext,
-            new StreamOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new StreamOperation(type, operationKind,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getStreamDeclaration(stream: Readable | Writable)

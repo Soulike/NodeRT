@@ -2,7 +2,7 @@
 
 import fsPromise from 'fs/promises';
 import {isObject} from 'lodash';
-import {Readable, Writable} from 'stream';
+import {Readable} from 'stream';
 import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
@@ -100,9 +100,9 @@ export class FsPromisesOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(data, 'read',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                if (data instanceof Readable || data instanceof Writable)
+                if (data instanceof Readable)
                 {
-                    StreamLogStore.appendStreamOperation(data, 'read', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(data, 'read', 'read', this.getSandbox(), iid);
                 }
                 else if (isObject(data))
                 {

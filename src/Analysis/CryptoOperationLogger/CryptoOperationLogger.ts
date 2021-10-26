@@ -185,7 +185,7 @@ export class CryptoOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(result instanceof Transform);
-                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write','construction', this.getSandbox(), iid);
             }
             else if (f === crypto.createCipheriv
                 || f === crypto.createDecipheriv)
@@ -201,7 +201,7 @@ export class CryptoOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(result instanceof Transform);
-                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
             }
             else if (f === crypto.createDiffieHellman)
             {
@@ -221,7 +221,7 @@ export class CryptoOperationLogger extends Analysis
                 || f === crypto.createVerify)
             {
                 assert.ok(result instanceof Readable || result instanceof Writable);
-                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
             }
             else if (f === crypto.generateKeyPair
                 || f === crypto.generatePrime)

@@ -25,7 +25,7 @@ export class SocketLogStore
      */
     public static appendSocketOperation(socket: net.Socket, type: 'read' | 'write', operationKind: SocketOperation['operationKind'], sandbox: Sandbox, iid: number)
     {
-        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, sandbox, iid);
+        const socketDeclaration = SocketLogStore.getSocketDeclaration(socket, type, operationKind, sandbox, iid);
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
@@ -35,14 +35,14 @@ export class SocketLogStore
             new SocketOperation(type, operationKind, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getSocketDeclaration(socket: net.Socket, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    private static getSocketDeclaration(socket: net.Socket, type: 'read' | 'write', operationKind: SocketOperation['operationKind'], sandbox: Sandbox, iid: number)
     {
         const socketDeclaration = SocketLogStore.socketToSocketDeclarations.get(socket);
         if (socketDeclaration === undefined)
         {
-            if (socket instanceof net.Socket)    // net.Socket inherits Stream, so a creation of a socket is a creation of a stream
+            if (socket instanceof net.Socket && operationKind === 'construction')    // net.Socket inherits Stream, so a creation of a socket is a creation of a stream
             {
-                StreamLogStore.appendStreamOperation(socket, type, sandbox, iid);
+                StreamLogStore.appendStreamOperation(socket, type, operationKind, sandbox, iid);
             }
 
             const newSocketDeclaration = new SocketDeclaration(socket);

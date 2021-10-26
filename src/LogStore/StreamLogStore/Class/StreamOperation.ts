@@ -1,14 +1,23 @@
 // DO NOT INSTRUMENT
 
+import {StreamOperationKind} from '..';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
 
 export class StreamOperation extends ResourceOperation
 {
-    constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    private readonly operationKind: StreamOperationKind;
+
+    constructor(type: 'read' | 'write', operationKind: StreamOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
+        this.operationKind = operationKind;
         StatisticsStore.addStreamOperationCount();
+    }
+
+    public getOperationKind()
+    {
+        return this.operationKind;
     }
 }

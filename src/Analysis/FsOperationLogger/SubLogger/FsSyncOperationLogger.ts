@@ -149,7 +149,7 @@ export class FsSyncOperationLogger extends Analysis
             else if (f === fs.createReadStream || f === fs.createWriteStream)
             {
                 assert.ok(result instanceof Readable || result instanceof Writable);
-                StreamLogStore.appendStreamOperation(result, 'write', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write','construction', this.getSandbox(), iid);
             }
             else if (f === fs.fstatSync)
             {

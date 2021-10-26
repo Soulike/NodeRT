@@ -32,11 +32,11 @@ export class StreamOperationLogger extends Analysis
                     || f === Readable.prototype.destroy
                     || f === Transform.prototype.destroy)
                 {
-                    StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'write', 'destroy', this.getSandbox(), iid);
                 }
                 else if (f === Writable.prototype.write)
                 {
-                    StreamLogStore.appendStreamOperation(base, 'read', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'read','write', this.getSandbox(), iid);
                     const [chunk] = args as Parameters<typeof Writable.prototype.write>;
                     if (isBufferLike(chunk))
                     {
@@ -46,7 +46,7 @@ export class StreamOperationLogger extends Analysis
                 }
                 else if (f === Writable.prototype.end)
                 {
-                    StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'write', 'end',this.getSandbox(), iid);
                     const [chunk] = args as Parameters<typeof Writable.prototype.end>;
                     if (isBufferLike(chunk))
                     {
@@ -59,13 +59,13 @@ export class StreamOperationLogger extends Analysis
                     assert.ok(base instanceof Readable);
                     const [destination] = args;
                     assert.ok(destination instanceof Writable);
-                    StreamLogStore.appendStreamOperation(base, 'read', this.getSandbox(), iid);
-                    StreamLogStore.appendStreamOperation(destination, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'read', 'read',this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(destination, 'read', 'write',this.getSandbox(), iid);
                 }
                 else if (f === Readable.prototype.read)
                 {
                     assert.ok(base instanceof Readable);
-                    StreamLogStore.appendStreamOperation(base, 'read', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'read','read', this.getSandbox(), iid);
                     const data = result as ReturnType<typeof Readable.prototype.read>;
                     if (isBufferLike(data))
                     {
@@ -77,7 +77,7 @@ export class StreamOperationLogger extends Analysis
                     || f === Readable.prototype.push)
                 {
                     assert.ok(base instanceof Readable);
-                    StreamLogStore.appendStreamOperation(base, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(base, 'read','write', this.getSandbox(), iid);
                     const [chunk] = args as Parameters<typeof Readable.prototype.unshift
                         | typeof Readable.prototype.push>;
                     if (isBufferLike(chunk))
@@ -106,18 +106,18 @@ export class StreamOperationLogger extends Analysis
                 const transformers = streams.slice(1, -1);
                 if (source instanceof Readable)
                 {
-                    StreamLogStore.appendStreamOperation(source, 'read', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(source, 'read', 'read', this.getSandbox(), iid);
                 }
                 if (destination instanceof Writable)
                 {
-                    StreamLogStore.appendStreamOperation(destination, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(destination, 'read', 'write', this.getSandbox(), iid);
                 }
                 for (const transformer of transformers)
                 {
                     if (transformer instanceof Readable || transformer instanceof Writable)
                     {
-                        StreamLogStore.appendStreamOperation(transformer, 'write', this.getSandbox(), iid);
-                        StreamLogStore.appendStreamOperation(transformer, 'read', this.getSandbox(), iid);
+                        StreamLogStore.appendStreamOperation(transformer, 'read','write', this.getSandbox(), iid);
+                        StreamLogStore.appendStreamOperation(transformer, 'read', 'read', this.getSandbox(), iid);
                     }
                 }
             }

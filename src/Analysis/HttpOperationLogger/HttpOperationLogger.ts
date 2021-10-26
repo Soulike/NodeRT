@@ -35,7 +35,7 @@ export class HttpOperationLogger extends Analysis
             if (f === http.request || f === http.get)
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
-                StreamLogStore.appendStreamOperation(clientRequest, 'write', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(clientRequest, 'write','construction', this.getSandbox(), iid);
                 OutgoingMessageLogStore.appendOutgoingMessageOperation(clientRequest, 'write', 'construction',
                     this.getSandbox(), iid);
 
@@ -71,8 +71,8 @@ export class HttpOperationLogger extends Analysis
 
                 server.on('request', (req, res) =>
                 {
-                    StreamLogStore.appendStreamOperation(req, 'write', this.getSandbox(), CallStackLogStore.getTop());
-                    StreamLogStore.appendStreamOperation(res, 'write', this.getSandbox(), CallStackLogStore.getTop());
+                    StreamLogStore.appendStreamOperation(req, 'write','construction', this.getSandbox(), CallStackLogStore.getTop());
+                    StreamLogStore.appendStreamOperation(res, 'write','construction', this.getSandbox(), CallStackLogStore.getTop());
                 });
             }
 

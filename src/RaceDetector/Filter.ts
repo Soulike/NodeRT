@@ -9,6 +9,7 @@ import {SocketInfo} from '../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../LogStore/SocketLogStore/Class/SocketOperation';
 import {OutgoingMessageInfo} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
 import {OutgoingMessageOperation} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
+import {StreamInfo} from '../LogStore/StreamLogStore/Class/StreamInfo';
 
 export class Filter
 {
@@ -31,6 +32,10 @@ export class Filter
         else if (resourceInfo instanceof SocketInfo)
         {
             return Filter.isSocketViolationTP(violationInfo);
+        }
+        else if (resourceInfo instanceof StreamInfo)
+        {
+            return Filter.isStreamViolationTP(violationInfo);
         }
         else
         {
@@ -165,6 +170,22 @@ export class Filter
 
         return !(atomicAsyncContextToOperations2LastOperationKind === 'destroy'
             || (violatingAsyncContextToOperationsLastOperationKind === 'connection' && atomicAsyncContextToOperations2LastOperationType === 'write'));
+    }
+
+    private static isStreamViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {resourceInfo, violatingAsyncContextToOperations} = violationInfo;
+        assert.ok(resourceInfo instanceof StreamInfo);
+
+        const violatingAsyncContextToOperationsOperations = violatingAsyncContextToOperations[1];
+        const violatingAsyncContextToOperationsLastOperation =
+            violatingAsyncContextToOperationsOperations[violatingAsyncContextToOperationsOperations.length - 1];
+        assert.ok(violatingAsyncContextToOperationsLastOperation instanceof OutgoingMessageOperation);
+
+        const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
+
+        return violatingAsyncContextToOperationsLastOperationKind === 'end'
+            || violatingAsyncContextToOperationsLastOperationKind === 'destroy';
     }
 
     /**
