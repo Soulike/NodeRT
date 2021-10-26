@@ -42,18 +42,15 @@ export class MapOperationLogger extends Analysis
                     || f === Map.prototype.values)
                 {
                     assert.ok(isObject(result));
-                    assert.ok(isObject(base));
                     IteratorLogStore.addIterator(result as Iterator<any>, base);
                 }
                 else if (f === Map.prototype.clear)
                 {
-                    assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
                 }
                 else if (f === Map.prototype.delete
                     || f === Map.prototype.set)
                 {
-                    assert.ok(isObject(base));
                     const [key] = args as Parameters<typeof Map.prototype.delete
                         | typeof Map.prototype.set>;
                     ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
@@ -61,12 +58,10 @@ export class MapOperationLogger extends Analysis
                 else if (f === Map.prototype.forEach
                     || f === Map.prototype.has)
                 {
-                    assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
                 else if (f === Map.prototype.get)
                 {
-                    assert.ok(isObject(base));
                     const [key] = args as Parameters<typeof Map.prototype.get>;
                     ObjectLogStore.appendObjectOperation(base, 'read', key, this.getSandbox(), iid);
                 }
