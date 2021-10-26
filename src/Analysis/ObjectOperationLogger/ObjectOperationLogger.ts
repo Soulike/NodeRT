@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {isObject, isSymbol} from 'lodash';
+import {isObject} from 'lodash';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {isBufferLike, shouldBeVerbose} from '../../Util';
+import {isArrayAccess, isBufferLike, shouldBeVerbose} from '../../Util';
 
 export class ObjectOperationLogger extends Analysis
 {
@@ -81,13 +81,13 @@ export class ObjectOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.getField = (iid, base, offset) =>
+        this.getField = (iid, base, offset,_val, isComputed) =>
         {
             const startTimestamp = Date.now();
 
             if (isBufferLike(base))
             {
-                if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
                 }
@@ -103,7 +103,7 @@ export class ObjectOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.putFieldPre = (iid, base, offset, val) =>
+        this.putFieldPre = (iid, base, offset, val, isComputed) =>
         {
             const startTimestamp = Date.now();
 
@@ -113,7 +113,7 @@ export class ObjectOperationLogger extends Analysis
             {
                 if (isBufferLike(base))
                 {
-                    if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                    if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                     {
                         ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
                     }

@@ -158,11 +158,14 @@ export class PrimitiveOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.write = (iid, name, val, _lhs, isGlobal) =>
+        this.write = (iid, name, val, lhs, isGlobal) =>
         {
             const startTimestamp = Date.now();
 
-            this.onVariableOperation('write', iid, name, val, isGlobal);
+            if (lhs !== val)
+            {
+                this.onVariableOperation('write', iid, name, val, isGlobal);
+            }
 
             this.timeConsumed += Date.now() - startTimestamp;
         };

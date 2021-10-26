@@ -245,11 +245,12 @@ export class BufferOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.putFieldPre = (iid, base, offset, _val, isComputed) =>
+        this.putFieldPre = (iid, base, offset, val, isComputed) =>
         {
             const startTimestamp = Date.now();
 
-            if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
+            if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset)
+                && base[offset as number] !== val)
             {
                 BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
             }

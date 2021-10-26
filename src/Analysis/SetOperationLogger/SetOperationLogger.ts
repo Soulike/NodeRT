@@ -44,11 +44,28 @@ export class SetOperationLogger extends Analysis
                     assert.ok(isObject(result));
                     IteratorLogStore.addIterator(result as Iterator<any>, base);
                 }
-                else if (f === Set.prototype.add
-                    || f === Set.prototype.clear
-                    || f === Set.prototype.delete)
+                else if (f === Set.prototype.add)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
+                    const [value] = args as Parameters<typeof Set.prototype.add>;
+                    if (!base.has(value))
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', value, this.getSandbox(), iid);
+                    }
+                }
+                else if (f === Set.prototype.clear)
+                {
+                    if(base.size !== 0)
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
+                    }
+                }
+                else if (f === Set.prototype.delete)
+                {
+                    const [value] = args as Parameters<typeof Set.prototype.delete>;
+                    if (base.has(value))
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', value, this.getSandbox(), iid);
+                    }
                 }
                 else if (f === Set.prototype.forEach
                     || f === Set.prototype.has)

@@ -6,7 +6,7 @@ import {Range} from './LogStore/Class/Range';
 import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 import fs from 'fs';
-import {isObject} from 'lodash';
+import {isObject, isSymbol} from 'lodash';
 import {VERBOSE} from './CONFIG';
 
 export function toJSON(object: unknown): string
@@ -84,9 +84,23 @@ export function isBufferLike(other: any): other is BufferLike
         || util.types.isTypedArray(other) || Buffer.isBuffer(other);
 }
 
-export function isArrayAccess(isComputed: boolean, offset: string | Symbol): boolean
+/**
+ * Ensures offset is a integer (in number or string type)
+ */
+export function isArrayAccess(isComputed: boolean, offset: string | symbol | number): offset is number | string
 {
-    return isComputed && !(typeof offset === 'symbol') && !Number.isNaN(Number.parseInt(offset as string));
+    if (!isComputed || isSymbol(offset))
+    {
+        return false;
+    }
+    else if (typeof offset === 'number')
+    {
+        return Number.isInteger(offset);
+    }
+    else    // typeof offset === 'string'
+    {
+        return Number.isInteger(Number.parseFloat(offset));
+    }
 }
 
 export function isURL(other: unknown): other is URL

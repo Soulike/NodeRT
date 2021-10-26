@@ -46,14 +46,26 @@ export class MapOperationLogger extends Analysis
                 }
                 else if (f === Map.prototype.clear)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
+                    if(base.size !== 0)
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
+                    }
                 }
-                else if (f === Map.prototype.delete
-                    || f === Map.prototype.set)
+                else if (f === Map.prototype.set)
                 {
-                    const [key] = args as Parameters<typeof Map.prototype.delete
-                        | typeof Map.prototype.set>;
-                    ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
+                    const [key, value] = args as Parameters<typeof Map.prototype.set>;
+                    if (base.get(key) !== value)
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
+                    }
+                }
+                else if (f === Map.prototype.delete)
+                {
+                    const [key] = args as Parameters<typeof Map.prototype.delete>;
+                    if(base.has(key))
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
+                    }
                 }
                 else if (f === Map.prototype.forEach
                     || f === Map.prototype.has)
