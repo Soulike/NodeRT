@@ -22,7 +22,7 @@ export class Filter
 
         if (resourceInfo instanceof ObjectInfo)
         {
-            return Filter.changedSameFields(violationInfo);
+            return Filter.isObjectViolationTP(violationInfo);
         }
         else if (resourceInfo instanceof OutgoingMessageInfo)
         {
@@ -41,7 +41,7 @@ export class Filter
     /**
      * Check if the operations of the ViolationInfo changed the same fields. Otherwise it's a FP
      */
-    private static changedSameFields(violationInfo: ViolationInfo): boolean
+    private static isObjectViolationTP(violationInfo: ViolationInfo): boolean
     {
         const {
             resourceInfo,
