@@ -73,22 +73,24 @@ export class AsyncCalledFunctionInfo
         {
             return this.asyncContextChainAsyncIdsCache;
         }
-        else if (this.asyncType === 'TickObject')   // Treat TickObject as happens from nowhere
-        {
-            const asyncContextChainAsyncIdsCache = new Set<number>();
-            asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
-            asyncContextChainAsyncIdsCache.add(this.asyncId);
-            this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
-            return asyncContextChainAsyncIdsCache;
-        }
         else
         {
             const asyncContextChainAsyncIdsCache = new Set<number>();
             let currentAsyncContext: AsyncCalledFunctionInfo | null = this;
+            let hasTickObject = false;
             while (currentAsyncContext !== null)    // get the async id chain
             {
+                if (currentAsyncContext.asyncType === 'TickObject') // Cut the chain at TickObject
+                {
+                    hasTickObject = true;
+                    break;
+                }
                 asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
                 currentAsyncContext = currentAsyncContext.asyncContext;
+            }
+            if (hasTickObject)  // Treat chain after TickObject as originated from global
+            {
+                asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
             return asyncContextChainAsyncIdsCache;
