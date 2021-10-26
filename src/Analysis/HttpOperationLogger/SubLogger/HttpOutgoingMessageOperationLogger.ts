@@ -29,7 +29,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
             if (f === ClientRequest || f === ServerResponse)
             {
                 assert.ok(result instanceof OutgoingMessage);
-                OutgoingMessageLogStore.appendOutgoingMessageOperation(result, 'write', 'construct',
+                OutgoingMessageLogStore.appendOutgoingMessageOperation(result, 'write', 'construction',
                     this.getSandbox(), iid);
             }
             else if (base instanceof OutgoingMessage)

@@ -1,16 +1,16 @@
 // DO NOT INSTRUMENT
 
+import {OutgoingMessageOperationKind} from '../Type/OutgoingMessageOperationKind';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
 
 export class OutgoingMessageOperation extends ResourceOperation
 {
-    private readonly operationKind: 'construct' | 'destroy' | 'write' | 'end';
+    private readonly operationKind: OutgoingMessageOperationKind;
 
     constructor(type: 'read' | 'write', operationKind: OutgoingMessageOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
-        // only write for socket
         super(type, stackTrace, sourceCodeScopeInfo);
         this.operationKind = operationKind;
         StatisticsStore.addOutgoingMessageOperationCount();

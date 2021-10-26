@@ -129,15 +129,18 @@ export class Filter
 
     private static isOutgoingMessageViolationTP(violationInfo: ViolationInfo): boolean
     {
-        const {resourceInfo, atomicAsyncContextToOperations2} = violationInfo;
+        const {resourceInfo, violatingAsyncContextToOperations} = violationInfo;
         assert.ok(resourceInfo instanceof OutgoingMessageInfo);
 
-        const atomicAsyncContextToOperations2Operations = atomicAsyncContextToOperations2[1];
-        const atomicAsyncContextToOperations2LastOperation =
-            atomicAsyncContextToOperations2Operations[atomicAsyncContextToOperations2Operations.length - 1];
-        assert.ok(atomicAsyncContextToOperations2LastOperation instanceof OutgoingMessageOperation);
+        const violatingAsyncContextToOperationsOperations = violatingAsyncContextToOperations[1];
+        const violatingAsyncContextToOperationsLastOperation =
+            violatingAsyncContextToOperationsOperations[violatingAsyncContextToOperationsOperations.length - 1];
+        assert.ok(violatingAsyncContextToOperationsLastOperation instanceof OutgoingMessageOperation);
 
-        return atomicAsyncContextToOperations2LastOperation.getOperationKind() !== 'destroy';
+        const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
+
+        return violatingAsyncContextToOperationsLastOperationKind === 'end'
+            || violatingAsyncContextToOperationsLastOperationKind === 'destroy';
     }
 
     private static isSocketViolationTP(violationInfo: ViolationInfo): boolean

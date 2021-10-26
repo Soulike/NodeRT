@@ -108,7 +108,7 @@ import {CallStackLogger} from './CallStackLogger';
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
         sandbox.addAnalysis(new NetOperationLogger(sandbox));
 
-        sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
+        // sandbox.addAnalysis(new SocketLogStoreAnalysis(sandbox));
         // sandbox.addAnalysis(new OutgoingMessageStoreAnalysis(sandbox));
 
         // stream

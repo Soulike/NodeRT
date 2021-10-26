@@ -2,6 +2,7 @@
 
 import http from 'http';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
 import {OutgoingMessageLogStore} from '../../LogStore/OutgoingMessageLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
@@ -35,7 +36,7 @@ export class HttpOperationLogger extends Analysis
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
                 StreamLogStore.appendStreamOperation(clientRequest, 'write', this.getSandbox(), iid);
-                OutgoingMessageLogStore.appendOutgoingMessageOperation(clientRequest, 'write', 'construct',
+                OutgoingMessageLogStore.appendOutgoingMessageOperation(clientRequest, 'write', 'construction',
                     this.getSandbox(), iid);
 
                 clientRequest.on('socket', socket =>
@@ -46,7 +47,7 @@ export class HttpOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write',
-                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                                getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
                         }
                     });
                 });
@@ -63,15 +64,15 @@ export class HttpOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write',
-                                getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                                getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
                         }
                     });
                 });
 
                 server.on('request', (req, res) =>
                 {
-                    StreamLogStore.appendStreamOperation(req, 'write', this.getSandbox(), iid);
-                    StreamLogStore.appendStreamOperation(res, 'write', this.getSandbox(), iid);
+                    StreamLogStore.appendStreamOperation(req, 'write', this.getSandbox(), CallStackLogStore.getTop());
+                    StreamLogStore.appendStreamOperation(res, 'write', this.getSandbox(), CallStackLogStore.getTop());
                 });
             }
 
