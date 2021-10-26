@@ -103,20 +103,25 @@ export class ObjectOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.putFieldPre = (iid, base, offset) =>
+        this.putFieldPre = (iid, base, offset, val) =>
         {
             const startTimestamp = Date.now();
 
-            if (isBufferLike(base))
+            assert.ok(isObject(base));
+            // @ts-ignore
+            if (base[offset] !== val)
             {
-                if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                if (isBufferLike(base))
+                {
+                    if (isSymbol(offset) || !Number.isInteger(Number.parseInt(offset)))  // not buffer[index]
+                    {
+                        ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
+                    }
+                }
+                else if (isObject(base))
                 {
                     ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
                 }
-            }
-            else if (isObject(base))
-            {
-                ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
