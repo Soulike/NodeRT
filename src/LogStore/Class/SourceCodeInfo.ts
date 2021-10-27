@@ -18,4 +18,17 @@ export class SourceCodeInfo
         this.file = file;
         this.range = Object.freeze(range);
     }
+
+    public toJSON()
+    {
+        if (this.file && this.range)
+        {
+            const {startRow,startCol,endRow,endCol} = this.range;
+            return `${this.file}:${startRow}:${startCol}:${endRow}:${endCol}`
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
