@@ -32,7 +32,6 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
     {
         const asyncContext = asyncContextToOperations[i]![0];
         if (asyncContext.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID  // ignore UNKNOWN due to the bug #471 in graaljs
-            && asyncContext.asyncType !== 'TickObject'  // ignore TickObject
             && lastAsyncContextAsyncIds.has(asyncContext.asyncId)) // on the chain
         {
             atomicAsyncContextToOperations1Index = i;
@@ -50,7 +49,6 @@ export const conservativeDetector: Detector = (resourceDeclaration) =>
         const asyncContext = asyncContextToOperations[i]![0];
         if (asyncContext.getHasWriteOperationOn(resourceDeclaration)
             && asyncContext.asyncId !== lastAsyncContext.asyncId   // for setInterval callbacks, which have the same asyncId, and do not violate each other
-            && (asyncContext.asyncType !== 'TickObject' || lastAsyncContext.asyncType !== 'TickObject')
             && asyncContext.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)  // ignore UNKNOWN
         {
             violatingAsyncContextToOperationsIndexes.push(i);
