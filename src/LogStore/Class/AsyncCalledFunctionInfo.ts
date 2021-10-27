@@ -80,12 +80,12 @@ export class AsyncCalledFunctionInfo
             let hasTickObject = false;
             while (currentAsyncContext !== null)    // get the async id chain
             {
+                asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
                 if (currentAsyncContext.asyncType === 'TickObject') // Cut the chain at TickObject
                 {
                     hasTickObject = true;
                     break;
                 }
-                asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
                 currentAsyncContext = currentAsyncContext.asyncContext;
             }
             if (hasTickObject)  // Treat chain after TickObject as originated from global
