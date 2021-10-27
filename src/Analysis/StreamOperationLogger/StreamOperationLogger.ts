@@ -3,6 +3,7 @@
 import {strict as assert} from 'assert';
 import {pipeline, Readable, Transform, Writable} from 'stream';
 import {BufferLogStore} from '../../LogStore/BufferLogStore';
+import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
@@ -20,74 +21,136 @@ export class StreamOperationLogger extends Analysis
         this.timeConsumed = 0;
     }
 
+    protected override doMonkeyPatch()
+    {
+        const loggerThis = this;
+
+        const originalWritableDestroy = Writable.prototype.destroy;
+        Writable.prototype.destroy = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalWritableDestroy.call(this, ...args);
+        }
+
+        const originalReadableDestroy = Readable.prototype.destroy;
+        Readable.prototype.destroy = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalReadableDestroy.call(this, ...args);
+        }
+
+        const originalTransformDestroy = Transform.prototype.destroy;
+        Transform.prototype.destroy = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalTransformDestroy.call(this, ...args);
+        }
+
+        const originalWritableWrite = Writable.prototype.write;
+        Writable.prototype.write = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            const [chunk] = args as Parameters<typeof Writable.prototype.write>;
+            if (isBufferLike(chunk))
+            {
+                BufferLogStore.appendBufferOperation(chunk, 'read',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            // @ts-ignore
+            return originalWritableWrite.call(this, ...args);
+        }
+
+        const originalWritableEnd = Writable.prototype.end;
+        Writable.prototype.end = function (...args: any[])
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            const [chunk] = args as Parameters<typeof Writable.prototype.end>;
+            if (isBufferLike(chunk))
+            {
+                BufferLogStore.appendBufferOperation(chunk, 'write',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            // @ts-ignore
+            return originalWritableEnd.call(this, ...args);
+        }
+
+        const originalReadablePipe = Readable.prototype.pipe;
+        // @ts-ignore
+        Readable.prototype.pipe = function (...args)
+        {
+            const startTimestamp = Date.now();
+            const [destination] = args;
+            assert.ok(destination instanceof Writable);
+            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(destination, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalReadablePipe.call(this, ...args);
+        }
+
+        const originalReadableRead = Readable.prototype.read;
+        Readable.prototype.read = function (...args)
+        {
+            const startTimestamp = Date.now();
+            const result = originalReadableRead.call(this, ...args)
+            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            const data = result as ReturnType<typeof Readable.prototype.read>;
+            if (isBufferLike(data))
+            {
+                BufferLogStore.appendBufferOperation(data, 'write',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return result;
+        }
+
+        const originalReadableUnshift = Readable.prototype.unshift;
+        Readable.prototype.unshift = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            const [chunk] = args as Parameters<typeof Readable.prototype.unshift>;
+            if (isBufferLike(chunk))
+            {
+                BufferLogStore.appendBufferOperation(chunk, 'read',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalReadableUnshift.call(this, ...args);
+        }
+
+        const originalReadablePush = Readable.prototype.push;
+        Readable.prototype.push = function (...args)
+        {
+            const startTimestamp = Date.now();
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            const [chunk] = args as Parameters<typeof Readable.prototype.push>;
+            if (isBufferLike(chunk))
+            {
+                BufferLogStore.appendBufferOperation(chunk, 'read',
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+            }
+            loggerThis.timeConsumed += Date.now() - startTimestamp;
+            return originalReadablePush.call(this, ...args);
+        }
+    }
+
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFun = (iid, f, _base, args) =>
         {
             const startTimestamp = Date.now();
 
-            if (base instanceof Readable || base instanceof Writable)
-            {
-                if (f === Writable.prototype.destroy
-                    || f === Readable.prototype.destroy
-                    || f === Transform.prototype.destroy)
-                {
-                    StreamLogStore.appendStreamOperation(base, 'write', 'destroy', this.getSandbox(), iid);
-                }
-                else if (f === Writable.prototype.write)
-                {
-                    StreamLogStore.appendStreamOperation(base, 'read','write', this.getSandbox(), iid);
-                    const [chunk] = args as Parameters<typeof Writable.prototype.write>;
-                    if (isBufferLike(chunk))
-                    {
-                        BufferLogStore.appendBufferOperation(chunk, 'read',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-                else if (f === Writable.prototype.end)
-                {
-                    StreamLogStore.appendStreamOperation(base, 'write', 'end',this.getSandbox(), iid);
-                    const [chunk] = args as Parameters<typeof Writable.prototype.end>;
-                    if (isBufferLike(chunk))
-                    {
-                        BufferLogStore.appendBufferOperation(chunk, 'write',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-                else if (f === Readable.prototype.pipe)
-                {
-                    assert.ok(base instanceof Readable);
-                    const [destination] = args;
-                    assert.ok(destination instanceof Writable);
-                    StreamLogStore.appendStreamOperation(base, 'read', 'read',this.getSandbox(), iid);
-                    StreamLogStore.appendStreamOperation(destination, 'read', 'write',this.getSandbox(), iid);
-                }
-                else if (f === Readable.prototype.read)
-                {
-                    assert.ok(base instanceof Readable);
-                    StreamLogStore.appendStreamOperation(base, 'read','read', this.getSandbox(), iid);
-                    const data = result as ReturnType<typeof Readable.prototype.read>;
-                    if (isBufferLike(data))
-                    {
-                        BufferLogStore.appendBufferOperation(data, 'write',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-                else if (f === Readable.prototype.unshift
-                    || f === Readable.prototype.push)
-                {
-                    assert.ok(base instanceof Readable);
-                    StreamLogStore.appendStreamOperation(base, 'read','write', this.getSandbox(), iid);
-                    const [chunk] = args as Parameters<typeof Readable.prototype.unshift
-                        | typeof Readable.prototype.push>;
-                    if (isBufferLike(chunk))
-                    {
-                        BufferLogStore.appendBufferOperation(chunk, 'read',
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-            }
-            else if (f === pipeline
+            if (f === pipeline
                 /* || f === pipelinePromise */) // Node 15
             {
                 const parameters = args as Parameters<typeof pipeline>;
