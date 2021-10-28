@@ -4,9 +4,10 @@ import {OutgoingMessageDeclaration} from './Class/OutgoingMessageDeclaration';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {OutgoingMessageOperation} from './Class/OutgoingMessageOperation';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import asyncHooks from 'async_hooks';
 import http from 'http';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 export class OutgoingMessageLogStore
 {
@@ -31,7 +32,7 @@ export class OutgoingMessageLogStore
             asyncContext.setHasWriteOperation(outgoingMessageDeclaration);
         }
         outgoingMessageDeclaration.appendOperation(asyncContext,
-            new OutgoingMessageOperation(type, operationKind, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new OutgoingMessageOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getOutgoingMessageDeclaration(outgoingMessage: http.OutgoingMessage)

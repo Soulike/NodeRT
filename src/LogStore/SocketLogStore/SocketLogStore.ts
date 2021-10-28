@@ -5,9 +5,10 @@ import {SocketDeclaration} from './Class/SocketDeclaration';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {SocketOperation} from './Class/SocketOperation';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {StreamLogStore} from '../StreamLogStore';
 import asyncHooks from 'async_hooks';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 export class SocketLogStore
 {
@@ -32,7 +33,7 @@ export class SocketLogStore
             asyncContext.setHasWriteOperation(socketDeclaration);
         }
         socketDeclaration.appendOperation(asyncContext,
-            new SocketOperation(type, operationKind, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new SocketOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getSocketDeclaration(socket: net.Socket, type: 'read' | 'write', operationKind: SocketOperation['operationKind'], sandbox: Sandbox, iid: number)

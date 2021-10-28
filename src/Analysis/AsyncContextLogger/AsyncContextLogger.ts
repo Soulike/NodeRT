@@ -6,7 +6,8 @@ import {AsyncContextLogStore} from '../../LogStore/AsyncContextLogStore';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {StatisticsStore} from '../../LogStore/StatisticsStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace, shouldBeVerbose} from '../../Util';
+import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
+import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
 
 /**
  * Logging all callback function content information into `AsyncContextLogStore`.
@@ -80,7 +81,7 @@ export class AsyncContextLogger extends Analysis
                 assert.ok(placeholderAsyncFunction !== undefined);
 
                 // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                placeholderAsyncFunction.setInfo(f, parseErrorStackTrace(new Error().stack), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
+                placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;

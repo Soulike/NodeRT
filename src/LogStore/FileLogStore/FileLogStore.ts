@@ -2,13 +2,14 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {FileDeclaration} from './Class/FileDeclaration';
 import {FileOperation} from './Class/FileOperation';
 import {URL} from 'url';
 import {BufferLike} from '../../Analysis/Type/BufferLike';
 import {FileHandle} from 'fs/promises';
 import asyncHooks from 'async_hooks';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 export class FileLogStore
 {
@@ -70,7 +71,7 @@ export class FileLogStore
         if (fileDeclaration !== undefined)
         {
             fileDeclaration.appendOperation(asyncContext,
-                new FileOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+                new FileOperation(type, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
         }
     }
 

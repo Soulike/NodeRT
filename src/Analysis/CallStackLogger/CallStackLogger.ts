@@ -16,7 +16,7 @@ export class CallStackLogger extends Analysis
     {
         this.functionEnter = iid =>
         {
-            CallStackLogStore.push(iid);
+            CallStackLogStore.push(this.getSandbox(), iid);
         }
 
         this.functionExit = iid =>

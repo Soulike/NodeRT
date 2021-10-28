@@ -12,7 +12,7 @@ export class AsyncCalledFunctionInfo
     public static readonly GLOBAL = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, 'GLOBAL', null, null);
 
     public functionWeakRef: WeakRef<Function> | null;
-    public stackTrace: string[] | null;
+    public stackTrace: string | null;
     public asyncId: number;
     public asyncType: string;
     public asyncContext: AsyncCalledFunctionInfo | null;    // null for global
@@ -24,7 +24,7 @@ export class AsyncCalledFunctionInfo
     /** Lazy calculation for getAsyncContextChainAsyncIds() */
     private asyncContextChainAsyncIdsCache: Set<number> | undefined;
 
-    constructor(func: Function | null, stackTrace: string[] | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null, codeInfo: SourceCodeInfo | null)
+    constructor(func: Function | null, stackTrace: string | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null, codeInfo: SourceCodeInfo | null)
     {
         this.functionWeakRef = func !== null ? new WeakRef(func) : null;
         this.stackTrace = stackTrace;
@@ -36,7 +36,7 @@ export class AsyncCalledFunctionInfo
         this.hasWriteOperationOnResourcesSet = new Set();
     }
 
-    public setInfo(func: Function, stackTrace: string[] | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo)
+    public setInfo(func: Function, stackTrace: string | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo)
     {
         this.functionWeakRef = new WeakRef(func);
         this.stackTrace = stackTrace;

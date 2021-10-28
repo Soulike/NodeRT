@@ -2,10 +2,11 @@
 
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {ObjectDeclaration} from './Class/ObjectDeclaration';
 import {ObjectOperation} from './Class/ObjectOperation';
 import asyncHooks from 'async_hooks';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 export class ObjectLogStore
 {
@@ -26,7 +27,7 @@ export class ObjectLogStore
             asyncContext.setHasWriteOperation(objectDeclaration);
         }
         objectDeclaration.appendOperation(asyncContext,
-            new ObjectOperation(type, field, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new ObjectOperation(type, field, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getObjectDeclaration(object: object)

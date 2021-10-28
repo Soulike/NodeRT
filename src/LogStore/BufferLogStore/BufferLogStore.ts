@@ -7,10 +7,11 @@ import {ArrayBufferLike} from '../../Analysis/Type/ArrayBufferLike';
 import {Sandbox} from '../../Type/nodeprof';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {BufferOperation} from './Class/BufferOperation';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 import {strict as assert} from 'assert';
 import asyncHooks from 'async_hooks';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -53,13 +54,13 @@ export class BufferLogStore
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, parseErrorStackTrace(new Error().stack), sandboxOrSourceCodeInfo));
+                new BufferOperation(type, CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+                new BufferOperation(type, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }
 }

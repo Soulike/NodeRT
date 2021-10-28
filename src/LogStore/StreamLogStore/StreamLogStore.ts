@@ -2,11 +2,12 @@
 
 import {Readable, Writable} from 'stream';
 import {Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, parseErrorStackTrace} from '../../Util';
+import {getSourceCodeInfoFromIid} from '../../Util';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {StreamDeclaration} from './Class/StreamDeclaration';
 import {StreamOperation} from './Class/StreamOperation';
 import asyncHooks from 'async_hooks';
+import {CallStackLogStore} from '../CallStackLogStore';
 
 export class StreamLogStore
 {
@@ -27,7 +28,7 @@ export class StreamLogStore
             asyncContext.setHasWriteOperation(streamDeclaration);
         }
         streamDeclaration.appendOperation(asyncContext,
-            new StreamOperation(type, operationKind,parseErrorStackTrace(new Error().stack), getSourceCodeInfoFromIid(iid, sandbox)));
+            new StreamOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
     private static getStreamDeclaration(stream: Readable | Writable)

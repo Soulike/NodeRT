@@ -122,22 +122,6 @@ export function outputSync(message: string | object, filePath: string)
     fs.writeFileSync(filePath, output + '\n');
 }
 
-export function parseErrorStackTrace(stackTrace: string | undefined): string[] | null
-{
-    if (stackTrace === undefined)
-    {
-        return null;
-    }
-    else
-    {
-        const stackTraces = stackTrace.split('\n');
-        return stackTraces
-            .slice(1)
-            .map(stackTrace => stackTrace.trim())
-            .filter(stackTrace => !stackTrace.includes(__dirname));
-    }
-}
-
 export function shouldBeVerbose()
 {
     return !!process.env[VERBOSE];
