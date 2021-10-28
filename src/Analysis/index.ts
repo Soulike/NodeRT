@@ -26,6 +26,8 @@ import {StreamOperationLogger} from './StreamOperationLogger';
 import {ZlibOperationLogger} from './ZlibOperationLogger';
 import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLogStoreAnalysis';
 import {CallStackLogger} from './CallStackLogger';
+import {EventEmitterOperationLogger} from './EventEmitterOperationLogger';
+import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogStoreAnalysis';
 
 (function (sandbox: Sandbox)
 {
@@ -67,6 +69,10 @@ import {CallStackLogger} from './CallStackLogger';
         // stream
         sandbox.addAnalysis(new StreamOperationLogger(sandbox));
         sandbox.addAnalysis(new StreamLogStoreAnalysis(sandbox));
+
+        // eventEmitter
+        sandbox.addAnalysis(new EventEmitterOperationLogger(sandbox));
+        sandbox.addAnalysis(new EventEmitterLogStoreAnalysis(sandbox));
 
         // misc
         sandbox.addAnalysis(new CryptoOperationLogger(sandbox));
@@ -116,18 +122,23 @@ import {CallStackLogger} from './CallStackLogger';
 
         // sandbox.addAnalysis(new StreamLogStoreAnalysis(sandbox));
 
+        // eventEmitter
+        sandbox.addAnalysis(new EventEmitterOperationLogger(sandbox));
+
+        // sandbox.addAnalysis(new EventEmitterLogStoreAnalysis(sandbox));
+
         // misc
         sandbox.addAnalysis(new CryptoOperationLogger(sandbox));
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
 
-        const endTimestamp = Date.now() - startTimestamp ;
+        const endTimestamp = Date.now() - startTimestamp;
 
         process.on('exit', () =>
         {
             if (shouldBeVerbose())
             {
-                console.log(`analysis load: ${endTimestamp/1000}s`);
+                console.log(`analysis load: ${endTimestamp / 1000}s`);
             }
         });
     }

@@ -9,6 +9,7 @@ export class StatisticsStore
     private static socketCount = 0;
     private static streamCount = 0;
     private static outgoingMessageCount = 0;
+    private static eventEmitterCount = 0;
 
     private static bufferOperationCount = 0;
     private static fileOperationCount = 0;
@@ -17,6 +18,7 @@ export class StatisticsStore
     private static socketOperationCount = 0;
     private static streamOperationCount = 0;
     private static outgoingMessageOperationCount = 0;
+    private static eventEmitterOperationCount = 0;
 
     public static getEventCount()
     {
@@ -31,7 +33,8 @@ export class StatisticsStore
             + StatisticsStore.primitiveCount
             + StatisticsStore.socketCount
             + StatisticsStore.streamCount
-            + StatisticsStore.outgoingMessageCount;
+            + StatisticsStore.outgoingMessageCount
+            + StatisticsStore.eventEmitterCount;
     }
 
     public static getTotalResourceOperationCount()
@@ -42,7 +45,8 @@ export class StatisticsStore
             + StatisticsStore.primitiveOperationCount
             + StatisticsStore.socketOperationCount
             + StatisticsStore.streamOperationCount
-            + StatisticsStore.outgoingMessageOperationCount;
+            + StatisticsStore.outgoingMessageOperationCount
+            + StatisticsStore.eventEmitterOperationCount;
     }
 
     public static addEventCount()
@@ -78,6 +82,11 @@ export class StatisticsStore
     public static addStreamCount()
     {
         StatisticsStore.streamCount++;
+    }
+
+    public static addEventEmitterCount()
+    {
+        StatisticsStore.eventEmitterCount++;
     }
 
     public static addOutgoingMessageCount()
@@ -118,5 +127,10 @@ export class StatisticsStore
     public static addOutgoingMessageOperationCount()
     {
         StatisticsStore.outgoingMessageOperationCount++;
+    }
+
+    public static addEventEmitterOperationCount()
+    {
+        StatisticsStore.eventEmitterOperationCount++;
     }
 }
