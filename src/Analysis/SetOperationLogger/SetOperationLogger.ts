@@ -67,10 +67,13 @@ export class SetOperationLogger extends Analysis
                         ObjectLogStore.appendObjectOperation(base, 'write', value, this.getSandbox(), iid);
                     }
                 }
-                else if (f === Set.prototype.forEach
-                    || f === Set.prototype.has)
+                else if (f === Set.prototype.forEach)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
+                }
+                else if (f === Set.prototype.has)
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'read', args[0], this.getSandbox(), iid);
                 }
             }
 
