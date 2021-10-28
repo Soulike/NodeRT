@@ -40,8 +40,9 @@ export class CallStackLogStore
     public static getCallStack(): string[]
     {
         const locations: string[] = [];
-        for (const iid of CallStackLogStore.iidCallStack)
+        for (let i = CallStackLogStore.iidCallStack.length - 1; i >= 0; i--)
         {
+            const iid = CallStackLogStore.iidCallStack[i]!;
             const location = CallStackLogStore.iidToLocation.get(iid);
             assert.ok(location !== undefined);
             locations.push(location);
