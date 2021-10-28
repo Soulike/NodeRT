@@ -34,6 +34,6 @@ export class LastExpressionValueLogger extends Analysis
             {
                 console.log(`LastExpression: ${this.timeConsumed / 1000}s`);
             }
-        }
+        };
     }
 }

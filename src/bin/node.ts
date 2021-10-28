@@ -9,7 +9,7 @@ process.on('exit', () =>
     console.timeEnd('node');
 });
 
-const {error} = childProcess.spawnSync(`cd ${process.argv.slice(2,3)} && node`, process.argv.slice(3), {
+const {error} = childProcess.spawnSync(`cd ${process.argv.slice(2, 3)} && node`, process.argv.slice(3), {
     env: process.env,
     stdio: 'inherit',
     shell: true,

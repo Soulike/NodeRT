@@ -17,7 +17,7 @@ export class StreamLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(StreamLogStore.getStreamDeclarations()),'streamLogStore.json');
+            outputSync(toJSON(StreamLogStore.getStreamDeclarations()), 'streamLogStore.json');
         };
     }
 }

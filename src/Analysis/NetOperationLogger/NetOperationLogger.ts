@@ -40,7 +40,7 @@ export class NetOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketWrite.call(this, ...args);
-        }
+        };
 
         const originalSocketEnd = net.Socket.prototype.end;
         net.Socket.prototype.end = function (...args: any[])
@@ -55,7 +55,7 @@ export class NetOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketEnd.call(this, ...args);
-        }
+        };
 
         const originalSocketDestroy = net.Socket.prototype.destroy;
         net.Socket.prototype.destroy = function (...args: any[])
@@ -65,7 +65,7 @@ export class NetOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketDestroy.call(this, ...args);
-        }
+        };
 
         const originalSocketConnect = net.Socket.prototype.connect;
         net.Socket.prototype.connect = function (...args: any[])
@@ -75,7 +75,7 @@ export class NetOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketConnect.call(this, ...args);
-        }
+        };
     }
 
     protected override registerHooks()

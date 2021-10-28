@@ -54,7 +54,7 @@ export class SetOperationLogger extends Analysis
                 }
                 else if (f === Set.prototype.clear)
                 {
-                    if(base.size !== 0)
+                    if (base.size !== 0)
                     {
                         ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
                     }

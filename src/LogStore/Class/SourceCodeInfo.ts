@@ -23,8 +23,8 @@ export class SourceCodeInfo
     {
         if (this.file && this.range)
         {
-            const {startRow,startCol,endRow,endCol} = this.range;
-            return `${this.file}:${startRow}:${startCol}:${endRow}:${endCol}`
+            const {startRow, startCol, endRow, endCol} = this.range;
+            return `${this.file}:${startRow}:${startCol}:${endRow}:${endCol}`;
         }
         else
         {

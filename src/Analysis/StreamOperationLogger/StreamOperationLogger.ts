@@ -32,7 +32,7 @@ export class StreamOperationLogger extends Analysis
             StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalWritableDestroy.call(this, ...args);
-        }
+        };
 
         const originalReadableDestroy = Readable.prototype.destroy;
         Readable.prototype.destroy = function (...args)
@@ -41,7 +41,7 @@ export class StreamOperationLogger extends Analysis
             StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadableDestroy.call(this, ...args);
-        }
+        };
 
         const originalTransformDestroy = Transform.prototype.destroy;
         Transform.prototype.destroy = function (...args)
@@ -50,7 +50,7 @@ export class StreamOperationLogger extends Analysis
             StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalTransformDestroy.call(this, ...args);
-        }
+        };
 
         const originalWritableWrite = Writable.prototype.write;
         Writable.prototype.write = function (...args)
@@ -66,7 +66,7 @@ export class StreamOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalWritableWrite.call(this, ...args);
-        }
+        };
 
         const originalWritableEnd = Writable.prototype.end;
         Writable.prototype.end = function (...args: any[])
@@ -82,7 +82,7 @@ export class StreamOperationLogger extends Analysis
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalWritableEnd.call(this, ...args);
-        }
+        };
 
         const originalReadablePipe = Readable.prototype.pipe;
         // @ts-ignore
@@ -95,13 +95,13 @@ export class StreamOperationLogger extends Analysis
             StreamLogStore.appendStreamOperation(destination, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadablePipe.call(this, ...args);
-        }
+        };
 
         const originalReadableRead = Readable.prototype.read;
         Readable.prototype.read = function (...args)
         {
             const startTimestamp = Date.now();
-            const result = originalReadableRead.call(this, ...args)
+            const result = originalReadableRead.call(this, ...args);
             StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const data = result as ReturnType<typeof Readable.prototype.read>;
             if (isBufferLike(data))
@@ -111,7 +111,7 @@ export class StreamOperationLogger extends Analysis
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return result;
-        }
+        };
 
         const originalReadableUnshift = Readable.prototype.unshift;
         Readable.prototype.unshift = function (...args)
@@ -126,7 +126,7 @@ export class StreamOperationLogger extends Analysis
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadableUnshift.call(this, ...args);
-        }
+        };
 
         const originalReadablePush = Readable.prototype.push;
         Readable.prototype.push = function (...args)
@@ -141,7 +141,7 @@ export class StreamOperationLogger extends Analysis
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadablePush.call(this, ...args);
-        }
+        };
     }
 
     protected override registerHooks()
@@ -179,7 +179,7 @@ export class StreamOperationLogger extends Analysis
                 {
                     if (transformer instanceof Readable || transformer instanceof Writable)
                     {
-                        StreamLogStore.appendStreamOperation(transformer, 'read','write', this.getSandbox(), iid);
+                        StreamLogStore.appendStreamOperation(transformer, 'read', 'write', this.getSandbox(), iid);
                         StreamLogStore.appendStreamOperation(transformer, 'read', 'read', this.getSandbox(), iid);
                     }
                 }

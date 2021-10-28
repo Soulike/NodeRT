@@ -81,7 +81,7 @@ export class ObjectOperationLogger extends Analysis
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
-        this.getField = (iid, base, offset,_val, isComputed) =>
+        this.getField = (iid, base, offset, _val, isComputed) =>
         {
             const startTimestamp = Date.now();
 

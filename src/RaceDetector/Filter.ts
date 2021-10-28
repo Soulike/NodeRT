@@ -44,6 +44,38 @@ export class Filter
     }
 
     /**
+     * Check if the ViolationInfo has been reported
+     */
+    public static hasReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): boolean
+    {
+        const hashes = Filter.reportedViolation.get(resourceDeclaration);
+        if (hashes === undefined)
+        {
+            return false;
+        }
+        const hash = Filter.getViolationInfoHash(violationInfo);
+        if (hash === null)
+        {
+            return false;
+        }
+        else
+        {
+            return hashes.has(hash);
+        }
+    }
+
+    public static addReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): void
+    {
+        let hashes = Filter.reportedViolation.get(resourceDeclaration) ?? new Set();
+        const hash = Filter.getViolationInfoHash(violationInfo);
+        if (hash !== null)
+        {
+            hashes.add(hash);
+        }
+        Filter.reportedViolation.set(resourceDeclaration, hashes);
+    }
+
+    /**
      * Check if the operations of the ViolationInfo changed the same fields. Otherwise it's a FP
      */
     private static isObjectViolationTP(violationInfo: ViolationInfo): boolean
@@ -225,37 +257,5 @@ export class Filter
             objectHash.MD5(callbackFunction2Ref),
             objectHash.MD5(violatorFunctionRef),
         ].join(',');
-    }
-
-    /**
-     * Check if the ViolationInfo has been reported
-     */
-    public static hasReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): boolean
-    {
-        const hashes = Filter.reportedViolation.get(resourceDeclaration);
-        if (hashes === undefined)
-        {
-            return false;
-        }
-        const hash = Filter.getViolationInfoHash(violationInfo);
-        if (hash === null)
-        {
-            return false;
-        }
-        else
-        {
-            return hashes.has(hash);
-        }
-    }
-
-    public static addReported(resourceDeclaration: ResourceDeclaration, violationInfo: ViolationInfo): void
-    {
-        let hashes = Filter.reportedViolation.get(resourceDeclaration) ?? new Set();
-        const hash = Filter.getViolationInfoHash(violationInfo);
-        if (hash !== null)
-        {
-            hashes.add(hash);
-        }
-        Filter.reportedViolation.set(resourceDeclaration, hashes);
     }
 }

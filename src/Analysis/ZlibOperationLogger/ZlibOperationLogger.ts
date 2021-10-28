@@ -47,7 +47,7 @@ export class ZlibOperationLogger extends Analysis
                     | typeof zlib.createInflate
                     | typeof zlib.createInflateRaw
                     | typeof zlib.createUnzip>;
-                StreamLogStore.appendStreamOperation(stream, 'write','construction', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(stream, 'write', 'construction', this.getSandbox(), iid);
             }
             else if (f === zlib.brotliCompress
                 || f === zlib.brotliDecompress

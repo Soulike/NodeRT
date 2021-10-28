@@ -17,7 +17,7 @@ export class ObjectLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(ObjectLogStore.getObjectDeclarations()),'objectLogStore.json');
+            outputSync(toJSON(ObjectLogStore.getObjectDeclarations()), 'objectLogStore.json');
         };
     }
 }

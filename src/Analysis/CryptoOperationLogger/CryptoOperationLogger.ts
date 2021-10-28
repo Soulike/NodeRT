@@ -12,7 +12,7 @@ import crypto, {
     KeyObject,
     Sign,
     Verify,
-    X509Certificate
+    X509Certificate,
 } from 'crypto';
 import {isFunction, isObject} from 'lodash';
 import {Readable, Transform, Writable} from 'stream';
@@ -185,7 +185,7 @@ export class CryptoOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(result instanceof Transform);
-                StreamLogStore.appendStreamOperation(result, 'write','construction', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
             }
             else if (f === crypto.createCipheriv
                 || f === crypto.createDecipheriv)

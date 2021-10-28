@@ -46,7 +46,7 @@ export class MapOperationLogger extends Analysis
                 }
                 else if (f === Map.prototype.clear)
                 {
-                    if(base.size !== 0)
+                    if (base.size !== 0)
                     {
                         ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
                     }
@@ -62,7 +62,7 @@ export class MapOperationLogger extends Analysis
                 else if (f === Map.prototype.delete)
                 {
                     const [key] = args as Parameters<typeof Map.prototype.delete>;
-                    if(base.has(key))
+                    if (base.has(key))
                     {
                         ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
                     }

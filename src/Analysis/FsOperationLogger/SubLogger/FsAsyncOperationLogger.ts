@@ -20,11 +20,12 @@ export class FsAsyncOperationLogger extends Analysis
     private timeConsumed: number;
 
     // Log information of callback apis
-    private readonly callbackToFilePathOrBuffer: WeakMap<Function, {register: Function, filePathOrBuffer?: string | URL | BufferLike;}>;
+    private readonly callbackToFilePathOrBuffer: WeakMap<Function, { register: Function, filePathOrBuffer?: string | URL | BufferLike; }>;
 
     constructor(sandbox: Sandbox)
     {
-        super(sandbox);        this.callbackToFilePathOrBuffer = new WeakMap();
+        super(sandbox);
+        this.callbackToFilePathOrBuffer = new WeakMap();
         this.timeConsumed = 0;
     }
 

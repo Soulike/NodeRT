@@ -17,7 +17,7 @@ export class PrimitiveLogStoreAnalysis extends Analysis
     {
         this.endExecution = () =>
         {
-            outputSync(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()),'primitiveLogStore.json');
+            outputSync(toJSON(PrimitiveLogStore.getPrimitiveDeclarations()), 'primitiveLogStore.json');
         };
     }
 }

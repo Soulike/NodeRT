@@ -17,13 +17,13 @@ export class CallStackLogger extends Analysis
         this.functionEnter = iid =>
         {
             CallStackLogStore.push(this.getSandbox(), iid);
-        }
+        };
 
         this.functionExit = iid =>
         {
             const topIid = CallStackLogStore.getTopIid();
             assert.equal(iid, topIid);
             CallStackLogStore.pop();
-        }
+        };
     }
 }

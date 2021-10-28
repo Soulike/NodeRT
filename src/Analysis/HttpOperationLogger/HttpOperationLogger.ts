@@ -35,7 +35,7 @@ export class HttpOperationLogger extends Analysis
             if (f === http.request || f === http.get)
             {
                 const clientRequest = result as ReturnType<typeof http.request | typeof http.get>;
-                StreamLogStore.appendStreamOperation(clientRequest, 'write','construction', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(clientRequest, 'write', 'construction', this.getSandbox(), iid);
                 OutgoingMessageLogStore.appendOutgoingMessageOperation(clientRequest, 'write', 'construction',
                     this.getSandbox(), iid);
 
