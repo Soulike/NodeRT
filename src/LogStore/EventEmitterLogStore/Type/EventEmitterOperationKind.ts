@@ -1,0 +1,1 @@
+export type EventEmitterOperationKind = 'addListener' | 'removeListener' | 'emit'
