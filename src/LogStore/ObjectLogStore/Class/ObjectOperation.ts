@@ -11,7 +11,7 @@ export class ObjectOperation extends ResourceOperation
      */
     public readonly field: any | null;
 
-    constructor(type: 'read' | 'write', field: any | null, stackTrace: string | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', field: any | null, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.field = field;

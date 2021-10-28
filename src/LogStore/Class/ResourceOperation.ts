@@ -6,9 +6,9 @@ export abstract class ResourceOperation
 {
     private readonly type: 'read' | 'write';
     private readonly scopeCodeInfo: SourceCodeInfo;
-    private readonly stackTrace: string | null;
+    private readonly stackTrace: string[] | null;
 
-    protected constructor(type: 'read' | 'write', stackTrace: string | null, sourceCodeScopeInfo: SourceCodeInfo)
+    protected constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         this.type = type;
         this.stackTrace = stackTrace;

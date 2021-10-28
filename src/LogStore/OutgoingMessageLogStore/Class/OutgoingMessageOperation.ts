@@ -9,7 +9,7 @@ export class OutgoingMessageOperation extends ResourceOperation
 {
     private readonly operationKind: OutgoingMessageOperationKind;
 
-    constructor(type: 'read' | 'write', operationKind: OutgoingMessageOperation['operationKind'], stackTrace: string | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', operationKind: OutgoingMessageOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.operationKind = operationKind;

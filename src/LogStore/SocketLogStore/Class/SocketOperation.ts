@@ -9,7 +9,7 @@ export class SocketOperation extends ResourceOperation
 {
     private readonly operationKind: SocketOperationKind;
 
-    constructor(type: 'read' | 'write', operationKind: SocketOperation['operationKind'], stackTrace: string | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', operationKind: SocketOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         // only write for socket
         super(type, stackTrace, sourceCodeScopeInfo);

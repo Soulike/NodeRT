@@ -2,7 +2,6 @@
 
 import {strict as assert} from 'assert';
 import {Sandbox} from '../Type/nodeprof';
-import os from 'os';
 
 export class CallStackLogStore
 {
@@ -38,7 +37,7 @@ export class CallStackLogStore
         return CallStackLogStore.iidCallStack;
     }
 
-    public static getCallStack(): string | null
+    public static getCallStack(): string[]
     {
         const locations: string[] = [];
         for (const iid of CallStackLogStore.iidCallStack)
@@ -47,10 +46,6 @@ export class CallStackLogStore
             assert.ok(location !== undefined);
             locations.push(location);
         }
-        if (locations.length === 0)
-        {
-            return null;
-        }
-        return locations.join(os.EOL);
+        return locations;
     }
 }
