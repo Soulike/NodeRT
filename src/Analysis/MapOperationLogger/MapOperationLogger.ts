@@ -10,6 +10,7 @@ import {shouldBeVerbose} from '../../Util';
 export class MapOperationLogger extends Analysis
 {
     public invokeFun: Hooks['invokeFun'] | undefined;
+    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
     private timeConsumed: number;
@@ -22,29 +23,13 @@ export class MapOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFunPre = (iid, f, base, args) =>
         {
             const startTimestamp = Date.now();
 
-            if (f === Map)
+            if (base instanceof Map)
             {
-                if (isObject(args[0]))
-                {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
-                }
-                assert.ok(result instanceof Map);
-                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
-            }
-            else if (base instanceof Map)
-            {
-                if (f === Map.prototype[Symbol.iterator]
-                    || f === Map.prototype.entries
-                    || f === Map.prototype.values)
-                {
-                    assert.ok(isObject(result));
-                    IteratorLogStore.addIterator(result as Iterator<any>, base);
-                }
-                else if (f === Map.prototype.clear)
+                if (f === Map.prototype.clear)
                 {
                     if (base.size !== 0)
                     {
@@ -67,15 +52,45 @@ export class MapOperationLogger extends Analysis
                         ObjectLogStore.appendObjectOperation(base, 'write', key, this.getSandbox(), iid);
                     }
                 }
-                else if (f === Map.prototype.forEach
-                    || f === Map.prototype.has)
+                else if (f === Map.prototype.forEach)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
+                }
+                else if (f === Map.prototype.has)
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'read', args[0], this.getSandbox(), iid);
                 }
                 else if (f === Map.prototype.get)
                 {
                     const [key] = args as Parameters<typeof Map.prototype.get>;
                     ObjectLogStore.appendObjectOperation(base, 'read', key, this.getSandbox(), iid);
+                }
+            }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        }
+
+        this.invokeFun = (iid, f, base, args, result) =>
+        {
+            const startTimestamp = Date.now();
+
+            if (f === Map)
+            {
+                if (isObject(args[0]))
+                {
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                }
+                assert.ok(result instanceof Map);
+                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+            }
+            else if (base instanceof Map)
+            {
+                if (f === Map.prototype[Symbol.iterator]
+                    || f === Map.prototype.entries
+                    || f === Map.prototype.values)
+                {
+                    assert.ok(isObject(result));
+                    IteratorLogStore.addIterator(result as Iterator<any>, base);
                 }
             }
 
