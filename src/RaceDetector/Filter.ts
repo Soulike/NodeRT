@@ -10,6 +10,8 @@ import {SocketOperation} from '../LogStore/SocketLogStore/Class/SocketOperation'
 import {OutgoingMessageInfo} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
 import {OutgoingMessageOperation} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
 import {StreamInfo} from '../LogStore/StreamLogStore/Class/StreamInfo';
+import {EventEmitterInfo} from '../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
+import {EventEmitterOperation} from '../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 
 export class Filter
 {
@@ -36,6 +38,10 @@ export class Filter
         else if (resourceInfo instanceof StreamInfo)
         {
             return Filter.isStreamViolationTP(violationInfo);
+        }
+        else if (resourceInfo instanceof EventEmitterInfo)
+        {
+            return Filter.isEventEmitterViolationTP(violationInfo);
         }
         else
         {
@@ -218,6 +224,21 @@ export class Filter
 
         return violatingAsyncContextToOperationsLastOperationKind === 'end'
             || violatingAsyncContextToOperationsLastOperationKind === 'destroy';
+    }
+
+    private static isEventEmitterViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {resourceInfo, violatingAsyncContextToOperations} = violationInfo;
+        assert.ok(resourceInfo instanceof EventEmitterInfo);
+
+        const violatingAsyncContextToOperationsOperations = violatingAsyncContextToOperations[1];
+        const violatingAsyncContextToOperationsLastOperation =
+            violatingAsyncContextToOperationsOperations[violatingAsyncContextToOperationsOperations.length - 1];
+        assert.ok(violatingAsyncContextToOperationsLastOperation instanceof EventEmitterOperation);
+
+        const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
+
+        return violatingAsyncContextToOperationsLastOperationKind !== 'addListener';
     }
 
     /**
