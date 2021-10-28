@@ -21,7 +21,7 @@ export class CallStackLogger extends Analysis
 
         this.functionExit = iid =>
         {
-            const topIid = CallStackLogStore.getTop();
+            const topIid = CallStackLogStore.getTopIid();
             assert.equal(iid, topIid);
             CallStackLogStore.pop();
         }

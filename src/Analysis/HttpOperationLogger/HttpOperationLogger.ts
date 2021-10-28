@@ -47,7 +47,7 @@ export class HttpOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write',
-                                getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
+                                getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });
                 });
@@ -64,15 +64,15 @@ export class HttpOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write',
-                                getSourceCodeInfoFromIid(CallStackLogStore.getTop(), this.getSandbox()));
+                                getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });
                 });
 
                 server.on('request', (req, res) =>
                 {
-                    StreamLogStore.appendStreamOperation(req, 'write','construction', this.getSandbox(), CallStackLogStore.getTop());
-                    StreamLogStore.appendStreamOperation(res, 'write','construction', this.getSandbox(), CallStackLogStore.getTop());
+                    StreamLogStore.appendStreamOperation(req, 'write', 'construction', this.getSandbox(), CallStackLogStore.getTopIid());
+                    StreamLogStore.appendStreamOperation(res, 'write', 'construction', this.getSandbox(), CallStackLogStore.getTopIid());
                 });
             }
 

@@ -29,7 +29,7 @@ export class StreamOperationLogger extends Analysis
         Writable.prototype.destroy = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalWritableDestroy.call(this, ...args);
         }
@@ -38,7 +38,7 @@ export class StreamOperationLogger extends Analysis
         Readable.prototype.destroy = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadableDestroy.call(this, ...args);
         }
@@ -47,7 +47,7 @@ export class StreamOperationLogger extends Analysis
         Transform.prototype.destroy = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalTransformDestroy.call(this, ...args);
         }
@@ -56,12 +56,12 @@ export class StreamOperationLogger extends Analysis
         Writable.prototype.write = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const [chunk] = args as Parameters<typeof Writable.prototype.write>;
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read',
-                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
@@ -72,12 +72,12 @@ export class StreamOperationLogger extends Analysis
         Writable.prototype.end = function (...args: any[])
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const [chunk] = args as Parameters<typeof Writable.prototype.end>;
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'write',
-                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
@@ -91,8 +91,8 @@ export class StreamOperationLogger extends Analysis
             const startTimestamp = Date.now();
             const [destination] = args;
             assert.ok(destination instanceof Writable);
-            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTop());
-            StreamLogStore.appendStreamOperation(destination, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
+            StreamLogStore.appendStreamOperation(destination, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadablePipe.call(this, ...args);
         }
@@ -102,12 +102,12 @@ export class StreamOperationLogger extends Analysis
         {
             const startTimestamp = Date.now();
             const result = originalReadableRead.call(this, ...args)
-            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'read', 'read', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const data = result as ReturnType<typeof Readable.prototype.read>;
             if (isBufferLike(data))
             {
                 BufferLogStore.appendBufferOperation(data, 'write',
-                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return result;
@@ -117,12 +117,12 @@ export class StreamOperationLogger extends Analysis
         Readable.prototype.unshift = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const [chunk] = args as Parameters<typeof Readable.prototype.unshift>;
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read',
-                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadableUnshift.call(this, ...args);
@@ -132,12 +132,12 @@ export class StreamOperationLogger extends Analysis
         Readable.prototype.push = function (...args)
         {
             const startTimestamp = Date.now();
-            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTop());
+            StreamLogStore.appendStreamOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             const [chunk] = args as Parameters<typeof Readable.prototype.push>;
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read',
-                    getSourceCodeInfoFromIid(CallStackLogStore.getTop(), loggerThis.getSandbox()));
+                    getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             return originalReadablePush.call(this, ...args);

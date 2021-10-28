@@ -11,7 +11,7 @@ export class CallStackLogStore
         this.iidCallStack.push(iid);
     }
 
-    public static getTop(): number
+    public static getTopIid(): number
     {
         if (CallStackLogStore.iidCallStack.length > 0)
         {
@@ -29,7 +29,7 @@ export class CallStackLogStore
         CallStackLogStore.iidCallStack.length--;
     }
 
-    public static getCallStack(): readonly number[]
+    public static getCallStackIids(): readonly number[]
     {
         return CallStackLogStore.iidCallStack;
     }
