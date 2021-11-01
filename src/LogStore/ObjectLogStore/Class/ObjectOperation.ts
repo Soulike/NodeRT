@@ -17,4 +17,12 @@ export class ObjectOperation extends ResourceOperation
         this.field = field;
         StatisticsStore.addObjectOperationCount();
     }
+
+    toJSON()
+    {
+        return {
+            ...this,
+            field: Object.prototype.toString.call(this.field)
+        };
+    }
 }
