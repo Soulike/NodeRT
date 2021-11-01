@@ -28,6 +28,7 @@ import {OutgoingMessageStoreAnalysis} from './LogStoreAnalysis/OutgoingMessageLo
 import {CallStackLogger} from './CallStackLogger';
 import {EventEmitterOperationLogger} from './EventEmitterOperationLogger';
 import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogStoreAnalysis';
+import {JSONOperationLogger} from './JSONOperationLogger';
 
 (function (sandbox: Sandbox)
 {
@@ -78,6 +79,7 @@ import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogSt
         sandbox.addAnalysis(new CryptoOperationLogger(sandbox));
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
+        sandbox.addAnalysis(new JSONOperationLogger(sandbox));
     }
     else
     {
@@ -131,6 +133,7 @@ import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogSt
         sandbox.addAnalysis(new CryptoOperationLogger(sandbox));
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
+        sandbox.addAnalysis(new JSONOperationLogger(sandbox));
 
         const endTimestamp = Date.now() - startTimestamp;
 
