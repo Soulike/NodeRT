@@ -1,5 +1,6 @@
 // DO NOT INSTRUMENT
 
+import {isPrimitive} from '../../../Util';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
@@ -22,7 +23,7 @@ export class ObjectOperation extends ResourceOperation
     {
         return {
             ...this,
-            field: Object.prototype.toString.call(this.field)
+            field: isPrimitive(this.field) ? this.field : Object.prototype.toString.call(this.field),
         };
     }
 }
