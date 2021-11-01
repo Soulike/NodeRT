@@ -9,6 +9,7 @@ import {shouldBeVerbose} from '../../Util';
 
 export class SetOperationLogger extends Analysis
 {
+    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
@@ -22,29 +23,13 @@ export class SetOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFunPre = (iid, f, base, args) =>
         {
             const startTimestamp = Date.now();
 
-            if (f === Set)
+            if (base instanceof Set)
             {
-                if (isObject(args[0]))
-                {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
-                }
-                assert.ok(result instanceof Set);
-                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
-            }
-            else if (base instanceof Set)
-            {
-                if (f === Set.prototype[Symbol.iterator]
-                    || f === Set.prototype.entries
-                    || f === Set.prototype.values)
-                {
-                    assert.ok(isObject(result));
-                    IteratorLogStore.addIterator(result as Iterator<any>, base);
-                }
-                else if (f === Set.prototype.add)
+                if (f === Set.prototype.add)
                 {
                     const [value] = args as Parameters<typeof Set.prototype.add>;
                     if (!base.has(value))
@@ -74,6 +59,33 @@ export class SetOperationLogger extends Analysis
                 else if (f === Set.prototype.has)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', args[0], this.getSandbox(), iid);
+                }
+            }
+
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.invokeFun = (iid, f, base, args, result) =>
+        {
+            const startTimestamp = Date.now();
+
+            if (f === Set)
+            {
+                if (isObject(args[0]))
+                {
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                }
+                assert.ok(result instanceof Set);
+                ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+            }
+            else if (base instanceof Set)
+            {
+                if (f === Set.prototype[Symbol.iterator]
+                    || f === Set.prototype.entries
+                    || f === Set.prototype.values)
+                {
+                    assert.ok(isObject(result));
+                    IteratorLogStore.addIterator(result as Iterator<any>, base);
                 }
             }
 
