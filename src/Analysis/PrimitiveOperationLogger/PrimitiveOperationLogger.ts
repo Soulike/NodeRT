@@ -188,17 +188,35 @@ export class PrimitiveOperationLogger extends Analysis
         {
             return;
         }
-
-        const currentScope = PrimitiveLogStore.getScopeStack().getTop();
+        const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-        // default parameter may cause operation occurs when scope is undefined
-        const declaration = currentScope !== undefined ? currentScope.getDeclarationByName(name) : null;
-        const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
-
-        if (declaration === null)
+        
+        // search pending declarations first
+        let foundInPending = false;
+        const pendingPrimitiveDeclarations = PrimitiveLogStore.getPendingPrimitiveDeclarations();
+        for (let i = pendingPrimitiveDeclarations.length - 1; i >= 0; i--)
         {
-            if (isGlobal)
+            const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
+            if (pendingDeclaration.getResourceInfo().getName() === name)
+            {
+                pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                foundInPending = true;
+                break;
+            }
+        }
+
+        if (!foundInPending)
+        {
+            const currentScope = PrimitiveLogStore.getScopeStack().getTop();
+            // default parameter may cause operation occurs when scope is undefined
+            const declaration = currentScope !== undefined ? currentScope.getDeclarationByName(name) : null;
+
+            if (declaration !== null)
+            {
+                declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
+            }
+            else if (isGlobal)
             {
                 let newDeclaration = null;
                 if (isFunction(val))
@@ -218,49 +236,29 @@ export class PrimitiveOperationLogger extends Analysis
             }
             else
             {
-                let found = false;
-                const pendingPrimitiveDeclarations = PrimitiveLogStore.getPendingPrimitiveDeclarations();
-                for (let i = pendingPrimitiveDeclarations.length - 1; i >= 0; i--)
+                const location = sandbox.iidToLocation(iid);
+                console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
+
+                if (currentScope !== undefined)
                 {
-                    const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
-                    if (pendingDeclaration.getResourceInfo().getName() === name)
+                    // assume the declaration happened in current scope
+                    let newDeclaration = null;
+                    if (isFunction(val))
                     {
-                        pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
-                        found = true;
-                        break;
+                        newDeclaration = new PrimitiveDeclaration(iid, name, 'function',
+                            currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()), val);
                     }
-                }
-
-                if (!found)
-                {
-                    const location = sandbox.iidToLocation(iid);
-                    console.warn(`(${type}) Declaration ${name} at ${location} are not logged.`);
-
-                    if (currentScope !== undefined)
+                    else
                     {
-                        // assume the declaration happened in current scope
-                        let newDeclaration = null;
-                        if (isFunction(val))
-                        {
-                            newDeclaration = new PrimitiveDeclaration(iid, name, 'function',
-                                currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()), val);
-                        }
-                        else
-                        {
-                            newDeclaration = new PrimitiveDeclaration(iid, name, 'var',
-                                currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                        }
-
-                        newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
-                        PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
-                        currentScope.declarations.push(newDeclaration);
+                        newDeclaration = new PrimitiveDeclaration(iid, name, 'var',
+                            currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
+
+                    newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                    PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
+                    currentScope.declarations.push(newDeclaration);
                 }
             }
-        }
-        else
-        {
-            declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
         }
     }
 }

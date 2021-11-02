@@ -110,7 +110,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         // primitive
         sandbox.addAnalysis(new PrimitiveOperationLogger(sandbox));
 
-        // sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
+        sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
 
         // socket
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
