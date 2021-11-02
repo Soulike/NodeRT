@@ -12,12 +12,12 @@ export class EventEmitterLogStore
         WeakMap<EventEmitter, { [event: string | symbol]: EventEmitterDeclaration }> = new WeakMap();
     private static readonly eventEmitterDeclarations: EventEmitterDeclaration[] = [];
 
-    public static getEventEmitterDeclaration(eventEmitter: EventEmitter, event: string | symbol): EventEmitterDeclaration
+    public static getEventEmitterDeclaration(eventEmitter: EventEmitter, event: string | symbol, sourceCodeInfo: SourceCodeInfo): EventEmitterDeclaration
     {
         const eventToEventEmitterDeclaration = EventEmitterLogStore.eventEmitterToEventEmitterDeclaration.get(eventEmitter);
         if (eventToEventEmitterDeclaration === undefined)
         {
-            const newEventEmitterDeclaration = new EventEmitterDeclaration(eventEmitter, event);
+            const newEventEmitterDeclaration = new EventEmitterDeclaration(eventEmitter, event, sourceCodeInfo);
             EventEmitterLogStore.eventEmitterToEventEmitterDeclaration.set(eventEmitter, {[event]: newEventEmitterDeclaration});
             EventEmitterLogStore.eventEmitterDeclarations.push(newEventEmitterDeclaration);
             return newEventEmitterDeclaration;
@@ -27,7 +27,7 @@ export class EventEmitterLogStore
             const eventEmitterDeclaration = eventToEventEmitterDeclaration[event];
             if (eventEmitterDeclaration === undefined)
             {
-                const newEventEmitterDeclaration = new EventEmitterDeclaration(eventEmitter, event);
+                const newEventEmitterDeclaration = new EventEmitterDeclaration(eventEmitter, event, sourceCodeInfo);
                 EventEmitterLogStore.eventEmitterDeclarations.push(newEventEmitterDeclaration);
                 eventToEventEmitterDeclaration[event] = newEventEmitterDeclaration;
                 return newEventEmitterDeclaration;
@@ -47,7 +47,7 @@ export class EventEmitterLogStore
     public static appendOperation(eventEmitter: EventEmitter, event: string | symbol,
                                   type: 'read' | 'write', operationKind: EventEmitterOperation['operationKind'], sourceCodeInfo: SourceCodeInfo)
     {
-        const eventDeclaration = EventEmitterLogStore.getEventEmitterDeclaration(eventEmitter, event);
+        const eventDeclaration = EventEmitterLogStore.getEventEmitterDeclaration(eventEmitter, event, sourceCodeInfo);
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {

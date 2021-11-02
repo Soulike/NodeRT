@@ -89,7 +89,8 @@ export class PrimitiveOperationLogger extends Analysis
                 const currentScope = PrimitiveLogStore.getScopeStack().getTop();
                 assert.ok(currentScope !== undefined);
 
-                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope, val);
+                const declaration = new PrimitiveDeclaration(iid, val.name, 'function', currentScope,
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()), val);
 
                 // no need to add 'write' operation here since `this.write` hook will be called
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
@@ -142,7 +143,7 @@ export class PrimitiveOperationLogger extends Analysis
             // Can't distinguish between normal declarations (var i) from parameters of functions. Should be a write operation to functions parameters when functions are called.
             if (kind !== 'FunctionDeclaration')
             {
-                const declaration = new PrimitiveDeclaration(iid, name, 'var', null);
+                const declaration = new PrimitiveDeclaration(iid, name, 'var', null, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 PrimitiveLogStore.addPrimitiveDeclaration(declaration);
                 PrimitiveLogStore.addPendingPrimitiveDeclaration(declaration);
             }
@@ -202,11 +203,13 @@ export class PrimitiveOperationLogger extends Analysis
                 let newDeclaration = null;
                 if (isFunction(val))
                 {
-                    newDeclaration = new PrimitiveDeclaration(iid, name, 'function', Scope.GLOBAL_SCOPE, val);
+                    newDeclaration = new PrimitiveDeclaration(iid, name, 'function',
+                        Scope.GLOBAL_SCOPE, getSourceCodeInfoFromIid(iid, this.getSandbox()), val);
                 }
                 else
                 {
-                    newDeclaration = new PrimitiveDeclaration(iid, name, 'var', Scope.GLOBAL_SCOPE);
+                    newDeclaration = new PrimitiveDeclaration(iid, name, 'var', Scope.GLOBAL_SCOPE,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
 
                 newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));
@@ -239,11 +242,13 @@ export class PrimitiveOperationLogger extends Analysis
                         let newDeclaration = null;
                         if (isFunction(val))
                         {
-                            newDeclaration = new PrimitiveDeclaration(iid, name, 'function', currentScope, val);
+                            newDeclaration = new PrimitiveDeclaration(iid, name, 'function',
+                                currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()), val);
                         }
                         else
                         {
-                            newDeclaration = new PrimitiveDeclaration(iid, name, 'var', currentScope);
+                            newDeclaration = new PrimitiveDeclaration(iid, name, 'var',
+                                currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
 
                         newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, CallStackLogStore.getCallStack(), sourceCodeInfo));

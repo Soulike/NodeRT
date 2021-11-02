@@ -8,6 +8,7 @@ import {getSourceCodeInfoFromIid} from '../../Util';
 import asyncHooks from 'async_hooks';
 import http from 'http';
 import {CallStackLogStore} from '../CallStackLogStore';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 
 export class OutgoingMessageLogStore
 {
@@ -25,7 +26,7 @@ export class OutgoingMessageLogStore
      */
     public static appendOutgoingMessageOperation(outgoingMessage: http.OutgoingMessage, type: 'read' | 'write', operationKind: OutgoingMessageOperation['operationKind'], sandbox: Sandbox, iid: number)
     {
-        const outgoingMessageDeclaration = OutgoingMessageLogStore.getOutgoingMessageDeclaration(outgoingMessage);
+        const outgoingMessageDeclaration = OutgoingMessageLogStore.getOutgoingMessageDeclaration(outgoingMessage, getSourceCodeInfoFromIid(iid, sandbox));
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
@@ -35,12 +36,12 @@ export class OutgoingMessageLogStore
             new OutgoingMessageOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getOutgoingMessageDeclaration(outgoingMessage: http.OutgoingMessage)
+    private static getOutgoingMessageDeclaration(outgoingMessage: http.OutgoingMessage, sourceCodeInfo: SourceCodeInfo)
     {
         const outgoingMessageDeclaration = OutgoingMessageLogStore.outgoingMessageToOutgoingMessageDeclarations.get(outgoingMessage);
         if (outgoingMessageDeclaration === undefined)
         {
-            const newOutgoingMessageDeclaration = new OutgoingMessageDeclaration(outgoingMessage);
+            const newOutgoingMessageDeclaration = new OutgoingMessageDeclaration(outgoingMessage, sourceCodeInfo);
             OutgoingMessageLogStore.outgoingMessageDeclarations.push(newOutgoingMessageDeclaration);
             OutgoingMessageLogStore.outgoingMessageToOutgoingMessageDeclarations.set(outgoingMessage, newOutgoingMessageDeclaration);
             return newOutgoingMessageDeclaration;

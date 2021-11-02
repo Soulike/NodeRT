@@ -46,7 +46,7 @@ export class SocketLogStore
                 StreamLogStore.appendStreamOperation(socket, type, operationKind, sandbox, iid);
             }
 
-            const newSocketDeclaration = new SocketDeclaration(socket);
+            const newSocketDeclaration = new SocketDeclaration(socket, getSourceCodeInfoFromIid(iid, sandbox));
             SocketLogStore.socketDeclarations.push(newSocketDeclaration);
             SocketLogStore.socketToSocketDeclarations.set(socket, newSocketDeclaration);
             return newSocketDeclaration;

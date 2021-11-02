@@ -5,16 +5,17 @@ import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {FileOperation} from './FileOperation';
 import {RaceDetector} from '../../../RaceDetector';
 import {FileInfo} from './FileInfo';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class FileDeclaration extends ResourceDeclaration
 {
     private readonly fileInfo: FileInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, FileOperation[]>;
 
-    constructor(filePath: string)
+    constructor(filePath: string, possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.fileInfo = new FileInfo(filePath);
+        this.fileInfo = new FileInfo(filePath, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

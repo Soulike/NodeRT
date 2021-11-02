@@ -90,7 +90,7 @@ export class FsSyncOperationLogger extends Analysis
             {
                 const [path] = args as Parameters<typeof fs.openSync>;
                 const fd = result as ReturnType<typeof fs.openSync>;
-                FileLogStore.addFd(fd, path);
+                FileLogStore.addFd(fd, path, getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === fs.readdirSync
                 || f === fs.accessSync

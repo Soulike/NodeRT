@@ -3,16 +3,17 @@ import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {EventEmitterOperation} from './EventEmitterOperation';
 import {EventEmitterInfo} from './EventEmitterInfo';
 import {RaceDetector} from '../../../RaceDetector';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class EventEmitterDeclaration extends ResourceDeclaration
 {
     private readonly eventEmitterInfo: EventEmitterInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, EventEmitterOperation[]>;
 
-    constructor(eventEmitter: EventEmitterInfo['eventEmitter'], event: EventEmitterInfo['event'])
+    constructor(eventEmitter: EventEmitterInfo['eventEmitter'], event: EventEmitterInfo['event'], possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.eventEmitterInfo = new EventEmitterInfo(eventEmitter, event);
+        this.eventEmitterInfo = new EventEmitterInfo(eventEmitter, event, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

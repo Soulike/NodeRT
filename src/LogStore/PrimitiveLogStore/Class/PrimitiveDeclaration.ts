@@ -6,18 +6,19 @@ import {Scope} from './Scope';
 import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {RaceDetector} from '../../../RaceDetector';
 import {PrimitiveInfo} from './PrimitiveInfo';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
     private readonly primitiveInfo: PrimitiveInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
 
-    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, func: Function)
-    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null)
-    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, func?: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func?: Function)
     {
         super();
-        this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, func);
+        this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, possibleDefineCodeScope, func);
         this.asyncContextToOperations = new Map();
     }
 

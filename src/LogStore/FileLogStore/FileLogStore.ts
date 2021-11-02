@@ -10,6 +10,7 @@ import {BufferLike} from '../../Analysis/Type/BufferLike';
 import {FileHandle} from 'fs/promises';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 
 export class FileLogStore
 {
@@ -27,10 +28,10 @@ export class FileLogStore
         return this.fileHandles.has(fileHandle);
     }
 
-    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike)
+    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo)
     {
         this.fileHandles.add(fileHandle);
-        this.addFd(fileHandle.fd, filePathOrBuffer);
+        this.addFd(fileHandle.fd, filePathOrBuffer, sourceCodeInfo);
     }
 
     public static deleteFileHandle(fileHandle: FileHandle)
@@ -39,11 +40,11 @@ export class FileLogStore
         this.fdToFilePathOrBuffer.delete(fileHandle.fd);
     }
 
-    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike)
+    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo)
     {
         if (typeof filePathOrBuffer === 'string')
         {
-            FileLogStore.getFileDeclaration(filePathOrBuffer);
+            FileLogStore.getFileDeclaration(filePathOrBuffer, sourceCodeInfo);
         }
         if (filePathOrBuffer instanceof URL)
         {
@@ -62,7 +63,7 @@ export class FileLogStore
 
     public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
-        const fileDeclaration = FileLogStore.getFileDeclaration(filePath);
+        const fileDeclaration = FileLogStore.getFileDeclaration(filePath, getSourceCodeInfoFromIid(iid, sandbox));
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
@@ -75,13 +76,13 @@ export class FileLogStore
         }
     }
 
-    public static getFileDeclaration(filePathLike: string | URL): FileDeclaration
+    public static getFileDeclaration(filePathLike: string | URL, sourceCodeInfo: SourceCodeInfo): FileDeclaration
     {
         const realFilePath = typeof filePathLike === 'string' ? filePathLike : filePathLike.href;
         const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(realFilePath);
         if (fileDeclaration === undefined)
         {
-            const newFileDeclaration = new FileDeclaration(realFilePath);
+            const newFileDeclaration = new FileDeclaration(realFilePath, sourceCodeInfo);
             FileLogStore.filePathToFileDeclaration.set(realFilePath, newFileDeclaration);
             return newFileDeclaration;
         }

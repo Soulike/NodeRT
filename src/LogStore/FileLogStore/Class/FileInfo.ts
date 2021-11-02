@@ -1,13 +1,14 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class FileInfo extends ResourceInfo
 {
     private readonly filePath: string;
 
-    constructor(filePath: string)
+    constructor(filePath: string, possibleDefineCodeScope: SourceCodeInfo)
     {
-        super('file');
+        super('file', possibleDefineCodeScope);
         this.filePath = filePath;
         StatisticsStore.addFileCount();
     }

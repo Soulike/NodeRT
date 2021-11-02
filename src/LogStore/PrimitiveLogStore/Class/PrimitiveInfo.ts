@@ -2,6 +2,7 @@ import {ResourceInfo} from '../../Class/ResourceInfo';
 import {Scope} from './Scope';
 import {isFunction} from 'lodash';
 import {StatisticsStore} from '../../StatisticsStore';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class PrimitiveInfo extends ResourceInfo
 {
@@ -14,9 +15,9 @@ export class PrimitiveInfo extends ResourceInfo
 
     private scope: Scope | null;    // null for pending ones
 
-    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, func?: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func?: Function)
     {
-        super('primitive');
+        super('primitive', possibleDefineCodeScope);
         this.iid = iid;
         this.name = name;
         this.typeWhenDefined = typeWhenDefined;

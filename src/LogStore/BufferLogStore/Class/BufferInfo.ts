@@ -3,14 +3,15 @@ import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import {StatisticsStore} from '../../StatisticsStore';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import util from 'util';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class BufferInfo extends ResourceInfo
 {
     private readonly bufferWeakRef: WeakRef<ArrayBufferLike>;
 
-    constructor(buffer: ArrayBufferLike)
+    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo)
     {
-        super('buffer');
+        super('buffer', possibleDefineCodeScope);
         this.bufferWeakRef = new WeakRef(buffer);
         StatisticsStore.addBufferCount();
     }

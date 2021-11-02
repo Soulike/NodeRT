@@ -73,7 +73,7 @@ export class FsPromisesOperationLogger extends Analysis
                 const [path] = args as Parameters<typeof fsPromise.open>;
                 (result as ReturnType<typeof fsPromise.open>).then(fileHandle =>
                 {
-                    FileLogStore.addFileHandle(fileHandle, path);
+                    FileLogStore.addFileHandle(fileHandle, path, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
             }
             else if (f === fsPromise.readdir

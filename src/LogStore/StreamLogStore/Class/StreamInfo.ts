@@ -1,14 +1,15 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {Readable, Writable} from 'stream';
 import {StatisticsStore} from '../../StatisticsStore';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class StreamInfo extends ResourceInfo
 {
     private readonly streamWeakRef: WeakRef<Readable | Writable>;
 
-    constructor(stream: Readable | Writable)
+    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo)
     {
-        super('stream');
+        super('stream', possibleDefineCodeScope);
         this.streamWeakRef = new WeakRef(stream);
         StatisticsStore.addStreamCount();
     }

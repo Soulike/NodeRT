@@ -6,16 +6,17 @@ import {OutgoingMessageOperation} from './OutgoingMessageOperation';
 import {RaceDetector} from '../../../RaceDetector';
 import {OutgoingMessageInfo} from './OutgoingMessageInfo';
 import http from 'http';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class OutgoingMessageDeclaration extends ResourceDeclaration
 {
     private readonly outgoingMessageInfo: OutgoingMessageInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, OutgoingMessageOperation[]>;
 
-    constructor(outgoingMessage: http.OutgoingMessage)
+    constructor(outgoingMessage: http.OutgoingMessage, possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.outgoingMessageInfo = new OutgoingMessageInfo(outgoingMessage);
+        this.outgoingMessageInfo = new OutgoingMessageInfo(outgoingMessage, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

@@ -1,13 +1,14 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class ObjectInfo extends ResourceInfo
 {
     private readonly objectWeakRef: WeakRef<object>;
 
-    constructor(object: object)
+    constructor(object: object, possibleDefineCodeScope: SourceCodeInfo)
     {
-        super('object');
+        super('object', possibleDefineCodeScope);
         this.objectWeakRef = new WeakRef(object);
         StatisticsStore.addObjectCount();
     }

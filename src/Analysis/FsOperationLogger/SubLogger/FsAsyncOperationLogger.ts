@@ -176,7 +176,7 @@ export class FsAsyncOperationLogger extends Analysis
                     if (err === null)
                     {
                         assert.ok(typeof fd === 'number');
-                        FileLogStore.addFd(fd, filePathOrBuffer);
+                        FileLogStore.addFd(fd, filePathOrBuffer, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }
                 else if (register === fs.mkdtemp)

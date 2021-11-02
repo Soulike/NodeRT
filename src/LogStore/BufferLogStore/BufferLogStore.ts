@@ -19,13 +19,13 @@ export class BufferLogStore
     private static bufferToBufferDeclaration: WeakMap<ArrayBufferLike, BufferDeclaration> = new WeakMap();
     private static bufferDeclarations: BufferDeclaration[] = [];
 
-    public static getBufferDeclaration(buffer: BufferLike)
+    public static getBufferDeclaration(buffer: BufferLike, sourceCodeInfo: SourceCodeInfo)
     {
         const underArrayBuffer = util.types.isAnyArrayBuffer(buffer) ? buffer : buffer.buffer;
         const bufferDeclaration = BufferLogStore.bufferToBufferDeclaration.get(underArrayBuffer);
         if (bufferDeclaration === undefined)
         {
-            const newBufferDeclaration = new BufferDeclaration(underArrayBuffer);
+            const newBufferDeclaration = new BufferDeclaration(underArrayBuffer, sourceCodeInfo);
             BufferLogStore.bufferDeclarations.push(newBufferDeclaration);
             BufferLogStore.bufferToBufferDeclaration.set(underArrayBuffer, newBufferDeclaration);
             return newBufferDeclaration;
@@ -45,7 +45,17 @@ export class BufferLogStore
     public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
     public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
-        const bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer);
+        let bufferDeclaration: BufferDeclaration;
+        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
+        {
+            bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer, sandboxOrSourceCodeInfo);
+        }
+        else
+        {
+            assert.ok(iid !== undefined);
+            bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer, getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo));
+        }
+
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {

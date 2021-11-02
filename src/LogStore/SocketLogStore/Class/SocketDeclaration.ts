@@ -6,16 +6,17 @@ import {SocketOperation} from './SocketOperation';
 import net from 'net';
 import {RaceDetector} from '../../../RaceDetector';
 import {SocketInfo} from './SocketInfo';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class SocketDeclaration extends ResourceDeclaration
 {
     private readonly socketInfo: SocketInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, SocketOperation[]>;
 
-    constructor(socket: net.Socket)
+    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.socketInfo = new SocketInfo(socket);
+        this.socketInfo = new SocketInfo(socket, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

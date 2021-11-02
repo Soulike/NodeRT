@@ -6,16 +6,17 @@ import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
 import {RaceDetector} from '../../../RaceDetector';
 import {StreamInfo} from './StreamInfo';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class StreamDeclaration extends ResourceDeclaration
 {
     private readonly streamInfo: StreamInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, StreamOperation[]>;
 
-    constructor(stream: Readable | Writable)
+    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.streamInfo = new StreamInfo(stream);
+        this.streamInfo = new StreamInfo(stream, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

@@ -7,16 +7,17 @@ import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import {RaceDetector} from '../../../RaceDetector';
 import {BufferInfo} from './BufferInfo';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
     private readonly bufferInfo: BufferInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, BufferOperation[]>;
 
-    constructor(buffer: ArrayBufferLike)
+    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo)
     {
         super();
-        this.bufferInfo = new BufferInfo(buffer);
+        this.bufferInfo = new BufferInfo(buffer, possibleDefineCodeScope);
         this.asyncContextToOperations = new Map();
     }
 

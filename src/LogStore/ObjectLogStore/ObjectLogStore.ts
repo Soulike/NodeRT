@@ -7,6 +7,7 @@ import {ObjectDeclaration} from './Class/ObjectDeclaration';
 import {ObjectOperation} from './Class/ObjectOperation';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 
 export class ObjectLogStore
 {
@@ -20,7 +21,7 @@ export class ObjectLogStore
 
     public static appendObjectOperation(object: object, type: 'read' | 'write', field: any | null, sandbox: Sandbox, iid: number)
     {
-        const objectDeclaration = ObjectLogStore.getObjectDeclaration(object);
+        const objectDeclaration = ObjectLogStore.getObjectDeclaration(object, getSourceCodeInfoFromIid(iid, sandbox));
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
@@ -30,12 +31,12 @@ export class ObjectLogStore
             new ObjectOperation(type, field, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getObjectDeclaration(object: object)
+    private static getObjectDeclaration(object: object, sourceCodeInfo: SourceCodeInfo)
     {
         const objectDeclaration = ObjectLogStore.objectToObjectDeclaration.get(object);
         if (objectDeclaration === undefined)
         {
-            const newObjectDeclaration = new ObjectDeclaration(object);
+            const newObjectDeclaration = new ObjectDeclaration(object, sourceCodeInfo);
             ObjectLogStore.objectDeclarations.push(newObjectDeclaration);
             ObjectLogStore.objectToObjectDeclaration.set(object, newObjectDeclaration);
             return newObjectDeclaration;

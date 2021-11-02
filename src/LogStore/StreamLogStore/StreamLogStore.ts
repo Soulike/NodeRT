@@ -8,6 +8,7 @@ import {StreamDeclaration} from './Class/StreamDeclaration';
 import {StreamOperation} from './Class/StreamOperation';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 
 export class StreamLogStore
 {
@@ -21,7 +22,7 @@ export class StreamLogStore
 
     public static appendStreamOperation(stream: Readable | Writable, type: 'read' | 'write', operationKind: StreamOperation['operationKind'], sandbox: Sandbox, iid: number)
     {
-        const streamDeclaration = StreamLogStore.getStreamDeclaration(stream);
+        const streamDeclaration = StreamLogStore.getStreamDeclaration(stream, getSourceCodeInfoFromIid(iid, sandbox));
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
         {
@@ -31,12 +32,12 @@ export class StreamLogStore
             new StreamOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getStreamDeclaration(stream: Readable | Writable)
+    private static getStreamDeclaration(stream: Readable | Writable, sourceCodeInfo: SourceCodeInfo)
     {
         const streamDeclaration = StreamLogStore.streamToStreamDeclarations.get(stream);
         if (streamDeclaration === undefined)
         {
-            const newStreamDeclaration = new StreamDeclaration(stream);
+            const newStreamDeclaration = new StreamDeclaration(stream, sourceCodeInfo);
             StreamLogStore.streamDeclarations.push(newStreamDeclaration);
             StreamLogStore.streamToStreamDeclarations.set(stream, newStreamDeclaration);
             return newStreamDeclaration;
