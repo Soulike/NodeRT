@@ -58,7 +58,10 @@ export class ObjectOperationLogger extends Analysis
                 assert.ok(isObject(left[0]));
                 const object = left[0];
                 const property = left[1];
-                ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
+                if(Object.prototype.hasOwnProperty.call(object, property))
+                {
+                    ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
+                }
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
