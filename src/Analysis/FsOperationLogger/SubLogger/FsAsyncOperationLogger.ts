@@ -292,6 +292,8 @@ export class FsAsyncOperationLogger extends Analysis
                 const registrationInfoIndex = registrationInfos.findIndex(({registerAsyncId}) => currentAsyncContextAsyncIds.has(registerAsyncId));
                 assert.ok(registrationInfoIndex !== -1);
                 const {register, callback, filePathLike} = registrationInfos[registrationInfoIndex]!;
+                // registrationInfos won't be long so should be ok
+                registrationInfos.splice(registrationInfoIndex, 1);
                 if (callback)
                 {
                     callback();
