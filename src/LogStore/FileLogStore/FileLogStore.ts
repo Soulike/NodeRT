@@ -11,6 +11,7 @@ import {FileHandle} from 'fs/promises';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
 import {SourceCodeInfo} from '../Class/SourceCodeInfo';
+import path from 'path';
 
 export class FileLogStore
 {
@@ -63,6 +64,10 @@ export class FileLogStore
 
     public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
+        if(typeof filePath === 'string')
+        {
+            filePath = path.resolve(filePath);
+        }
         const fileDeclaration = FileLogStore.getFileDeclaration(filePath, getSourceCodeInfoFromIid(iid, sandbox));
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         if (type === 'write')
