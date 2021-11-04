@@ -40,6 +40,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         sandbox.addAnalysis(new AsyncContextLogger(sandbox));
         sandbox.addAnalysis(new LastExpressionValueLogger(sandbox));
         sandbox.addAnalysis(new IteratorLogger(sandbox));
+        sandbox.addAnalysis(new CallStackLogger(sandbox));
 
         // object
         sandbox.addAnalysis(new ArrayOperationLogger(sandbox));
@@ -100,7 +101,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         // file
         sandbox.addAnalysis(new FsOperationLogger(sandbox));
 
-        //sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
+        // sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
 
         // buffer
         sandbox.addAnalysis(new BufferLikeOperationLogger(sandbox));
@@ -110,7 +111,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         // primitive
         sandbox.addAnalysis(new PrimitiveOperationLogger(sandbox));
 
-        sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
+        // sandbox.addAnalysis(new PrimitiveLogStoreAnalysis(sandbox));
 
         // socket
         sandbox.addAnalysis(new HttpOperationLogger(sandbox));
