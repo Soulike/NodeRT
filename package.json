@@ -1,9 +1,9 @@
 {
-  "name": "nodeprof-analysis",
+  "name": "node-av",
   "version": "1.0.0",
   "repository": "git@github.com:Soulike/NodeProfAnalysis.git",
   "author": "Soulike <soulike@qq.com>",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "private": true,
   "scripts": {
     "prebuild": "rm -rf dist/ && tsc --noEmit",
