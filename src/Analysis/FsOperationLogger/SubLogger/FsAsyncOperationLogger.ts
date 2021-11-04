@@ -11,11 +11,12 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../
 import {BufferLike} from '../../Type/BufferLike';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import asyncHooks from 'async_hooks';
+import {AsyncContextLogStore} from '../../../LogStore/AsyncContextLogStore';
 
 interface RegistrationInfo
 {
     register: Function,
-    registerAsyncId: number,
+    registerAsyncId: number,    // executionAsyncId when register is being executed
     callback?: Function, // Function to be called when the registered fs callback is called
     filePathLike?: string | URL | BufferLike,
 }
@@ -285,8 +286,10 @@ export class FsAsyncOperationLogger extends Analysis
             const registrationInfos = this.callbackToRegistrationInfos.get(f);
             if (registrationInfos !== undefined && registrationInfos.length !== 0)
             {
-                // TODO: 匹配可能有点问题，进一步调查
-                const registrationInfoIndex = registrationInfos.findIndex((value => value.registerAsyncId === asyncHooks.triggerAsyncId()));
+                const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
+                const currentAsyncContextAsyncIds = currentAsyncContext.getAsyncContextChainAsyncIds();
+                // Use asyncId chain to match correct RegistrationInfo. Not strictly precise but should be enough
+                const registrationInfoIndex = registrationInfos.findIndex(({registerAsyncId}) => currentAsyncContextAsyncIds.has(registerAsyncId));
                 assert.ok(registrationInfoIndex !== -1);
                 const {register, callback, filePathLike} = registrationInfos[registrationInfoIndex]!;
                 if (callback)
