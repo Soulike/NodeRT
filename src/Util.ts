@@ -126,3 +126,23 @@ export function shouldBeVerbose()
 {
     return !!process.env[VERBOSE];
 }
+
+export function logUnboundFunction(unboundFunction: Function, boundFunction: Function)
+{
+    // @ts-ignore
+    boundFunction.__unboundFunction = unboundFunction;
+}
+
+export function getUnboundFunction(boundFunction: Function)
+{
+    // @ts-ignore
+    const unboundFunction = boundFunction.__unboundFunction;
+    if (unboundFunction === undefined)
+    {
+        return boundFunction;
+    }
+    else
+    {
+        return unboundFunction;
+    }
+}

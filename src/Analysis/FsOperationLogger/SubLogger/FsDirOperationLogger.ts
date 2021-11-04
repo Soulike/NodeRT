@@ -4,6 +4,8 @@ import {Dir} from 'fs';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
+import assert from 'assert';
+import util from 'util';
 
 export class FsDirOperationLogger extends Analysis
 {
@@ -20,7 +22,7 @@ export class FsDirOperationLogger extends Analysis
 
     protected override registerHooks()
     {
-        this.invokeFun = (iid, f, base) =>
+        this.invokeFun = (iid, f, base, _args, result) =>
         {
             const startTimestamp = Date.now();
 
@@ -30,6 +32,8 @@ export class FsDirOperationLogger extends Analysis
                     || f === Dir.prototype.readSync)
                 {
                     FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
+                    assert.ok(util.types.isPromise(result));
+                    result.finally(() => FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid));
                 }
             }
 

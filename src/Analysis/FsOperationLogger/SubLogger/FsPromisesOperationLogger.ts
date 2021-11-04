@@ -10,6 +10,8 @@ import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
+import assert from 'assert';
+import util from 'util';
 
 export class FsPromisesOperationLogger extends Analysis
 {
@@ -33,7 +35,9 @@ export class FsPromisesOperationLogger extends Analysis
             if (f === fsPromise.appendFile)
             {
                 const [path, data] = args as Parameters<typeof fsPromise.appendFile>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid));
                 if (isBufferLike(data))
                 {
                     BufferLogStore.appendBufferOperation(data, 'read',
@@ -48,7 +52,14 @@ export class FsPromisesOperationLogger extends Analysis
                     | typeof fsPromise.cp
                     | typeof fsPromise.rename>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
-                FileLogStoreAdaptor.appendFileOperation(dst, 'write', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() =>
+                {
+                    FileLogStoreAdaptor.appendFileOperation(src, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(dst, 'write', this.getSandbox(), iid);
+                });
+
             }
             else if (f === fsPromise.mkdir
                 || f === fsPromise.rmdir
@@ -61,7 +72,10 @@ export class FsPromisesOperationLogger extends Analysis
                     | typeof fsPromise.rm
                     | typeof fsPromise.truncate
                     | typeof fsPromise.unlink>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid));
+
             }
             else if (f === fsPromise.mkdtemp)
             {
@@ -84,17 +98,23 @@ export class FsPromisesOperationLogger extends Analysis
                     | typeof fsPromise.readFile
                     | typeof fsPromise.access>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid));
             }
             else if (f === fsPromise.chmod
                 || f === fsPromise.chown)
             {
                 const [path] = args as Parameters<typeof fsPromise.chmod>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', this.getSandbox(), iid));
             }
             else if (f === fsPromise.writeFile)
             {
                 const [file, data] = args as Parameters<typeof fsPromise.writeFile>;
-                FileLogStoreAdaptor.appendFileOperation(file, 'write', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(file, 'read', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() => FileLogStoreAdaptor.appendFileOperation(file, 'write', this.getSandbox(), iid));
                 if (isBufferLike(data))
                 {
                     BufferLogStore.appendBufferOperation(data, 'read',
