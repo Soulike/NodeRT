@@ -282,8 +282,7 @@ export class FsAsyncOperationLogger extends Analysis
         this.functionEnter = (iid, f, _dis, args) =>
         {
             const startTimestamp = Date.now();
-            const unboundFunction = getUnboundFunction(f);
-            const registrationInfos = this.callbackToRegistrationInfos.get(unboundFunction);
+            const registrationInfos = this.callbackToRegistrationInfos.get(f);
             if (registrationInfos !== undefined && registrationInfos.length !== 0)
             {
                 const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
@@ -358,7 +357,9 @@ export class FsAsyncOperationLogger extends Analysis
 
     private addRegistrationInfo(callback: Function, registrationInfo: RegistrationInfo)
     {
-        const registrationInfos = this.callbackToRegistrationInfos.get(callback);
+        // Function provided by functionEnter() is unbound, so we only log unbound version function
+        const unboundCallback = getUnboundFunction(callback);
+        const registrationInfos = this.callbackToRegistrationInfos.get(unboundCallback);
         if (registrationInfos === undefined)
         {
             this.callbackToRegistrationInfos.set(callback, [registrationInfo]);
