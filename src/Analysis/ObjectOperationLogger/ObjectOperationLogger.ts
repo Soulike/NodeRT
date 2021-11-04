@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
 import {strict as assert} from 'assert';
-import {isObject} from 'lodash';
+import {isFunction, isObject} from 'lodash';
 import {LastExpressionValueLogStore} from '../../LogStore/LastExpressionValueLogStore';
 import {ObjectLogStore} from '../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {isArrayAccess, isBufferLike, shouldBeVerbose} from '../../Util';
+import {isArrayAccess, isBufferLike, logUnboundFunction, shouldBeVerbose} from '../../Util';
 
 export class ObjectOperationLogger extends Analysis
 {
@@ -58,7 +58,7 @@ export class ObjectOperationLogger extends Analysis
                 assert.ok(isObject(left[0]));
                 const object = left[0];
                 const property = left[1];
-                if(Object.prototype.hasOwnProperty.call(object, property))
+                if (Object.prototype.hasOwnProperty.call(object, property))
                 {
                     ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
                 }
@@ -190,6 +190,17 @@ export class ObjectOperationLogger extends Analysis
                     assert.ok(isObject(base));
                     ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
                 }
+            }
+            else if (f === Function.prototype.bind)
+            {
+                /*
+                 * When a bound function is called,
+                 * NodeProf.js can only provide original unbound instance in the hooks.
+                 * So we need to log original unbound function instance.
+                 */
+                assert.ok(isFunction(base));
+                assert.ok(isFunction(result));
+                logUnboundFunction(base, result);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;

@@ -7,7 +7,7 @@ import {BufferLogStore} from '../../../LogStore/BufferLogStore';
 import {FileLogStore} from '../../../LogStore/FileLogStore';
 import {ObjectLogStore} from '../../../LogStore/ObjectLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
+import {getSourceCodeInfoFromIid, getUnboundFunction, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {BufferLike} from '../../Type/BufferLike';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import asyncHooks from 'async_hooks';
@@ -282,8 +282,8 @@ export class FsAsyncOperationLogger extends Analysis
         this.functionEnter = (iid, f, _dis, args) =>
         {
             const startTimestamp = Date.now();
-
-            const registrationInfos = this.callbackToRegistrationInfos.get(f);
+            const unboundFunction = getUnboundFunction(f);
+            const registrationInfos = this.callbackToRegistrationInfos.get(unboundFunction);
             if (registrationInfos !== undefined && registrationInfos.length !== 0)
             {
                 const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
