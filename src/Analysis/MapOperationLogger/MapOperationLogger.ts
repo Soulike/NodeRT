@@ -68,7 +68,7 @@ export class MapOperationLogger extends Analysis
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
-        }
+        };
 
         this.invokeFun = (iid, f, base, args, result) =>
         {

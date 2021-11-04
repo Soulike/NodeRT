@@ -64,7 +64,7 @@ export class FileLogStore
 
     public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
     {
-        if(typeof filePath === 'string')
+        if (typeof filePath === 'string')
         {
             filePath = path.resolve(filePath);
         }

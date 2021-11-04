@@ -191,7 +191,7 @@ export class PrimitiveOperationLogger extends Analysis
         const currentAsyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
         const sandbox = this.getSandbox();
         const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
-        
+
         // search pending declarations first
         let foundInPending = false;
         const pendingPrimitiveDeclarations = PrimitiveLogStore.getPendingPrimitiveDeclarations();
