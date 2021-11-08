@@ -23,6 +23,11 @@ export class Filter
             resourceInfo,
         } = violationInfo;
 
+        if (!this.isPromiseViolationTP(violationInfo))
+        {
+            return false;
+        }
+
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectViolationTP(violationInfo);
@@ -239,6 +244,28 @@ export class Filter
         const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
 
         return violatingAsyncContextToOperationsLastOperationKind !== 'addListener';
+    }
+
+    /**
+     * In some apis (e.g. fs), we log operations on resolve of promises (using .finally())
+     * which do not violates operations done in user code. So filter them out.
+     * */
+    private static isPromiseViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {
+            violatingAsyncContextToOperations: [violatingAsyncContext],
+            atomicAsyncContextToOperations2: [operations2AsyncContext],
+        } = violationInfo;
+        if (violatingAsyncContext.asyncType === 'PROMISE' && operations2AsyncContext.asyncType === 'PROMISE')
+        {
+            return !(violatingAsyncContext.codeInfo === null    // violator is located in analysis code
+                && operations2AsyncContext.codeInfo !== null    // operation2 is located in user code
+            );
+        }
+        else
+        {
+            return true;
+        }
     }
 
     /**
