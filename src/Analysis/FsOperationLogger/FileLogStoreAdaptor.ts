@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Sandbox} from '../../Type/nodeprof';
-import {FileLogStore} from '../../LogStore/FileLogStore';
+import {FileLogStore, FileOperationOnType} from '../../LogStore/FileLogStore';
 import {FileHandle} from 'fs/promises';
 import {PathLike} from 'fs';
 import {isBufferLike, isURL} from '../../Util';
@@ -13,11 +13,11 @@ export class FileLogStoreAdaptor
     /**
      * Determine whether the operation is appended to BufferLogStore or FileLogStore
      * */
-    public static appendFileOperation(fileHandle: FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    public static appendFileOperation(filePathLike: PathLike | BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    public static appendFileOperation(fd: number, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    public static appendFileOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    public static appendFileOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendFileOperation(fileHandle: FileHandle, type: 'read' | 'write', operationOn: FileOperationOnType, sandbox: Sandbox, iid: number): void;
+    public static appendFileOperation(filePathLike: PathLike | BufferLike, type: 'read' | 'write', operationOn: FileOperationOnType, sandbox: Sandbox, iid: number): void;
+    public static appendFileOperation(fd: number, type: 'read' | 'write', operationOn: FileOperationOnType, sandbox: Sandbox, iid: number): void;
+    public static appendFileOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', operationOn: FileOperationOnType, sandbox: Sandbox, iid: number): void;
+    public static appendFileOperation(filePathLikeOrFdOrFileHandle: PathLike | number | BufferLike | FileHandle, type: 'read' | 'write', operationOn: FileOperationOnType, sandbox: Sandbox, iid: number)
     {
         if (isBufferLike(filePathLikeOrFdOrFileHandle))
         {
@@ -36,7 +36,7 @@ export class FileLogStoreAdaptor
             else if (typeof filePathOrBuffer === 'string')
             {
                 const filePath = filePathOrBuffer;
-                FileLogStore.appendFileOperation(filePath, type, sandbox, iid);
+                FileLogStore.appendFileOperation(filePath, type, operationOn, sandbox, iid);
             }
             else
             {
@@ -46,12 +46,12 @@ export class FileLogStoreAdaptor
         else if (isURL(filePathLikeOrFdOrFileHandle) || typeof filePathLikeOrFdOrFileHandle === 'string')
         {
             const filePathOrUrl = filePathLikeOrFdOrFileHandle;
-            FileLogStore.appendFileOperation(filePathOrUrl, type, sandbox, iid);
+            FileLogStore.appendFileOperation(filePathOrUrl, type, operationOn, sandbox, iid);
         }
         else    // FileHandle
         {
             const fileHandle = filePathLikeOrFdOrFileHandle;
-            FileLogStoreAdaptor.appendFileOperation(fileHandle.fd, type, sandbox, iid);
+            FileLogStoreAdaptor.appendFileOperation(fileHandle.fd, type, operationOn, sandbox, iid);
         }
     }
 }

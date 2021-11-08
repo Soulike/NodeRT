@@ -12,6 +12,8 @@ import {OutgoingMessageOperation} from '../LogStore/OutgoingMessageLogStore/Clas
 import {StreamInfo} from '../LogStore/StreamLogStore/Class/StreamInfo';
 import {EventEmitterInfo} from '../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
+import {FileInfo} from '../LogStore/FileLogStore/Class/FileInfo';
+import {FileOperation} from '../LogStore/FileLogStore';
 
 export class Filter
 {
@@ -47,6 +49,10 @@ export class Filter
         else if (resourceInfo instanceof EventEmitterInfo)
         {
             return Filter.isEventEmitterViolationTP(violationInfo);
+        }
+        else if (resourceInfo instanceof FileInfo)
+        {
+            return Filter.isFileViolationTP(violationInfo);
         }
         else
         {
@@ -244,6 +250,41 @@ export class Filter
         const violatingAsyncContextToOperationsLastOperationKind = violatingAsyncContextToOperationsLastOperation.getOperationKind();
 
         return violatingAsyncContextToOperationsLastOperationKind !== 'addListener';
+    }
+
+    private static isFileViolationTP(violationInfo: ViolationInfo): boolean
+    {
+        const {resourceInfo, violatingAsyncContextToOperations, atomicAsyncContextToOperations2} = violationInfo;
+        assert.ok(resourceInfo instanceof FileInfo);
+        const violatingAsyncContextOperations = violatingAsyncContextToOperations[1];
+        const atomicAsyncContext2Operations = atomicAsyncContextToOperations2[1];
+
+        let violatingAsyncContextWriteOnContent = false;
+        for (const operation of violatingAsyncContextOperations)
+        {
+            assert.ok(operation instanceof FileOperation);
+            if (operation.getOperationOn() === 'content')
+            {
+                violatingAsyncContextWriteOnContent = true;
+                break;
+            }
+        }
+
+        let atomicAsyncContext2WriteOnContent = false;
+        for (const operation of atomicAsyncContext2Operations)
+        {
+            assert.ok(operation instanceof FileOperation);
+            if (operation.getOperationOn() === 'content')
+            {
+                atomicAsyncContext2WriteOnContent = true;
+                break;
+            }
+        }
+
+        return !(
+            violatingAsyncContextWriteOnContent // violator writes on content
+            && !atomicAsyncContext2WriteOnContent   // atomic2 writes on stat
+        );
     }
 
     /**

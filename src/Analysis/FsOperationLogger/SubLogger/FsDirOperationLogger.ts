@@ -31,9 +31,9 @@ export class FsDirOperationLogger extends Analysis
                 if (f === Dir.prototype.read
                     || f === Dir.prototype.readSync)
                 {
-                    FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(base.path, 'read', 'content', this.getSandbox(), iid);
                     assert.ok(util.types.isPromise(result));
-                    result.finally(() => FileLogStoreAdaptor.appendFileOperation(base.path, 'read', this.getSandbox(), iid));
+                    result.finally(() => FileLogStoreAdaptor.appendFileOperation(base.path, 'read', 'content', this.getSandbox(), iid));
                 }
             }
 

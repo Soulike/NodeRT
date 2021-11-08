@@ -62,7 +62,7 @@ export class FileLogStore
         this.fdToFilePathOrBuffer.delete(fd);
     }
 
-    public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', sandbox: Sandbox, iid: number)
+    public static appendFileOperation(filePath: string | URL, type: 'read' | 'write', operationOn: FileOperation['operationOn'], sandbox: Sandbox, iid: number)
     {
         if (typeof filePath === 'string')
         {
@@ -77,7 +77,7 @@ export class FileLogStore
         if (fileDeclaration !== undefined)
         {
             fileDeclaration.appendOperation(asyncContext,
-                new FileOperation(type, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
+                new FileOperation(type, operationOn, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
         }
     }
 

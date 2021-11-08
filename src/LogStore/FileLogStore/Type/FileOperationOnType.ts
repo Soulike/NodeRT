@@ -1,0 +1,1 @@
+export type FileOperationOnType = 'content' | 'stat';
