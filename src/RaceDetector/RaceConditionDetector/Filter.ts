@@ -12,6 +12,8 @@ import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperati
 import {StreamInfo} from '../../LogStore/StreamLogStore/Class/StreamInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
+import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
+import {FileOperation} from '../../LogStore/FileLogStore';
 
 export class Filter
 {
@@ -39,6 +41,10 @@ export class Filter
         else if (resourceInfo instanceof EventEmitterInfo)
         {
             return Filter.isEventEmitterRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof FileInfo)
+        {
+            return Filter.isFileViolationTP(raceConditionInfo);
         }
         else
         {
@@ -152,6 +158,41 @@ export class Filter
         const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
 
         return asyncContext1LastOperationKind !== 'addListener';
+    }
+
+    private static isFileViolationTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof FileInfo);
+        const asyncContext1Operations = asyncContextToOperations1[1];
+        const asyncContext2Operations = asyncContextToOperations2[1];
+
+        let asyncContext1WriteOnContent = false;
+        for (const operation of asyncContext1Operations)
+        {
+            assert.ok(operation instanceof FileOperation);
+            if (operation.getOperationOn() === 'content')
+            {
+                asyncContext1WriteOnContent = true;
+                break;
+            }
+        }
+
+        let asyncContext2WriteOnContent = false;
+        for (const operation of asyncContext2Operations)
+        {
+            assert.ok(operation instanceof FileOperation);
+            if (operation.getOperationOn() === 'content')
+            {
+                asyncContext2WriteOnContent = true;
+                break;
+            }
+        }
+
+        return !(
+            asyncContext1WriteOnContent // async context1 writes on content
+            && !asyncContext2WriteOnContent   // async context2 writes on stat
+        );
     }
 
     /**
