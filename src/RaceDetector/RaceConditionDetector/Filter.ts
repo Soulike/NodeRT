@@ -268,17 +268,30 @@ export class Filter
             asyncContextToOperations1[0].functionWeakRef,
             asyncContextToOperations2[0].functionWeakRef,
         ];
-        assert.ok(asyncCalledFunction2 !== null);
 
         const callbackFunction1Ref = asyncCalledFunction1 === null ? null : asyncCalledFunction1.deref;
-        const callbackFunction2Ref = asyncCalledFunction2.deref;
+        const callbackFunction2Ref = asyncCalledFunction2 === null ? null : asyncCalledFunction2.deref;
 
         assert.ok(callbackFunction1Ref !== undefined);
         assert.ok(callbackFunction2Ref !== undefined);
 
-        return [
-            objectHash.MD5(callbackFunction1Ref),
-            objectHash.MD5(callbackFunction2Ref),
-        ].join(',');
+        if (callbackFunction2Ref !== null)
+        {
+            return [
+                objectHash.MD5(callbackFunction1Ref),
+                objectHash.MD5(callbackFunction2Ref),
+            ].join(',');
+        }
+        else
+        {
+            const [asyncContext1AsyncId, asyncContext2AsyncId] = [
+                asyncContextToOperations1[0].asyncId,
+                asyncContextToOperations2[0].asyncId,
+            ];
+            return [
+                objectHash.MD5(asyncContext1AsyncId),
+                objectHash.MD5(asyncContext2AsyncId),
+            ].join(',');
+        }
     }
 }

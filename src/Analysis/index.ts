@@ -101,7 +101,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         // file
         sandbox.addAnalysis(new FsOperationLogger(sandbox));
 
-        // sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
+        sandbox.addAnalysis(new FileLogStoreAnalysis(sandbox));
 
         // buffer
         sandbox.addAnalysis(new BufferLikeOperationLogger(sandbox));
