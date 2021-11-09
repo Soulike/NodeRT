@@ -1,11 +1,11 @@
 // DO NOT INSTRUMENT
 
-import {Detector} from './Detector';
-import {ViolationInfo} from './ViolationInfo';
-import {AsyncCalledFunctionInfo} from '../LogStore/Class/AsyncCalledFunctionInfo';
+import {Detector} from '../Detector';
+import {ViolationInfo} from '../ViolationInfo';
+import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {Filter} from './Filter';
 
-export const conservativeDetector: Detector = (resourceDeclaration) =>
+export const atomicityViolationDetector: Detector = (resourceDeclaration) =>
 {
     const asyncContextToOperations = Object.freeze(Array.from(resourceDeclaration.getAsyncContextToOperations()));
     const LENGTH = asyncContextToOperations.length;

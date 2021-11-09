@@ -3,7 +3,7 @@
 import EventEmitter from 'events';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {outputSync, shouldBeVerbose, toJSON} from '../Util';
-import {conservativeDetector} from './ConservativeDetector';
+import {atomicityViolationDetector} from './AtomicityViolationDetector';
 
 type EventName = 'operationAppended';
 
@@ -46,7 +46,7 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
     const startTimestamp = Date.now();
 
-    const violationInfos = conservativeDetector(resourceDeclaration);
+    const violationInfos = atomicityViolationDetector(resourceDeclaration);
     for (const violationInfo of violationInfos)
     {
         outputs.push(violationInfo);
@@ -54,8 +54,3 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
 
     timeConsumed += (Date.now() - startTimestamp);
 });
-
-/* eventEmitter.on('operationAppended', (resourceDeclaration) =>
-{
-    aggressiveDetector(resourceDeclaration);
-}); */

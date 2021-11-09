@@ -1,19 +1,19 @@
 import {EnhancedSet} from '@datastructures-js/set';
-import {ObjectOperation} from '../LogStore/ObjectLogStore';
-import {ViolationInfo} from './ViolationInfo';
+import {ObjectOperation} from '../../LogStore/ObjectLogStore';
+import {ViolationInfo} from '../ViolationInfo';
 import objectHash from 'object-hash';
 import assert from 'assert';
-import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
-import {ObjectInfo} from '../LogStore/ObjectLogStore/Class/ObjectInfo';
-import {SocketInfo} from '../LogStore/SocketLogStore/Class/SocketInfo';
-import {SocketOperation} from '../LogStore/SocketLogStore/Class/SocketOperation';
-import {OutgoingMessageInfo} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
-import {OutgoingMessageOperation} from '../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
-import {StreamInfo} from '../LogStore/StreamLogStore/Class/StreamInfo';
-import {EventEmitterInfo} from '../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
-import {EventEmitterOperation} from '../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
-import {FileInfo} from '../LogStore/FileLogStore/Class/FileInfo';
-import {FileOperation} from '../LogStore/FileLogStore';
+import {ResourceDeclaration} from '../../LogStore/Class/ResourceDeclaration';
+import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
+import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
+import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
+import {OutgoingMessageInfo} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
+import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
+import {StreamInfo} from '../../LogStore/StreamLogStore/Class/StreamInfo';
+import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
+import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
+import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
+import {FileOperation} from '../../LogStore/FileLogStore';
 
 export class Filter
 {
