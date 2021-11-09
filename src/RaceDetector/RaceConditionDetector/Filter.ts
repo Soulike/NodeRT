@@ -5,6 +5,8 @@ import objectHash from 'object-hash';
 import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
 import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
+import {OutgoingMessageInfo} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
+import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
 
 export class Filter
 {
@@ -16,6 +18,10 @@ export class Filter
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof OutgoingMessageInfo)
+        {
+            return Filter.isOutgoingMessageRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -59,6 +65,21 @@ export class Filter
         }
 
         return accessedFieldsInAsyncContext1.intersect(accessedFieldsInAsyncContext2).size !== 0;
+    }
+
+    private static isOutgoingMessageRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof OutgoingMessageInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1];
+        const asyncContext1LastOperation = asyncContext1Operations[asyncContext1Operations.length - 1];
+        assert.ok(asyncContext1LastOperation instanceof OutgoingMessageOperation);
+
+        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
+
+        return asyncContext1LastOperationKind === 'end'
+            || asyncContext1LastOperationKind === 'destroy';
     }
 
     /**
