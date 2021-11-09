@@ -21,6 +21,11 @@ export class Filter
 
     public static isTruePositive(raceConditionInfo: RaceConditionInfo): boolean
     {
+        if (!Filter.isPromiseViolationTP(raceConditionInfo))
+        {
+            return false;
+        }
+
         const {resourceInfo} = raceConditionInfo;
         if (resourceInfo instanceof ObjectInfo)
         {
@@ -193,6 +198,28 @@ export class Filter
             asyncContext1WriteOnContent // async context1 writes on content
             && !asyncContext2WriteOnContent   // async context2 writes on stat
         );
+    }
+
+    /**
+     * In some apis (e.g. fs), we log operations on resolve of promises (using .finally())
+     * which do not race with user code. So filter them out.
+     * */
+    private static isPromiseViolationTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {
+            asyncContextToOperations1: [asyncContext1],
+            asyncContextToOperations2: [asyncContext2],
+        } = raceConditionInfo;
+        if (asyncContext1.asyncType === 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
+        {
+            return !(asyncContext1.codeInfo === null    // violator is located in analysis code
+                && asyncContext2.codeInfo !== null    // operation2 is located in user code
+            );
+        }
+        else
+        {
+            return true;
+        }
     }
 
     /**
