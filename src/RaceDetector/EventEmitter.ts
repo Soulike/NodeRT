@@ -3,7 +3,7 @@
 import EventEmitter from 'events';
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
 import {outputSync, shouldBeVerbose, toJSON} from '../Util';
-import {raceConditionDetector} from './RaceConditionDetector';
+import {atomicityViolationDetector} from './AtomicityViolationDetector';
 
 type EventName = 'operationAppended';
 
@@ -46,10 +46,10 @@ eventEmitter.on('operationAppended', (resourceDeclaration) =>
 {
     const startTimestamp = Date.now();
 
-    const raceConditionInfos = raceConditionDetector(resourceDeclaration);
-    for (const raceConditionInfo of raceConditionInfos)
+    const violationInfos = atomicityViolationDetector(resourceDeclaration);
+    for (const violationInfo of violationInfos)
     {
-        outputs.push(raceConditionInfo);
+        outputs.push(violationInfo);
     }
 
     timeConsumed += (Date.now() - startTimestamp);
