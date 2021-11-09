@@ -1,9 +1,9 @@
 // DO NOT INSTRUMENT
 
 import {ResourceDeclaration} from '../LogStore/Class/ResourceDeclaration';
-import {ViolationInfo} from './ViolationInfo';
+import {Info} from './Info';
 
 export interface Detector
 {
-    (resourceDeclaration: ResourceDeclaration): ViolationInfo[];
+    (resourceDeclaration: ResourceDeclaration): Info[];
 }

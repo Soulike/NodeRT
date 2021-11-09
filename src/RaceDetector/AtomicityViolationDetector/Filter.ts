@@ -1,6 +1,6 @@
 import {EnhancedSet} from '@datastructures-js/set';
 import {ObjectOperation} from '../../LogStore/ObjectLogStore';
-import {ViolationInfo} from '../ViolationInfo';
+import {ViolationInfo} from './ViolationInfo';
 import objectHash from 'object-hash';
 import assert from 'assert';
 import {ResourceDeclaration} from '../../LogStore/Class/ResourceDeclaration';

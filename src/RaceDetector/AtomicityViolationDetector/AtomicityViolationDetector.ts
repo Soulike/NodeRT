@@ -1,7 +1,7 @@
 // DO NOT INSTRUMENT
 
 import {Detector} from '../Detector';
-import {ViolationInfo} from '../ViolationInfo';
+import {ViolationInfo} from './ViolationInfo';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {Filter} from './Filter';
 
