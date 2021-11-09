@@ -10,6 +10,8 @@ import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/C
 import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
 import {StreamInfo} from '../../LogStore/StreamLogStore/Class/StreamInfo';
+import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
+import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 
 export class Filter
 {
@@ -33,6 +35,10 @@ export class Filter
         else if (resourceInfo instanceof StreamInfo)
         {
             return Filter.isStreamRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof EventEmitterInfo)
+        {
+            return Filter.isEventEmitterRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -131,6 +137,21 @@ export class Filter
 
         return asyncContext1LastOperationKind === 'end'
             || asyncContext1LastOperationKind === 'destroy';
+    }
+
+    private static isEventEmitterRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof EventEmitterInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1];
+        const asyncContext1LastOperation =
+            asyncContext1Operations[asyncContext1Operations.length - 1];
+        assert.ok(asyncContext1LastOperation instanceof EventEmitterOperation);
+
+        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
+
+        return asyncContext1LastOperationKind !== 'addListener';
     }
 
     /**
