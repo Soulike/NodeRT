@@ -2,14 +2,63 @@ import {ResourceDeclaration} from '../../LogStore/Class/ResourceDeclaration';
 import {RaceConditionInfo} from './RaceConditionInfo';
 import assert from 'assert';
 import objectHash from 'object-hash';
+import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
+import {ObjectOperation} from '../../LogStore/ObjectLogStore';
+import {EnhancedSet} from '@datastructures-js/set';
 
 export class Filter
 {
     private static readonly reportedRaceCondition = new Map<ResourceDeclaration, Set<string>>();
 
-    public static isTruePositive(_raceConditionInfo: RaceConditionInfo): boolean
+    public static isTruePositive(raceConditionInfo: RaceConditionInfo): boolean
     {
-        return true;
+        const {resourceInfo} = raceConditionInfo;
+        if (resourceInfo instanceof ObjectInfo)
+        {
+            return Filter.isObjectRaceConditionTP(raceConditionInfo);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public static isObjectRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof ObjectInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1]! as ObjectOperation[];
+        const accessedFieldsInAsyncContext1 = new EnhancedSet();
+        for (const operation of asyncContext1Operations)
+        {
+            const {field} = operation;
+            if (field === null) // maybe all fields are accessed
+            {
+                return true;
+            }
+            else
+            {
+                accessedFieldsInAsyncContext1.add(field);
+            }
+        }
+
+        const asyncContext2Operations = asyncContextToOperations2[1]! as ObjectOperation[];
+        const accessedFieldsInAsyncContext2 = new EnhancedSet();
+        for (const operation of asyncContext2Operations)
+        {
+            const {field} = operation;
+            if (field === null) // maybe all fields are accessed
+            {
+                return true;
+            }
+            else
+            {
+                accessedFieldsInAsyncContext2.add(field);
+            }
+        }
+
+        return accessedFieldsInAsyncContext1.intersect(accessedFieldsInAsyncContext2).size !== 0;
     }
 
     /**
@@ -51,12 +100,12 @@ export class Filter
     private static getRaceConditionInfoHash(raceConditionInfo: RaceConditionInfo): string | null
     {
         const {
-            asyncContentToOperations1, asyncContentToOperations2,
+            asyncContextToOperations1, asyncContextToOperations2,
         } = raceConditionInfo;
 
         const [asyncCalledFunction1, asyncCalledFunction2] = [
-            asyncContentToOperations1[0].functionWeakRef,
-            asyncContentToOperations2[0].functionWeakRef,
+            asyncContextToOperations1[0].functionWeakRef,
+            asyncContextToOperations2[0].functionWeakRef,
         ];
         assert.ok(asyncCalledFunction2 !== null);
 
