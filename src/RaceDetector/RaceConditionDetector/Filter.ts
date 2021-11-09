@@ -9,6 +9,7 @@ import {OutgoingMessageInfo} from '../../LogStore/OutgoingMessageLogStore/Class/
 import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
 import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
+import {StreamInfo} from '../../LogStore/StreamLogStore/Class/StreamInfo';
 
 export class Filter
 {
@@ -28,6 +29,10 @@ export class Filter
         else if (resourceInfo instanceof SocketInfo)
         {
             return Filter.isSocketRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof StreamInfo)
+        {
+            return Filter.isStreamRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -110,6 +115,22 @@ export class Filter
 
         return !(asyncContext2LastOperationKind === 'destroy'
             || (asyncContext1LastOperationKind === 'connection' && asyncContext1LastOperationType === 'write'));
+    }
+
+    private static isStreamRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof StreamInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1];
+        const asyncContext1LastOperation =
+            asyncContext1Operations[asyncContext1Operations.length - 1];
+        assert.ok(asyncContext1LastOperation instanceof OutgoingMessageOperation);
+
+        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
+
+        return asyncContext1LastOperationKind === 'end'
+            || asyncContext1LastOperationKind === 'destroy';
     }
 
     /**
