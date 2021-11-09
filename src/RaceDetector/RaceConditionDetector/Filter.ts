@@ -7,6 +7,8 @@ import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
 import {OutgoingMessageInfo} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
 import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
+import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
+import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
 
 export class Filter
 {
@@ -22,6 +24,10 @@ export class Filter
         else if (resourceInfo instanceof OutgoingMessageInfo)
         {
             return Filter.isOutgoingMessageRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof SocketInfo)
+        {
+            return Filter.isSocketRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -80,6 +86,30 @@ export class Filter
 
         return asyncContext1LastOperationKind === 'end'
             || asyncContext1LastOperationKind === 'destroy';
+    }
+
+    private static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations2, asyncContextToOperations1} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof SocketInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1];
+        const asyncContext1LastOperation =
+            asyncContext1Operations[asyncContext1Operations.length - 1];
+        assert.ok(asyncContext1LastOperation instanceof SocketOperation);
+
+        const asyncContext2Operations = asyncContextToOperations2[1];
+        const asyncContext2LastOperation =
+            asyncContext2Operations[asyncContext2Operations.length - 1];
+        assert.ok(asyncContext2LastOperation instanceof SocketOperation);
+
+        const asyncContext2LastOperationKind = asyncContext2LastOperation.getOperationKind();
+        const asyncContext1LastOperationType = asyncContext2LastOperation.getType();
+
+        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
+
+        return !(asyncContext2LastOperationKind === 'destroy'
+            || (asyncContext1LastOperationKind === 'connection' && asyncContext1LastOperationType === 'write'));
     }
 
     /**
