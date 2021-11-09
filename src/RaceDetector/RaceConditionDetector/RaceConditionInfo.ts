@@ -5,15 +5,15 @@ import {ResourceOperation} from '../../LogStore/Class/ResourceOperation';
 
 export class RaceConditionInfo extends Info
 {
-    public readonly asyncContentToOperations1: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
-    public readonly asyncContentToOperations2: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
+    public readonly asyncContextToOperations1: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
+    public readonly asyncContextToOperations2: readonly [AsyncCalledFunctionInfo, readonly ResourceOperation[]];
 
     constructor(resourceInfo: ResourceInfo,
-                asyncContentToOperations1: RaceConditionInfo['asyncContentToOperations1'],
-                asyncContentToOperations2: RaceConditionInfo['asyncContentToOperations2'])
+                asyncContextToOperations1: RaceConditionInfo['asyncContextToOperations1'],
+                asyncContextToOperations2: RaceConditionInfo['asyncContextToOperations2'])
     {
         super(resourceInfo);
-        this.asyncContentToOperations1 = asyncContentToOperations1;
-        this.asyncContentToOperations2 = asyncContentToOperations2;
+        this.asyncContextToOperations1 = asyncContextToOperations1;
+        this.asyncContextToOperations2 = asyncContextToOperations2;
     }
 }
