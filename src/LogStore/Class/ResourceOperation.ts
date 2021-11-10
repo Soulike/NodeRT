@@ -7,14 +7,16 @@ export abstract class ResourceOperation
     private readonly type: 'read' | 'write';
     private readonly scopeCodeInfo: SourceCodeInfo;
     private readonly stackTrace: string[] | null;
-    private readonly timestamp: number;
+    private readonly index: number;
+
+    private static lastIndex = 0;
 
     protected constructor(type: 'read' | 'write', stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         this.type = type;
         this.stackTrace = stackTrace;
         this.scopeCodeInfo = sourceCodeScopeInfo;
-        this.timestamp = Date.now();
+        this.index = ResourceOperation.lastIndex++;
     }
 
     public getType()
@@ -32,8 +34,8 @@ export abstract class ResourceOperation
         return this.stackTrace;
     }
 
-    public getTimestamp()
+    public getIndex()
     {
-        return this.timestamp;
+        return this.index;
     }
 }
