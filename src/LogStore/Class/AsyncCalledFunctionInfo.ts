@@ -2,6 +2,7 @@
 
 import {SourceCodeInfo} from './SourceCodeInfo';
 import {ResourceDeclaration} from './ResourceDeclaration';
+import assert from 'assert';
 
 export class AsyncCalledFunctionInfo
 {
@@ -34,6 +35,20 @@ export class AsyncCalledFunctionInfo
         this.codeInfo = codeInfo;   // 本 callback 是被什么地方的代码注册执行的
 
         this.hasWriteOperationOnResourcesSet = new Set();
+    }
+
+    public clone(): AsyncCalledFunctionInfo
+    {
+        const func = this.functionWeakRef === null ? null : this.functionWeakRef.deref();
+        assert.ok(func !== undefined);  // func should not be gc-ed
+        return new AsyncCalledFunctionInfo(
+            func,
+            this.stackTrace,
+            this.asyncId,
+            this.asyncType,
+            this.asyncContext,
+            this.codeInfo
+        );
     }
 
     public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo)

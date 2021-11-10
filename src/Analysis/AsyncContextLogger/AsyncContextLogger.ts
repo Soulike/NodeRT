@@ -80,8 +80,16 @@ export class AsyncContextLogger extends Analysis
                 const placeholderAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
-                // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
+                // deal with setInterval, which will repeatedly use the same async id and function, need to create a new asyncContext
+                if (placeholderAsyncFunction.functionWeakRef?.deref() === f)
+                {   
+                    AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunction.clone());
+                }
+                else
+                {
+                    // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
+                    placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
+                }
 
                 this.asyncContextChanged = false;
                 this.lastAsyncId = -1;
