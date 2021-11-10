@@ -64,9 +64,22 @@ export class Filter
 
         const asyncContext1Operations = asyncContextToOperations1[1]! as ObjectOperation[];
         const accessedFieldsInAsyncContext1 = new EnhancedSet();
+        const writeFieldsInAsyncContext1 = new EnhancedSet();
         for (const operation of asyncContext1Operations)
         {
             const {field} = operation;
+            const type = operation.getType();
+            if (type === 'write')
+            {
+                if (field === null)
+                {
+                    return true;
+                }
+                else
+                {
+                    writeFieldsInAsyncContext1.add(field);
+                }
+            }
             if (field === null) // maybe all fields are accessed
             {
                 return true;
@@ -79,9 +92,22 @@ export class Filter
 
         const asyncContext2Operations = asyncContextToOperations2[1]! as ObjectOperation[];
         const accessedFieldsInAsyncContext2 = new EnhancedSet();
+        const writeFieldsInAsyncContext2 = new EnhancedSet();
         for (const operation of asyncContext2Operations)
         {
             const {field} = operation;
+            const type = operation.getType();
+            if (type === 'write')
+            {
+                if (field === null)
+                {
+                    return true;
+                }
+                else
+                {
+                    writeFieldsInAsyncContext2.add(field);
+                }
+            }
             if (field === null) // maybe all fields are accessed
             {
                 return true;
@@ -92,7 +118,9 @@ export class Filter
             }
         }
 
-        return accessedFieldsInAsyncContext1.intersect(accessedFieldsInAsyncContext2).size !== 0;
+        // must be written and read on the same fields
+        return accessedFieldsInAsyncContext1.intersect(writeFieldsInAsyncContext2).size !== 0
+            || accessedFieldsInAsyncContext2.intersect(writeFieldsInAsyncContext1).size !== 0;
     }
 
     private static isOutgoingMessageRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
