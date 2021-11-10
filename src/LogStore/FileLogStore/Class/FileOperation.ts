@@ -7,11 +7,13 @@ import {FileOperationOnType} from '../Type/FileOperationOnType';
 
 export class FileOperation extends ResourceOperation
 {
+    private readonly accessStage: 'start' | 'finish';
     private readonly operationOn: FileOperationOnType;
 
-    constructor(type: 'read' | 'write', operationOn: FileOperation['operationOn'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', accessStage: FileOperation['accessStage'], operationOn: FileOperation['operationOn'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
+        this.accessStage = accessStage;
         this.operationOn = operationOn;
         StatisticsStore.addFileOperationCount();
     }
@@ -19,5 +21,10 @@ export class FileOperation extends ResourceOperation
     public getOperationOn()
     {
         return this.operationOn;
+    }
+
+    public getAccessStage()
+    {
+        return this.accessStage;
     }
 }
