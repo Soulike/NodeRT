@@ -72,8 +72,6 @@ export class ArrayOperationLogger extends Analysis
                 }
                 else if (f === Array.prototype.copyWithin
                     || f === Array.prototype.fill
-                    || f === Array.prototype.pop
-                    || f === Array.prototype.push
                     || f === Array.prototype.reverse
                     || f === Array.prototype.shift
                     || f === Array.prototype.sort
@@ -81,6 +79,11 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.unshift)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'write', null, this.getSandbox(), iid);
+                }
+                else if (f === Array.prototype.push
+                    || f === Array.prototype.pop)
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'write', base.length - 1, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.every
                     || f === Array.prototype.find
