@@ -9,20 +9,29 @@ import {AsyncCalledFunctionInfo} from './Class/AsyncCalledFunctionInfo';
  * */
 export class AsyncContextLogStore
 {
-    private static readonly asyncIdToAsyncCalledFunctionInfo: Map<number, AsyncCalledFunctionInfo> = new Map([
-        [AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID, AsyncCalledFunctionInfo.UNKNOWN],
-        [AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, AsyncCalledFunctionInfo.GLOBAL],
+    // one async id may corresponding to multiple functions because of setInterval()
+    private static readonly asyncIdToAsyncCalledFunctionInfo: Map<number, AsyncCalledFunctionInfo[]> = new Map([
+        [AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID, [AsyncCalledFunctionInfo.UNKNOWN]],
+        [AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, [AsyncCalledFunctionInfo.GLOBAL]],
     ]);
 
     public static setAsyncIdToAsyncContext(asyncId: number, asyncCalledFunctionInfo: AsyncCalledFunctionInfo)
     {
-        AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.set(asyncId, asyncCalledFunctionInfo);
+        const asyncCalledFunctionInfos = AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.get(asyncId);
+        if (asyncCalledFunctionInfos === undefined)
+        {
+            AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.set(asyncId, [asyncCalledFunctionInfo]);
+        }
+        else
+        {
+            asyncCalledFunctionInfos.push(asyncCalledFunctionInfo);
+        }
     }
 
     public static getAsyncContextFromAsyncId(asyncId: number): AsyncCalledFunctionInfo
     {
-        const asyncContext = AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.get(asyncId);
-        assert.ok(asyncContext !== undefined);
-        return asyncContext;
+        const asyncCalledFunctionInfos = AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.get(asyncId);
+        assert.ok(asyncCalledFunctionInfos !== undefined);
+        return asyncCalledFunctionInfos[asyncCalledFunctionInfos.length - 1]!;
     }
 }
