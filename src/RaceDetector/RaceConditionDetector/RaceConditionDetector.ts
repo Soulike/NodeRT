@@ -18,22 +18,20 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
     const [lastAsyncContext] = lastAsyncContentToOperations;
     const lastAsyncContextAsyncChain = lastAsyncContext.getAsyncContextChainAsyncIds();
     const hasWriteOperationOnResource = lastAsyncContext.getHasWriteOperationOn(resourceDeclaration);
-    for (let i = LENGTH - 2; i >= 0; i--)
+
+    const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[LENGTH-2]!;
+    const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
+    if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.asyncId))   // no happens-before
     {
-        const currentAsyncContextToOperations = asyncContextToOperationsArray[i]!;
-        const currentAsyncContext = currentAsyncContextToOperations[0];
-        if (!lastAsyncContextAsyncChain.has(currentAsyncContext.asyncId))   // no happens-before
+        if (hasWriteOperationOnResource)    // current does write
         {
-            if (hasWriteOperationOnResource)    // current does write
-            {
-                raceConditionInfos.push(
-                    new RaceConditionInfo(resourceInfo, currentAsyncContextToOperations, lastAsyncContentToOperations));
-            }
-            else if (currentAsyncContext.getHasWriteOperationOn(resourceDeclaration))    // another does write
-            {
-                raceConditionInfos.push(
-                    new RaceConditionInfo(resourceInfo, currentAsyncContextToOperations, lastAsyncContentToOperations));
-            }
+            raceConditionInfos.push(
+                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations));
+        }
+        else if (beforeLastAsyncContext.getHasWriteOperationOn(resourceDeclaration))    // another does write
+        {
+            raceConditionInfos.push(
+                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations));
         }
     }
 
