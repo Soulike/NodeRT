@@ -5,15 +5,6 @@ import objectHash from 'object-hash';
 import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
 import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
-import {OutgoingMessageInfo} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageInfo';
-import {OutgoingMessageOperation} from '../../LogStore/OutgoingMessageLogStore/Class/OutgoingMessageOperation';
-import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
-import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
-import {StreamInfo} from '../../LogStore/StreamLogStore/Class/StreamInfo';
-import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
-import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
-import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
-import {FileOperation} from '../../LogStore/FileLogStore';
 
 export class Filter
 {
@@ -30,26 +21,6 @@ export class Filter
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectRaceConditionTP(raceConditionInfo);
-        }
-        else if (resourceInfo instanceof OutgoingMessageInfo)
-        {
-            return Filter.isOutgoingMessageRaceConditionTP(raceConditionInfo);
-        }
-        else if (resourceInfo instanceof SocketInfo)
-        {
-            return Filter.isSocketRaceConditionTP(raceConditionInfo);
-        }
-        else if (resourceInfo instanceof StreamInfo)
-        {
-            return Filter.isStreamRaceConditionTP(raceConditionInfo);
-        }
-        else if (resourceInfo instanceof EventEmitterInfo)
-        {
-            return Filter.isEventEmitterRaceConditionTP(raceConditionInfo);
-        }
-        else if (resourceInfo instanceof FileInfo)
-        {
-            return Filter.isFileViolationTP(raceConditionInfo);
         }
         else
         {
@@ -93,111 +64,6 @@ export class Filter
         // must be written and read on the same fields
         return accessedFieldsInAsyncContext1.intersect(writeFieldsInAsyncContext2).size !== 0
             || accessedFieldsInAsyncContext2.intersect(writeFieldsInAsyncContext1).size !== 0;
-    }
-
-    private static isOutgoingMessageRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
-        assert.ok(resourceInfo instanceof OutgoingMessageInfo);
-
-        const asyncContext1Operations = asyncContextToOperations1[1];
-        const asyncContext1LastOperation = asyncContext1Operations[asyncContext1Operations.length - 1];
-        assert.ok(asyncContext1LastOperation instanceof OutgoingMessageOperation);
-
-        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
-
-        return asyncContext1LastOperationKind === 'end'
-            || asyncContext1LastOperationKind === 'destroy';
-    }
-
-    private static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const {resourceInfo, asyncContextToOperations2, asyncContextToOperations1} = raceConditionInfo;
-        assert.ok(resourceInfo instanceof SocketInfo);
-
-        const asyncContext1Operations = asyncContextToOperations1[1];
-        const asyncContext1LastOperation =
-            asyncContext1Operations[asyncContext1Operations.length - 1];
-        assert.ok(asyncContext1LastOperation instanceof SocketOperation);
-
-        const asyncContext2Operations = asyncContextToOperations2[1];
-        const asyncContext2LastOperation =
-            asyncContext2Operations[asyncContext2Operations.length - 1];
-        assert.ok(asyncContext2LastOperation instanceof SocketOperation);
-
-        const asyncContext2LastOperationKind = asyncContext2LastOperation.getOperationKind();
-        const asyncContext1LastOperationType = asyncContext2LastOperation.getType();
-
-        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
-
-        return !(asyncContext2LastOperationKind === 'destroy'
-            || (asyncContext1LastOperationKind === 'connection' && asyncContext1LastOperationType === 'write'));
-    }
-
-    private static isStreamRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
-        assert.ok(resourceInfo instanceof StreamInfo);
-
-        const asyncContext1Operations = asyncContextToOperations1[1];
-        const asyncContext1LastOperation =
-            asyncContext1Operations[asyncContext1Operations.length - 1];
-        assert.ok(asyncContext1LastOperation instanceof OutgoingMessageOperation);
-
-        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
-
-        return asyncContext1LastOperationKind === 'end'
-            || asyncContext1LastOperationKind === 'destroy';
-    }
-
-    private static isEventEmitterRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const {resourceInfo, asyncContextToOperations1} = raceConditionInfo;
-        assert.ok(resourceInfo instanceof EventEmitterInfo);
-
-        const asyncContext1Operations = asyncContextToOperations1[1];
-        const asyncContext1LastOperation =
-            asyncContext1Operations[asyncContext1Operations.length - 1];
-        assert.ok(asyncContext1LastOperation instanceof EventEmitterOperation);
-
-        const asyncContext1LastOperationKind = asyncContext1LastOperation.getOperationKind();
-
-        return asyncContext1LastOperationKind !== 'addListener';
-    }
-
-    private static isFileViolationTP(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
-        assert.ok(resourceInfo instanceof FileInfo);
-        const asyncContext1Operations = asyncContextToOperations1[1];
-        const asyncContext2Operations = asyncContextToOperations2[1];
-
-        let asyncContext1WriteOnContent = false;
-        for (const operation of asyncContext1Operations)
-        {
-            assert.ok(operation instanceof FileOperation);
-            if (operation.getOperationOn() === 'content')
-            {
-                asyncContext1WriteOnContent = true;
-                break;
-            }
-        }
-
-        let asyncContext2WriteOnContent = false;
-        for (const operation of asyncContext2Operations)
-        {
-            assert.ok(operation instanceof FileOperation);
-            if (operation.getOperationOn() === 'content')
-            {
-                asyncContext2WriteOnContent = true;
-                break;
-            }
-        }
-
-        return !(
-            asyncContext1WriteOnContent // async context1 writes on content
-            && !asyncContext2WriteOnContent   // async context2 writes on stat
-        );
     }
 
     /**
