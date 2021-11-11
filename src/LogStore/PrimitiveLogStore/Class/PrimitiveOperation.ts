@@ -7,18 +7,13 @@ import {isObject} from 'lodash';
 
 export class PrimitiveOperation extends ResourceOperation
 {
+    public readonly valueBefore: unknown | WeakRef<any>;
     public readonly value: unknown | WeakRef<any>;
-    constructor(type: 'read' | 'write', value: unknown, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', valueBefore: unknown, value: unknown, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
-        if (isObject(value))
-        {
-            this.value = new WeakRef(value);
-        }
-        else
-        {
-            this.value = value;
-        }
+        this.valueBefore = isObject(valueBefore) ? new WeakRef(valueBefore) : valueBefore;
+        this.value = isObject(value) ? new WeakRef(value) : value;
         StatisticsStore.addPrimitiveOperationCount();
     }
 }

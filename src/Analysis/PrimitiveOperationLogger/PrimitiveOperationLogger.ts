@@ -155,7 +155,7 @@ export class PrimitiveOperationLogger extends Analysis
         {
             const startTimestamp = Date.now();
 
-            this.onVariableOperation('read', iid, name, val, isGlobal);
+            this.onVariableOperation('read', iid, name, val, val, isGlobal);
 
             this.timeConsumed += Date.now() - startTimestamp;
         };
@@ -166,7 +166,7 @@ export class PrimitiveOperationLogger extends Analysis
 
             if (lhs !== val)
             {
-                this.onVariableOperation('write', iid, name, val, isGlobal);
+                this.onVariableOperation('write', iid, name, lhs, val, isGlobal);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -182,7 +182,7 @@ export class PrimitiveOperationLogger extends Analysis
         };
     }
 
-    private onVariableOperation(type: 'read' | 'write', iid: number, name: string, val: unknown, isGlobal: boolean)
+    private onVariableOperation(type: 'read' | 'write', iid: number, name: string, valBefore: unknown, val: unknown, isGlobal: boolean)
     {
         if (name === 'this')
         {
@@ -200,7 +200,7 @@ export class PrimitiveOperationLogger extends Analysis
             const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
             if (pendingDeclaration.getResourceInfo().getName() === name)
             {
-                pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, val,CallStackLogStore.getCallStack(), sourceCodeInfo));
+                pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
                 foundInPending = true;
                 break;
             }
@@ -214,7 +214,7 @@ export class PrimitiveOperationLogger extends Analysis
 
             if (declaration !== null)
             {
-                declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, val,CallStackLogStore.getCallStack(), sourceCodeInfo));
+                declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
             }
             else if (isGlobal)
             {
@@ -230,7 +230,7 @@ export class PrimitiveOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
 
-                newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, val,CallStackLogStore.getCallStack(), sourceCodeInfo));
+                newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -254,7 +254,7 @@ export class PrimitiveOperationLogger extends Analysis
                             currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
 
-                    newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, val,CallStackLogStore.getCallStack(), sourceCodeInfo));
+                    newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
                     PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                     currentScope.declarations.push(newDeclaration);
                 }
