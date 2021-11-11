@@ -7,6 +7,8 @@ import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
 import {PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
 import {PrimitiveInfo} from '../../LogStore/PrimitiveLogStore/Class/PrimitiveInfo';
+import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
+import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 
 export class Filter
 {
@@ -27,6 +29,10 @@ export class Filter
         else if (resourceInfo instanceof PrimitiveInfo)
         {
             return Filter.isPrimitiveRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof EventEmitterInfo)
+        {
+            return Filter.isEventEmitterRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -104,6 +110,46 @@ export class Filter
             assert.ok(asyncContext2LastWriteOperation !== null);
             // If they write the same value, no matter who writes first
             return asyncContext1LastWriteOperation.value !== asyncContext2LastWriteOperation.value;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public static isEventEmitterRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        assert.ok(raceConditionInfo.resourceInfo instanceof EventEmitterInfo);
+        const {asyncContextToOperations1, asyncContextToOperations2, resourceInfo} = raceConditionInfo;
+        const asyncContext1 = asyncContextToOperations1[0];
+        const asyncContext2 = asyncContextToOperations2[0];
+        const asyncContext1Operations = asyncContextToOperations1[1] as readonly EventEmitterOperation[];
+        const asyncContext2Operations = asyncContextToOperations2[1] as readonly EventEmitterOperation[];
+        if (asyncContext1.getHasWriteOperationOn(resourceInfo) && asyncContext2.getHasWriteOperationOn(resourceInfo))
+        {
+            let asyncContext1LastWriteOperation: EventEmitterOperation | null = null;
+            let asyncContext2LastWriteOperation: EventEmitterOperation | null = null;
+            for (let i = asyncContext1Operations.length - 1; i >= 0; i--)
+            {
+                if (asyncContext1Operations[i]!.getType() === 'write')
+                {
+                    asyncContext1LastWriteOperation = asyncContext1Operations[i]!;
+                    break;
+                }
+            }
+            assert.ok(asyncContext1LastWriteOperation !== null);
+            for (let i = asyncContext2Operations.length - 1; i >= 0; i--)
+            {
+                if (asyncContext2Operations[i]!.getType() === 'write')
+                {
+                    asyncContext2LastWriteOperation = asyncContext2Operations[i]!;
+                    break;
+                }
+            }
+            assert.ok(asyncContext2LastWriteOperation !== null);
+            // If they affect the same listener, no matter who affects first
+            return !(asyncContext1LastWriteOperation.getAffectedListeners()
+                .equals(asyncContext2LastWriteOperation.getAffectedListeners()));
         }
         else
         {
