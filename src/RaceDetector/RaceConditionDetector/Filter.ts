@@ -67,27 +67,13 @@ export class Filter
         const writeFieldsInAsyncContext1 = new EnhancedSet();
         for (const operation of asyncContext1Operations)
         {
-            const {field} = operation;
+            const {fields} = operation;
             const type = operation.getType();
             if (type === 'write')
             {
-                if (field === null)
-                {
-                    return true;
-                }
-                else
-                {
-                    writeFieldsInAsyncContext1.add(field);
-                }
+                fields.forEach(field => writeFieldsInAsyncContext1.add(field));
             }
-            if (field === null) // maybe all fields are accessed
-            {
-                return true;
-            }
-            else
-            {
-                accessedFieldsInAsyncContext1.add(field);
-            }
+            fields.forEach(field => accessedFieldsInAsyncContext1.add(field));
         }
 
         const asyncContext2Operations = asyncContextToOperations2[1]! as ObjectOperation[];
@@ -95,27 +81,13 @@ export class Filter
         const writeFieldsInAsyncContext2 = new EnhancedSet();
         for (const operation of asyncContext2Operations)
         {
-            const {field} = operation;
+            const {fields} = operation;
             const type = operation.getType();
             if (type === 'write')
             {
-                if (field === null)
-                {
-                    return true;
-                }
-                else
-                {
-                    writeFieldsInAsyncContext2.add(field);
-                }
+                fields.forEach(field => writeFieldsInAsyncContext2.add(field));
             }
-            if (field === null) // maybe all fields are accessed
-            {
-                return true;
-            }
-            else
-            {
-                accessedFieldsInAsyncContext2.add(field);
-            }
+            fields.forEach(field => accessedFieldsInAsyncContext2.add(field));
         }
 
         // must be written and read on the same fields

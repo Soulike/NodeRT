@@ -110,75 +110,32 @@ export class Filter
         ] as [ObjectOperation[], ObjectOperation[]];
         const violatorOperations = violatingAsyncContextToOperations[1] as ObjectOperation[];
 
-        let atomicPair1OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any>();
-        for (const {field} of atomicPairOperations[0]!)
+        let atomicPair1OperationFieldsSet = new EnhancedSet();
+        for (const {fields} of atomicPairOperations[0]!)
         {
-            if (field === null) // null means all fields may be read/written
-            {
-                atomicPair1OperationFieldsSet = null;   // null means all fields
-                break;
-            }
-            atomicPair1OperationFieldsSet.add(field);
+            fields.forEach(field => atomicPair1OperationFieldsSet.add(field));
         }
 
-        let atomicPair2OperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
-        for (const {field} of atomicPairOperations[1]!)
+        let atomicPair2OperationFieldsSet = new EnhancedSet();
+        for (const {fields} of atomicPairOperations[1]!)
         {
-            if (field === null) // null means all fields may be read/written
-            {
-                atomicPair2OperationFieldsSet = null;   // null means all fields
-                break;
-            }
-            atomicPair2OperationFieldsSet.add(field);
+            fields.forEach(field => atomicPair2OperationFieldsSet.add(field));
         }
 
-        let atomicFieldsSet: EnhancedSet<any> | null = null;
-        if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet === null)
-        {
-            atomicFieldsSet = null;
-        }
-        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet === null)
-        {
-            atomicFieldsSet = atomicPair1OperationFieldsSet;
-        }
-        else if (atomicPair1OperationFieldsSet === null && atomicPair2OperationFieldsSet !== null)
-        {
-            atomicFieldsSet = atomicPair2OperationFieldsSet;
-        }
-        else if (atomicPair1OperationFieldsSet !== null && atomicPair2OperationFieldsSet !== null)
-        {
-            atomicFieldsSet = atomicPair1OperationFieldsSet.intersect(atomicPair2OperationFieldsSet);
-        }
+        const atomicFieldsSet = atomicPair1OperationFieldsSet.intersect(atomicPair2OperationFieldsSet);
 
-        if (atomicFieldsSet === null)   // all fields are atomic
-        {
-            return true;
-        }
-
-        let violatorOperationFieldsSet: EnhancedSet<any> | null = new EnhancedSet<any | null>();
+        let violatorOperationFieldsSet = new EnhancedSet();
         for (let i = 0; i < violatorOperations.length; i++)
         {
             const violatorOperation = violatorOperations[i]!;
-            const {field} = violatorOperation;
-            if (field === null) // null means all fields may be read/written
-            {
-                violatorOperationFieldsSet = null;   // null means all fields
-                break;
-            }
+            const {fields} = violatorOperation;
             if (violatorOperation.getType() === 'write')
             {
-                violatorOperationFieldsSet.add(field);
+                fields.forEach(field => violatorOperationFieldsSet.add(field));
             }
         }
 
-        if (violatorOperationFieldsSet === null)
-        {
-            return true;
-        }
-        else
-        {
-            return atomicFieldsSet.intersect(violatorOperationFieldsSet).size !== 0;
-        }
+        return atomicFieldsSet.intersect(violatorOperationFieldsSet).size !== 0;
     }
 
     private static isOutgoingMessageViolationTP(violationInfo: ViolationInfo): boolean
