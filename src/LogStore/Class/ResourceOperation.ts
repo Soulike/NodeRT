@@ -8,6 +8,7 @@ export abstract class ResourceOperation
     private readonly scopeCodeInfo: SourceCodeInfo;
     private readonly stackTrace: string[] | null;
     private readonly index: number;
+    private readonly timestamp: BigInt; // nanoseconds
 
     private static lastIndex = 0;
 
@@ -17,6 +18,7 @@ export abstract class ResourceOperation
         this.stackTrace = stackTrace;
         this.scopeCodeInfo = sourceCodeScopeInfo;
         this.index = ResourceOperation.lastIndex++;
+        this.timestamp = process.hrtime.bigint();
     }
 
     public getType()
@@ -37,5 +39,10 @@ export abstract class ResourceOperation
     public getIndex()
     {
         return this.index;
+    }
+
+    public getTimestamp()
+    {
+        return this.timestamp;
     }
 }
