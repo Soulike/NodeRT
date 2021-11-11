@@ -3,6 +3,7 @@
 import {SourceCodeInfo} from './SourceCodeInfo';
 import {ResourceDeclaration} from './ResourceDeclaration';
 import assert from 'assert';
+import {ResourceInfo} from './ResourceInfo';
 
 export class AsyncCalledFunctionInfo
 {
@@ -20,7 +21,7 @@ export class AsyncCalledFunctionInfo
     public codeInfo: SourceCodeInfo | null;
 
     /** Whether the callback function does any writing operation on certain resource*/
-    private hasWriteOperationOnResourcesSet: Set<ResourceDeclaration>;
+    private hasWriteOperationOnResourcesSet: Set<ResourceInfo>;
 
     /** Lazy calculation for getAsyncContextChainAsyncIds() */
     private asyncContextChainAsyncIdsCache: Set<number> | undefined;
@@ -61,14 +62,32 @@ export class AsyncCalledFunctionInfo
         this.codeInfo = codeInfo;
     }
 
-    public setHasWriteOperation(resourceDeclaration: ResourceDeclaration)
+    public setHasWriteOperation(resourceInfo: ResourceInfo): void
+    public setHasWriteOperation(resourceDeclaration: ResourceDeclaration): void
+    public setHasWriteOperation(resourceDeclarationOrInfo: ResourceInfo|ResourceDeclaration)
     {
-        this.hasWriteOperationOnResourcesSet.add(resourceDeclaration);
+        if (resourceDeclarationOrInfo instanceof ResourceDeclaration)
+        {
+            this.hasWriteOperationOnResourcesSet.add(resourceDeclarationOrInfo.getResourceInfo());
+        }
+        else
+        {
+            this.hasWriteOperationOnResourcesSet.add(resourceDeclarationOrInfo);
+        }
     }
 
+    public getHasWriteOperationOn(resourceInfo: ResourceInfo): boolean
     public getHasWriteOperationOn(resourceDeclaration: ResourceDeclaration): boolean
+    public getHasWriteOperationOn(resourceDeclarationOrInfo: ResourceInfo | ResourceDeclaration): boolean
     {
-        return this.hasWriteOperationOnResourcesSet.has(resourceDeclaration);
+        if (resourceDeclarationOrInfo instanceof ResourceDeclaration)
+        {
+            return this.hasWriteOperationOnResourcesSet.has(resourceDeclarationOrInfo.getResourceInfo());
+        }
+        else
+        {
+            return this.hasWriteOperationOnResourcesSet.has(resourceDeclarationOrInfo);
+        }
     }
 
     public toJSON(): Partial<this>
