@@ -29,7 +29,7 @@ export class StringDecoderOperationLogger extends Analysis
                 if (f === StringDecoder.prototype.write)
                 {
                     const [buffer] = args as Parameters<typeof StringDecoder.prototype.write>;
-                    BufferLogStore.appendBufferOperation(buffer, 'read',
+                    BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === StringDecoder.prototype.end)
@@ -37,7 +37,7 @@ export class StringDecoderOperationLogger extends Analysis
                     const [buffer] = args as Parameters<typeof StringDecoder.prototype.end>;
                     if (isBufferLike(buffer))
                     {
-                        BufferLogStore.appendBufferOperation(buffer, 'read',
+                        BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }

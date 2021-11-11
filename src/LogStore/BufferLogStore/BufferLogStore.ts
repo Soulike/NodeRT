@@ -41,9 +41,9 @@ export class BufferLogStore
         return BufferLogStore.bufferDeclarations;
     }
 
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sourceCodeInfo: SourceCodeInfo): void;
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandbox: Sandbox, iid: number): void;
-    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], sourceCodeInfo: SourceCodeInfo): void;
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], sandbox: Sandbox, iid: number): void;
+    public static appendBufferOperation(buffer: BufferLike, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
         let bufferDeclaration: BufferDeclaration;
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
@@ -64,13 +64,13 @@ export class BufferLogStore
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
+                new BufferOperation(type, accessStage, CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+                new BufferOperation(type, accessStage, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }
 }

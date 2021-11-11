@@ -63,7 +63,7 @@ export class ZlibOperationLogger extends Analysis
                 const callback = args[args.length - 1] as LastParameter<typeof zlib.brotliCompress>;
                 if (isBufferLike(buffer))
                 {
-                    BufferLogStore.appendBufferOperation(buffer, 'read',
+                    BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 this.pendingCallbacks.add(callback);
@@ -82,10 +82,10 @@ export class ZlibOperationLogger extends Analysis
                 const returned = result as ReturnType<typeof zlib.brotliCompressSync>;
                 if (isBufferLike(buffer))
                 {
-                    BufferLogStore.appendBufferOperation(buffer, 'read',
+                    BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                BufferLogStore.appendBufferOperation(returned, 'write',
+                BufferLogStore.appendBufferOperation(returned, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
 
@@ -102,7 +102,7 @@ export class ZlibOperationLogger extends Analysis
                 const [err, buffer] = args as Parameters<zlib.CompressCallback>;
                 if (err !== null)
                 {
-                    BufferLogStore.appendBufferOperation(buffer, 'write',
+                    BufferLogStore.appendBufferOperation(buffer, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

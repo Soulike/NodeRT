@@ -30,7 +30,7 @@ export class IteratorLogger extends Analysis
                 const iteratee = IteratorLogStore.getIteratee(base as IterableIterator<any>)!;
                 if (isBufferLike(iteratee))
                 {
-                    BufferLogStore.appendBufferOperation(iteratee, 'read',
+                    BufferLogStore.appendBufferOperation(iteratee, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else

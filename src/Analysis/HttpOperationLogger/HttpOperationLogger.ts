@@ -46,7 +46,7 @@ export class HttpOperationLogger extends Analysis
                     {
                         if (isBufferLike(data))
                         {
-                            BufferLogStore.appendBufferOperation(data, 'write',
+                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
                                 getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });
@@ -63,7 +63,7 @@ export class HttpOperationLogger extends Analysis
                     {
                         if (isBufferLike(data))
                         {
-                            BufferLogStore.appendBufferOperation(data, 'write',
+                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
                                 getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });

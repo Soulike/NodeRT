@@ -35,14 +35,22 @@ export class FsPromisesOperationLogger extends Analysis
             if (f === fsPromise.appendFile)
             {
                 const [path, data] = args as Parameters<typeof fsPromise.appendFile>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
-                assert.ok(util.types.isPromise(result));
-                result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid));
                 if (isBufferLike(data))
                 {
-                    BufferLogStore.appendBufferOperation(data, 'read',
+                    BufferLogStore.appendBufferOperation(data, 'read', 'start',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() =>
+                {
+                    if (isBufferLike(data))
+                    {
+                        BufferLogStore.appendBufferOperation(data, 'read', 'finish',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                });
             }
             else if (f === fsPromise.copyFile
                 || f === fsPromise.cp
@@ -119,12 +127,9 @@ export class FsPromisesOperationLogger extends Analysis
             else if (f === fsPromise.writeFile)
             {
                 const [file, data] = args as Parameters<typeof fsPromise.writeFile>;
-                FileLogStoreAdaptor.appendFileOperation(file, 'read', 'start', 'content', this.getSandbox(), iid);
-                assert.ok(util.types.isPromise(result));
-                result.finally(() => FileLogStoreAdaptor.appendFileOperation(file, 'write', 'finish', 'content', this.getSandbox(), iid));
                 if (isBufferLike(data))
                 {
-                    BufferLogStore.appendBufferOperation(data, 'read',
+                    BufferLogStore.appendBufferOperation(data, 'read', 'start',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (data instanceof Readable)
@@ -135,6 +140,25 @@ export class FsPromisesOperationLogger extends Analysis
                 {
                     ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
                 }
+                FileLogStoreAdaptor.appendFileOperation(file, 'read', 'start', 'content', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() =>
+                {
+                    if (isBufferLike(data))
+                    {
+                        BufferLogStore.appendBufferOperation(data, 'read', 'finish',
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    if (data instanceof Readable)
+                    {
+                        StreamLogStore.appendStreamOperation(data, 'read', 'read', this.getSandbox(), iid);
+                    }
+                    else if (isObject(data))
+                    {
+                        ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
+                    }
+                    FileLogStoreAdaptor.appendFileOperation(file, 'write', 'finish', 'content', this.getSandbox(), iid);
+                });
             }
 
             this.timeConsumed += Date.now() - startTimestamp;

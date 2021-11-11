@@ -22,7 +22,7 @@ export class FileLogStoreAdaptor
         if (isBufferLike(filePathLikeOrFdOrFileHandle))
         {
             const buffer = filePathLikeOrFdOrFileHandle;
-            BufferLogStore.appendBufferOperation(buffer, type, sandbox, iid);
+            BufferLogStore.appendBufferOperation(buffer, type, accessStage, sandbox, iid);
         }
         else if (typeof filePathLikeOrFdOrFileHandle === 'number')   // fd
         {
@@ -31,7 +31,7 @@ export class FileLogStoreAdaptor
             if (isBufferLike(filePathOrBuffer))
             {
                 const buffer = filePathOrBuffer;
-                BufferLogStore.appendBufferOperation(buffer, type, sandbox, iid);
+                BufferLogStore.appendBufferOperation(buffer, type, accessStage, sandbox, iid);
             }
             else if (typeof filePathOrBuffer === 'string')
             {

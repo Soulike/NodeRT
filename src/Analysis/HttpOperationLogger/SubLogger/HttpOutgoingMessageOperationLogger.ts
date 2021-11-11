@@ -57,7 +57,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.write>;
                     if (isBufferLike(chunk))
                     {
-                        BufferLogStore.appendBufferOperation(chunk, 'read',
+                        BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }
@@ -75,7 +75,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     const [chunk] = args as Parameters<typeof OutgoingMessage.prototype.end>;
                     if (isBufferLike(chunk))
                     {
-                        BufferLogStore.appendBufferOperation(chunk, 'read',
+                        BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }

@@ -48,12 +48,12 @@ export class DataViewOperationLogger extends Analysis
             {
                 if (DataViewOperationLogger.getApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.setApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'write',
+                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

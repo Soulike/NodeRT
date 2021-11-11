@@ -58,7 +58,7 @@ export class TypedArrayOperationLogger extends Analysis
             {
                 if (util.types.isTypedArray(args[0]))
                 {
-                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                    BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(args[0]))
@@ -71,7 +71,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
 
                 assert.ok(util.types.isTypedArray(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (TypedArrayOperationLogger.fromApis.has(f))
@@ -80,7 +80,7 @@ export class TypedArrayOperationLogger extends Analysis
                 assert.ok(isObject(source));
                 if (isBufferLike(source))
                 {
-                    BufferLogStore.appendBufferOperation(source, 'read',
+                    BufferLogStore.appendBufferOperation(source, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else
@@ -89,7 +89,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
 
                 assert.ok(util.types.isTypedArray(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isTypedArray(base))
@@ -99,7 +99,7 @@ export class TypedArrayOperationLogger extends Analysis
                     || f === TypedArrayOperationLogger.typedArrayPrototype.reverse
                     || f === TypedArrayOperationLogger.typedArrayPrototype.sort)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'write',
+                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.every
@@ -115,23 +115,23 @@ export class TypedArrayOperationLogger extends Analysis
                     || f === TypedArrayOperationLogger.typedArrayPrototype.toLocaleString
                     || f === TypedArrayOperationLogger.typedArrayPrototype.toString)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.filter
                     || f === TypedArrayOperationLogger.typedArrayPrototype.map
                     || f === TypedArrayOperationLogger.typedArrayPrototype.slice)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
 
                     assert.ok(isBufferLike(result));
-                    BufferLogStore.appendBufferOperation(result, 'write',
+                    BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.join)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
@@ -139,7 +139,7 @@ export class TypedArrayOperationLogger extends Analysis
                     const source = args[0];
                     if (isBufferLike(source))
                     {
-                        BufferLogStore.appendBufferOperation(source, 'read',
+                        BufferLogStore.appendBufferOperation(source, 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     else if (isObject(source))
@@ -147,7 +147,7 @@ export class TypedArrayOperationLogger extends Analysis
                         ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
                     }
 
-                    BufferLogStore.appendBufferOperation(base, 'write',
+                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype[Symbol.iterator]
@@ -173,7 +173,7 @@ export class TypedArrayOperationLogger extends Analysis
 
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))    // ignore Buffers, the same below
             {
-                BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base, 'read', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -186,7 +186,7 @@ export class TypedArrayOperationLogger extends Analysis
             if (util.types.isTypedArray(base) && !Buffer.isBuffer(base) && isArrayAccess(isComputed, offset)
                 && base[offset as number] !== val)
             {
-                BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base, 'write', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -199,7 +199,7 @@ export class TypedArrayOperationLogger extends Analysis
             const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && util.types.isTypedArray(lastExpressionValue) && !Buffer.isBuffer(lastExpressionValue))
             {
-                BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;

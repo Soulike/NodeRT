@@ -37,7 +37,7 @@ export class FsSyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                 if (isBufferLike(data))
                 {
-                    BufferLogStore.appendBufferOperation(data, 'read',
+                    BufferLogStore.appendBufferOperation(data, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -117,14 +117,14 @@ export class FsSyncOperationLogger extends Analysis
                 const ret = result as ReturnType<typeof fs.readFileSync>;
                 if (isBufferLike(ret))
                 {
-                    BufferLogStore.appendBufferOperation(ret, 'write', this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(ret, 'write', 'finish', this.getSandbox(), iid);
                 }
             }
             else if (f === fs.readSync)
             {
                 const [fd, buffer] = args as Parameters<typeof fs.readSync>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'finish', 'content', this.getSandbox(), iid);
-                BufferLogStore.appendBufferOperation(buffer, 'write',
+                BufferLogStore.appendBufferOperation(buffer, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === fs.readvSync)
@@ -132,7 +132,7 @@ export class FsSyncOperationLogger extends Analysis
                 const [fd, buffers] = args as Parameters<typeof fs.readvSync>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'finish', 'content', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
-                    BufferLogStore.appendBufferOperation(buffer.buffer, 'write', this.getSandbox(), iid));
+                    BufferLogStore.appendBufferOperation(buffer.buffer, 'write', 'finish', this.getSandbox(), iid));
             }
             else if (f === fs.writeSync
                 || f === fs.writeFileSync)
@@ -142,7 +142,7 @@ export class FsSyncOperationLogger extends Analysis
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                 if (isBufferLike(data))
                 {
-                    BufferLogStore.appendBufferOperation(data, 'read', this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(data, 'read', 'finish', this.getSandbox(), iid);
                 }
                 else if (isObject(data))
                 {
@@ -154,7 +154,7 @@ export class FsSyncOperationLogger extends Analysis
                 const [fd, buffers] = args as Parameters<typeof fs.writevSync>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'write', 'finish', 'content', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
-                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', this.getSandbox(), iid));
+                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish', this.getSandbox(), iid));
             }
             else if (f === fs.createReadStream || f === fs.createWriteStream)
             {

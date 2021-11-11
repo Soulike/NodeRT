@@ -34,7 +34,7 @@ export class NetOperationLogger extends Analysis
             SocketLogStore.appendSocketOperation(this, 'read', 'write', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             if (isBufferLike(args[0]))
             {
-                BufferLogStore.appendBufferOperation(args[0], 'read',
+                BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -49,7 +49,7 @@ export class NetOperationLogger extends Analysis
             SocketLogStore.appendSocketOperation(this, 'write', 'end', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
             if (isBufferLike(args[0]))
             {
-                BufferLogStore.appendBufferOperation(args[0], 'read',
+                BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -96,7 +96,7 @@ export class NetOperationLogger extends Analysis
                     {
                         if (isBufferLike(data))
                         {
-                            BufferLogStore.appendBufferOperation(data, 'write',
+                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
                                 getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });
@@ -112,7 +112,7 @@ export class NetOperationLogger extends Analysis
                 {
                     if (isBufferLike(data))
                     {
-                        BufferLogStore.appendBufferOperation(data, 'write',
+                        BufferLogStore.appendBufferOperation(data, 'write', 'finish',
                             getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                     }
                 });

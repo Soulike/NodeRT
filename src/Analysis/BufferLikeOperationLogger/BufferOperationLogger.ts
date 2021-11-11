@@ -91,25 +91,25 @@ export class BufferOperationLogger extends Analysis
             {
                 if (isBufferLike(args[1]))
                 {
-                    BufferLogStore.appendBufferOperation(args[1], 'read',
+                    BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.allocUnsafe
                 || f === Buffer.allocUnsafeSlow)
             {
                 assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.byteLength)
             {
                 if (isBufferLike(args[0]))
                 {
-                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                    BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -117,9 +117,9 @@ export class BufferOperationLogger extends Analysis
             {
                 assert.ok(isBufferLike(args[0]));
                 assert.ok(isBufferLike(args[1]));
-                BufferLogStore.appendBufferOperation(args[0], 'read',
+                BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                BufferLogStore.appendBufferOperation(args[1], 'read',
+                BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.concat)
@@ -129,18 +129,18 @@ export class BufferOperationLogger extends Analysis
                 for (const arg of args[0])
                 {
                     assert.ok(isBufferLike(arg));
-                    BufferLogStore.appendBufferOperation(arg, 'read',
+                    BufferLogStore.appendBufferOperation(arg, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.from || f === Buffer)
             {
                 if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
                 {
-                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                    BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(args[0]))
@@ -152,16 +152,16 @@ export class BufferOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
                 }
                 assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === buffer.transcode)
             {
                 assert.ok(isBufferLike(args[0]));
-                BufferLogStore.appendBufferOperation(args[0], 'read',
+                BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 assert.ok(isBufferLike(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.isBuffer
@@ -175,18 +175,18 @@ export class BufferOperationLogger extends Analysis
                 if (f === Buffer.prototype.compare
                     || f === Buffer.prototype.equals)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(isBufferLike(args[0]));
-                    BufferLogStore.appendBufferOperation(args[0], 'read',
+                    BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.copy)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(isBufferLike(args[0]));
-                    BufferLogStore.appendBufferOperation(args[0], 'write',
+                    BufferLogStore.appendBufferOperation(args[0], 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.entries
@@ -200,10 +200,10 @@ export class BufferOperationLogger extends Analysis
                 {
                     if (isBufferLike(args[0]))
                     {
-                        BufferLogStore.appendBufferOperation(args[0], 'read',
+                        BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    BufferLogStore.appendBufferOperation(base, 'write',
+                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.includes
@@ -212,20 +212,20 @@ export class BufferOperationLogger extends Analysis
                 {
                     if (isBufferLike(args[0]))
                     {
-                        BufferLogStore.appendBufferOperation(args[0], 'read',
+                        BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.readOnlyApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.writeOnlyApis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'write',
+                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -239,7 +239,7 @@ export class BufferOperationLogger extends Analysis
 
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset))
             {
-                BufferLogStore.appendBufferOperation(base, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base, 'read', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -252,7 +252,7 @@ export class BufferOperationLogger extends Analysis
             if (Buffer.isBuffer(base) && isArrayAccess(isComputed, offset)
                 && base[offset as number] !== val)
             {
-                BufferLogStore.appendBufferOperation(base, 'write', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base, 'write', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -265,7 +265,7 @@ export class BufferOperationLogger extends Analysis
             const lastExpressionValue = LastExpressionValueLogStore.getLastExpressionValue();
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
-                BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(lastExpressionValue, 'read', 'finish', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;

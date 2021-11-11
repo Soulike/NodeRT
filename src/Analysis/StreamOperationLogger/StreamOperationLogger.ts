@@ -60,7 +60,7 @@ export class StreamOperationLogger extends Analysis
             const [chunk] = args as Parameters<typeof Writable.prototype.write>;
             if (isBufferLike(chunk))
             {
-                BufferLogStore.appendBufferOperation(chunk, 'read',
+                BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -76,7 +76,7 @@ export class StreamOperationLogger extends Analysis
             const [chunk] = args as Parameters<typeof Writable.prototype.end>;
             if (isBufferLike(chunk))
             {
-                BufferLogStore.appendBufferOperation(chunk, 'write',
+                BufferLogStore.appendBufferOperation(chunk, 'write', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -106,7 +106,7 @@ export class StreamOperationLogger extends Analysis
             const data = result as ReturnType<typeof Readable.prototype.read>;
             if (isBufferLike(data))
             {
-                BufferLogStore.appendBufferOperation(data, 'write',
+                BufferLogStore.appendBufferOperation(data, 'write', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -121,7 +121,7 @@ export class StreamOperationLogger extends Analysis
             const [chunk] = args as Parameters<typeof Readable.prototype.unshift>;
             if (isBufferLike(chunk))
             {
-                BufferLogStore.appendBufferOperation(chunk, 'read',
+                BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -136,7 +136,7 @@ export class StreamOperationLogger extends Analysis
             const [chunk] = args as Parameters<typeof Readable.prototype.push>;
             if (isBufferLike(chunk))
             {
-                BufferLogStore.appendBufferOperation(chunk, 'read',
+                BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;

@@ -29,7 +29,7 @@ export class ArrayBufferOperationLogger extends Analysis
                 || f === SharedArrayBuffer)
             {
                 assert(util.types.isAnyArrayBuffer(result));
-                BufferLogStore.appendBufferOperation(result, 'write',
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isAnyArrayBuffer(base))
@@ -41,10 +41,10 @@ export class ArrayBufferOperationLogger extends Analysis
                 else if (f === ArrayBuffer.prototype.slice
                     || f === SharedArrayBuffer.prototype.slice)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read',
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(util.types.isAnyArrayBuffer(result));
-                    BufferLogStore.appendBufferOperation(result, 'write',
+                    BufferLogStore.appendBufferOperation(result, 'write', 'finish',
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
