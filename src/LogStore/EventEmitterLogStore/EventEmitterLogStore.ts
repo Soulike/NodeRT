@@ -45,7 +45,7 @@ export class EventEmitterLogStore
     }
 
     public static appendOperation(eventEmitter: EventEmitter, event: string | symbol,
-                                  type: 'read' | 'write', operationKind: EventEmitterOperation['operationKind'], sourceCodeInfo: SourceCodeInfo)
+                                  type: 'read' | 'write', operationKind: EventEmitterOperation['operationKind'], affectedListeners: Iterable<Function>, sourceCodeInfo: SourceCodeInfo)
     {
         const eventDeclaration = EventEmitterLogStore.getEventEmitterDeclaration(eventEmitter, event, sourceCodeInfo);
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
@@ -54,6 +54,6 @@ export class EventEmitterLogStore
             asyncContext.setHasWriteOperation(eventDeclaration);
         }
         eventDeclaration.appendOperation(asyncContext,
-            new EventEmitterOperation(type, operationKind, CallStackLogStore.getCallStack(), sourceCodeInfo));
+            new EventEmitterOperation(type, operationKind, new Set(affectedListeners), CallStackLogStore.getCallStack(), sourceCodeInfo));
     }
 }

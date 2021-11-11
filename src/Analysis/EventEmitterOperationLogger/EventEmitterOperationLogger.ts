@@ -28,35 +28,52 @@ export class EventEmitterOperationLogger extends Analysis
                     || f === EventEmitter.prototype.on
                     || f === EventEmitter.prototype.prependListener)
                 {
-                    const [event] = args as Parameters<typeof EventEmitter.prototype.addListener>;
+                    const [event, listener] = args as Parameters<typeof EventEmitter.prototype.addListener>;
                     EventEmitterLogStore.appendOperation(base, event, 'write', 'addListener',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === EventEmitter.prototype.emit)
                 {
                     const [event] = args as Parameters<typeof EventEmitter.prototype.emit>;
                     EventEmitterLogStore.appendOperation(base, event, 'read', 'emit',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        base.listeners(event), getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === EventEmitter.prototype.off
-                    || f === EventEmitter.prototype.removeListener
-                    || f === EventEmitter.prototype.removeAllListeners)
+                    || f === EventEmitter.prototype.removeListener)
                 {
-                    const [event] = args as Parameters<typeof EventEmitter.prototype.removeListener>;
+                    const [event, listener] = args as Parameters<typeof EventEmitter.prototype.removeListener>;
                     EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (f === EventEmitter.prototype.removeAllListeners)
+                {
+                    const [event] = args as Parameters<typeof EventEmitter.prototype.removeAllListeners>;
+                    if (event !== undefined)
+                    {
+                        EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
+                            base.listeners(event), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    else
+                    {
+                        const eventNames = base.eventNames();
+                        for (const eventName of eventNames)
+                        {
+                            EventEmitterLogStore.appendOperation(base, eventName, 'write', 'removeListener',
+                                base.listeners(eventName), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        }
+                    }
                 }
                 else if (f === EventEmitter.prototype.once
                     || f === EventEmitter.prototype.prependOnceListener)
                 {
-                    const [event] = args as Parameters<typeof EventEmitter.prototype.once>;
+                    const [event, listener] = args as Parameters<typeof EventEmitter.prototype.once>;
                     EventEmitterLogStore.appendOperation(base, event, 'write', 'addListener',
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
 
                     base.on(event, () =>
                     {
                         EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
-                            getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
+                            [listener], getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                     });
                 }
             }
