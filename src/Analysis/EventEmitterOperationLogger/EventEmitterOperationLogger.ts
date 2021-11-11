@@ -42,13 +42,16 @@ export class EventEmitterOperationLogger extends Analysis
                     || f === EventEmitter.prototype.removeListener)
                 {
                     const [event, listener] = args as Parameters<typeof EventEmitter.prototype.removeListener>;
-                    EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
-                        [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    if (base.listeners(event).findIndex(listener) !== -1)
+                    {
+                        EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
+                            [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
                 }
                 else if (f === EventEmitter.prototype.removeAllListeners)
                 {
                     const [event] = args as Parameters<typeof EventEmitter.prototype.removeAllListeners>;
-                    if (event !== undefined)
+                    if (event !== undefined && base.listenerCount(event) !== 0)
                     {
                         EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
                             base.listeners(event), getSourceCodeInfoFromIid(iid, this.getSandbox()));
@@ -58,8 +61,11 @@ export class EventEmitterOperationLogger extends Analysis
                         const eventNames = base.eventNames();
                         for (const eventName of eventNames)
                         {
-                            EventEmitterLogStore.appendOperation(base, eventName, 'write', 'removeListener',
-                                base.listeners(eventName), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                            if (base.listenerCount(eventName) !== 0)
+                            {
+                                EventEmitterLogStore.appendOperation(base, eventName, 'write', 'removeListener',
+                                    base.listeners(eventName), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                            }
                         }
                     }
                 }
