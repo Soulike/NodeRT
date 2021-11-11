@@ -8,6 +8,7 @@ import util from 'util';
 import fs from 'fs';
 import {isObject, isSymbol} from 'lodash';
 import {VERBOSE} from './CONFIG';
+import isBigInt from 'is-bigint';
 
 export function toJSON(object: unknown): string
 {
@@ -15,9 +16,9 @@ export function toJSON(object: unknown): string
     {
         return JSON.stringify(object, function replacer(_key, value)
         {
-            if (value instanceof BigInt)
+            if (isBigInt(value))
             {
-                return value.toString();
+                return value.toLocaleString();
             }
             else if (value instanceof Map)
             {
