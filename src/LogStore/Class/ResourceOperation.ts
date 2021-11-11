@@ -8,7 +8,7 @@ export abstract class ResourceOperation
     private readonly scopeCodeInfo: SourceCodeInfo;
     private readonly stackTrace: string[] | null;
     private readonly index: number;
-    private readonly timestamp: BigInt; // nanoseconds
+    private readonly timestamp: bigint; // nanoseconds
 
     private static lastIndex = 0;
 
