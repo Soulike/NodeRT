@@ -5,6 +5,7 @@ import {EventEmitterOperation} from './Class/EventEmitterOperation';
 import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
+import {EnhancedSet} from '@datastructures-js/set';
 
 export class EventEmitterLogStore
 {
@@ -54,6 +55,6 @@ export class EventEmitterLogStore
             asyncContext.setHasWriteOperation(eventDeclaration);
         }
         eventDeclaration.appendOperation(asyncContext,
-            new EventEmitterOperation(type, operationKind, new Set(affectedListeners), CallStackLogStore.getCallStack(), sourceCodeInfo));
+            new EventEmitterOperation(type, operationKind, new EnhancedSet(Array.from(affectedListeners)), CallStackLogStore.getCallStack(), sourceCodeInfo));
     }
 }
