@@ -12,6 +12,11 @@
   resolved "https://registry.npmmirror.com/@datastructures-js/set/download/@datastructures-js/set-4.1.1.tgz#c3f0ebc24e248b56e92f8204c45623824ebd5d8d"
   integrity sha1-w/Drwk4ki1bpL4IExFYjgk69XY0=
 
+"@types/is-bigint@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmmirror.com/@types/is-bigint/download/@types/is-bigint-1.0.0.tgz#6b5f07028a921b7690cfc646f1806403bfe09d35"
+  integrity sha1-a18HAoqSG3aQz8ZG8YBkA7/gnTU=
+
 "@types/lodash@^4.14.171":
   version "4.14.176"
   resolved "https://registry.npmmirror.com/@types/lodash/download/@types/lodash-4.14.176.tgz#641150fc1cda36fbfa329de603bbb175d7ee20c0"
@@ -134,6 +139,18 @@ esbuild@^0.13.9:
     esbuild-windows-32 "0.13.12"
     esbuild-windows-64 "0.13.12"
     esbuild-windows-arm64 "0.13.12"
+
+has-bigints@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.nlark.com/has-bigints/download/has-bigints-1.0.1.tgz#64fe6acb020673e3b78db035a5af69aa9d07b113"
+  integrity sha1-ZP5qywIGc+O3jbA1pa9pqp0HsRM=
+
+is-bigint@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.nlark.com/is-bigint/download/is-bigint-1.0.4.tgz?cache=0&sync_timestamp=1628747589154&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fis-bigint%2Fdownload%2Fis-bigint-1.0.4.tgz#08147a1875bc2b32005d41ccd8291dffc6691df3"
+  integrity sha1-CBR6GHW8KzIAXUHM2Ckd/8ZpHfM=
+  dependencies:
+    has-bigints "^1.0.1"
 
 lodash@^4.17.21:
   version "4.17.21"
