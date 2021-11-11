@@ -7,15 +7,12 @@ import {StatisticsStore} from '../../StatisticsStore';
 
 export class ObjectOperation extends ResourceOperation
 {
-    /**
-     * `null` represents unknown
-     */
-    public readonly field: any | null;
+    public readonly fields: ReadonlySet<unknown>;
 
-    constructor(type: 'read' | 'write', field: any | null, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', fields: ReadonlySet<unknown>, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
-        this.field = field;
+        this.fields = fields;
         StatisticsStore.addObjectOperationCount();
     }
 
@@ -23,7 +20,7 @@ export class ObjectOperation extends ResourceOperation
     {
         return {
             ...this,
-            field: isPrimitive(this.field) ? this.field : Object.prototype.toString.call(this.field),
+            fields: Array.from(this.fields).map(field => isPrimitive(field) ? field : Object.prototype.toString.call(field)),
         };
     }
 }
