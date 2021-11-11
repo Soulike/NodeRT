@@ -15,23 +15,29 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
 
     const resourceInfo = resourceDeclaration.getResourceInfo();
     const lastAsyncContentToOperations = asyncContextToOperationsArray[LENGTH - 1]!;
+    const lastAsyncContentOperations = lastAsyncContentToOperations[1];
     const [lastAsyncContext] = lastAsyncContentToOperations;
     const lastAsyncContextAsyncChain = lastAsyncContext.getAsyncContextChainAsyncIds();
     const hasWriteOperationOnResource = lastAsyncContext.getHasWriteOperationOn(resourceDeclaration);
 
-    const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[LENGTH-2]!;
+    const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[LENGTH - 2]!;
     const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
+    const beforeLastAsyncContextOperations = beforeLastAsyncContextToOperations[1];
+
+    const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
+        - beforeLastAsyncContextOperations[beforeLastAsyncContextOperations.length - 1]!.getTimestamp();
+
     if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.asyncId))   // no happens-before
     {
         if (hasWriteOperationOnResource)    // current does write
         {
             raceConditionInfos.push(
-                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations));
+                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
         }
         else if (beforeLastAsyncContext.getHasWriteOperationOn(resourceDeclaration))    // another does write
         {
             raceConditionInfos.push(
-                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations));
+                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
         }
     }
 
