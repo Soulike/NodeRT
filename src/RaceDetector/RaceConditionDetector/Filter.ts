@@ -5,6 +5,8 @@ import objectHash from 'object-hash';
 import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
 import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
+import {PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
+import {PrimitiveInfo} from '../../LogStore/PrimitiveLogStore/Class/PrimitiveInfo';
 
 export class Filter
 {
@@ -21,6 +23,10 @@ export class Filter
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof PrimitiveInfo)
+        {
+            return Filter.isPrimitiveRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -64,6 +70,45 @@ export class Filter
         // must be written and read on the same fields
         return accessedFieldsInAsyncContext1.intersect(writeFieldsInAsyncContext2).size !== 0
             || accessedFieldsInAsyncContext2.intersect(writeFieldsInAsyncContext1).size !== 0;
+    }
+
+    public static isPrimitiveRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        assert.ok(raceConditionInfo.resourceInfo instanceof PrimitiveInfo);
+        const {asyncContextToOperations1, asyncContextToOperations2, resourceInfo} = raceConditionInfo;
+        const asyncContext1 = asyncContextToOperations1[0];
+        const asyncContext2 = asyncContextToOperations2[0];
+        const asyncContext1Operations = asyncContextToOperations1[1] as readonly PrimitiveOperation[];
+        const asyncContext2Operations = asyncContextToOperations2[1] as readonly PrimitiveOperation[];
+        if (asyncContext1.getHasWriteOperationOn(resourceInfo) && asyncContext2.getHasWriteOperationOn(resourceInfo))
+        {
+            let asyncContext1LastWriteOperation: PrimitiveOperation | null = null;
+            let asyncContext2LastWriteOperation: PrimitiveOperation | null = null;
+            for (let i = asyncContext1Operations.length - 1; i >= 0; i--)
+            {
+                if (asyncContext1Operations[i]!.getType() === 'write')
+                {
+                    asyncContext1LastWriteOperation = asyncContext1Operations[i]!;
+                    break;
+                }
+            }
+            assert.ok(asyncContext1LastWriteOperation !== null);
+            for (let i = asyncContext2Operations.length - 1; i >= 0; i--)
+            {
+                if (asyncContext2Operations[i]!.getType() === 'write')
+                {
+                    asyncContext2LastWriteOperation = asyncContext2Operations[i]!;
+                    break;
+                }
+            }
+            assert.ok(asyncContext2LastWriteOperation !== null);
+            // If they write the same value, no matter who writes first
+            return asyncContext1LastWriteOperation.value !== asyncContext2LastWriteOperation.value;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     /**
