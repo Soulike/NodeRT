@@ -60,7 +60,7 @@ export class ObjectOperationLogger extends Analysis
                 const property = left[1];
                 if (Object.prototype.hasOwnProperty.call(object, property))
                 {
-                    ObjectLogStore.appendObjectOperation(object, 'write', property, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(object, 'write', [property], this.getSandbox(), iid);
                 }
             }
 
