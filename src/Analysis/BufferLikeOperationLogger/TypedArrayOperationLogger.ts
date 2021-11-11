@@ -67,7 +67,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
                 }
 
                 assert.ok(util.types.isTypedArray(result));
@@ -85,7 +85,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else
                 {
-                    ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
                 }
 
                 assert.ok(util.types.isTypedArray(result));
@@ -144,7 +144,7 @@ export class TypedArrayOperationLogger extends Analysis
                     }
                     else if (isObject(source))
                     {
-                        ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
                     }
 
                     BufferLogStore.appendBufferOperation(base, 'write', 'finish',

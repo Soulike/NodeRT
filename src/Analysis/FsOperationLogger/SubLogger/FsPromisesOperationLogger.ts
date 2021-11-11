@@ -138,7 +138,7 @@ export class FsPromisesOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), this.getSandbox(), iid);
                 }
                 FileLogStoreAdaptor.appendFileOperation(file, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
@@ -155,7 +155,7 @@ export class FsPromisesOperationLogger extends Analysis
                     }
                     else if (isObject(data))
                     {
-                        ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), this.getSandbox(), iid);
                     }
                     FileLogStoreAdaptor.appendFileOperation(file, 'write', 'finish', 'content', this.getSandbox(), iid);
                 });

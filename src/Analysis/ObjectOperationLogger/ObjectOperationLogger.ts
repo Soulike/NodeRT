@@ -41,7 +41,7 @@ export class ObjectOperationLogger extends Analysis
 
             if (isObject(val))
             {
-                ObjectLogStore.appendObjectOperation(val, 'write', null, this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(val, 'write', Object.keys(val), this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -77,7 +77,7 @@ export class ObjectOperationLogger extends Analysis
                 assert.ok(isObject(lastExpressValue));
                 if (!isBufferLike(lastExpressValue))
                 {
-                    ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', Object.keys(lastExpressValue), this.getSandbox(), iid);
                 }
             }
 
@@ -92,14 +92,14 @@ export class ObjectOperationLogger extends Analysis
             {
                 if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], this.getSandbox(), iid);
                 }
             }
             else if (isObject(base))
             {
                 if (Object.hasOwnProperty.bind(base)(offset))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', offset, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], this.getSandbox(), iid);
                 }
             }
 
@@ -118,12 +118,12 @@ export class ObjectOperationLogger extends Analysis
                 {
                     if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [offset], this.getSandbox(), iid);
                     }
                 }
                 else if (isObject(base))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', offset, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [offset], this.getSandbox(), iid);
                 }
             }
 
@@ -140,55 +140,59 @@ export class ObjectOperationLogger extends Analysis
                 if (args.length === 0 || !isObject(args[0]))
                 {
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
                 }
                 else if (f === Object.assign)
                 {
                     const [target, ...sources] = args as Parameters<typeof Object.assign>;
-                    ObjectLogStore.appendObjectOperation(target, 'write', null, this.getSandbox(), iid);
+                    const writtenKeys: string[] = [];
                     for (const source of sources)
                     {
                         assert.ok(isObject(source));
-                        ObjectLogStore.appendObjectOperation(source, 'read', null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
+                        writtenKeys.push(...Object.keys(source));
                     }
+                    ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, this.getSandbox(), iid);
                 }
                 else if (f === Object.create)
                 {
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
                 }
                 else if (f === Object.defineProperties)
                 {
-                    assert.ok(isObject(args[0]));
-                    ObjectLogStore.appendObjectOperation(args[0], 'write', null, this.getSandbox(), iid);
+                    const [obj, props] = args as Parameters<typeof Object.defineProperties>;
+                    assert.ok(isObject(obj));
+                    const writtenKeys = Object.keys(props);
+                    ObjectLogStore.appendObjectOperation(args[0], 'write', writtenKeys, this.getSandbox(), iid);
                 }
                 else if (f === Object.defineProperty)
                 {
                     const [obj, prop] = args as Parameters<typeof Object.defineProperty>;
                     assert.ok(isObject(obj));
-                    ObjectLogStore.appendObjectOperation(obj, 'write', prop, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(obj, 'write', [prop], this.getSandbox(), iid);
                 }
                 else if (f === Object.entries
                     || f === Object.values)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
                 }
                 else if (f === Object.fromEntries)
                 {
                     assert.ok(isObject(args[0]));
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
                 }
                 else if (f === Object.prototype.toLocaleString
                     || f === Object.prototype.toString
                     || f === Object.prototype.valueOf)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
                 }
             }
             else if (f === Function.prototype.bind)

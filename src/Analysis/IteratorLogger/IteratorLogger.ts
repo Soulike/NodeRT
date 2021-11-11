@@ -35,7 +35,7 @@ export class IteratorLogger extends Analysis
                 }
                 else
                 {
-                    ObjectLogStore.appendObjectOperation(iteratee, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(iteratee, 'read', Object.keys(iteratee), this.getSandbox(), iid);
                 }
             }
 

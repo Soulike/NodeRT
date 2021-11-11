@@ -29,7 +29,7 @@ export class JSONOperationLogger extends Analysis
                 const [value] = args as Parameters<typeof JSON.stringify>;
                 if (isObject(value))
                 {
-                    ObjectLogStore.appendObjectOperation(value, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(value, 'read', Object.keys(value), this.getSandbox(), iid);
                 }
                 if (isBufferLike(value))
                 {
@@ -42,7 +42,7 @@ export class JSONOperationLogger extends Analysis
                 assert.ok(isObject(object));
                 if (isObject(object))
                 {
-                    ObjectLogStore.appendObjectOperation(object, 'write', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(object, 'write', Object.keys(object), this.getSandbox(), iid);
                 }
                 if (isBufferLike(object))
                 {

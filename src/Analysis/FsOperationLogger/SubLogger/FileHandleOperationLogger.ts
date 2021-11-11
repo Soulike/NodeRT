@@ -146,7 +146,7 @@ export class FileHandleOperationLogger extends Analysis
                     }
                     else if (isObject(args[0]))
                     {
-                        ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
                     }
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
                     assert.ok(util.types.isPromise(result));
@@ -159,7 +159,7 @@ export class FileHandleOperationLogger extends Analysis
                         }
                         else if (isObject(args[0]))
                         {
-                            ObjectLogStore.appendObjectOperation(args[0], 'read', null, this.getSandbox(), iid);
+                            ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
                         }
                         FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'finish', 'content', this.getSandbox(), iid);
                     });

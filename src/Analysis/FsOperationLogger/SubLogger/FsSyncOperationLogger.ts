@@ -146,7 +146,7 @@ export class FsSyncOperationLogger extends Analysis
                 }
                 else if (isObject(data))
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read', null, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), this.getSandbox(), iid);
                 }
             }
             else if (f === fs.writevSync)
