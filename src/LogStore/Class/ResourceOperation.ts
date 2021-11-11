@@ -45,12 +45,4 @@ export abstract class ResourceOperation
     {
         return this.timestamp;
     }
-
-    public toJSON()
-    {
-        return {
-            ...this,
-            timestamp: this.timestamp.toString(),
-        };
-    }
 }

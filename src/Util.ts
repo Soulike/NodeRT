@@ -15,7 +15,11 @@ export function toJSON(object: unknown): string
     {
         return JSON.stringify(object, function replacer(_key, value)
         {
-            if (value instanceof Map)
+            if (value instanceof BigInt)
+            {
+                return value.toString();
+            }
+            else if (value instanceof Map)
             {
                 return {
                     dataType: 'Map',
