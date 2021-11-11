@@ -18,4 +18,12 @@ export class EventEmitterInfo extends ResourceInfo
     {
         return this.eventEmitter === other && event === this.event;
     }
+
+    public toJSON()
+    {
+        return {
+            ...this,
+            eventEmitter: undefined
+        };
+    }
 }
