@@ -4,7 +4,6 @@ import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
 import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
-import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
 import {RaceDetector} from '../../../RaceDetector';
 import {BufferInfo} from './BufferInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';

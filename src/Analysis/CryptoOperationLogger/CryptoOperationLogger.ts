@@ -53,10 +53,12 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Certificate.verifySpkac
@@ -84,6 +86,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -97,6 +100,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(result))
                 {
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -105,6 +109,7 @@ export class CryptoOperationLogger extends Analysis
             {
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Cipher.prototype.update
@@ -117,11 +122,13 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(result))
                 {
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -138,6 +145,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(result))
                 {
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -146,6 +154,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (isObject(args[0]))
@@ -156,6 +165,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(result))
                 {
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -164,6 +174,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (isObject(args[0]))
@@ -174,6 +185,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -184,6 +196,7 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(result instanceof Transform);
@@ -195,11 +208,13 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(result instanceof Transform);
@@ -210,11 +225,13 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -242,11 +259,13 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(publicKey))
                 {
                     BufferLogStore.appendBufferOperation(publicKey, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(publicKey),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(privateKey))
                 {
                     BufferLogStore.appendBufferOperation(privateKey, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(privateKey),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -255,16 +274,19 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[3]))
                 {
                     BufferLogStore.appendBufferOperation(args[3], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[3]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 const callback = args[args.length - 1];
@@ -276,20 +298,24 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[3]))
                 {
                     BufferLogStore.appendBufferOperation(args[3], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[3]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === crypto.pbkdf2
@@ -298,11 +324,13 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 const callback = args[args.length - 1];
@@ -319,15 +347,18 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(isBufferLike(result));
                 BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === crypto.randomBytes)
@@ -342,6 +373,7 @@ export class CryptoOperationLogger extends Analysis
                 {
                     assert.ok(isBufferLike(result));
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -349,18 +381,22 @@ export class CryptoOperationLogger extends Analysis
             {
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, this.getSandbox());
                 const [buffer] = args as Parameters<typeof crypto.randomFillSync>;
-                BufferLogStore.appendBufferOperation(buffer, 'write', 'finish', sourceCodeInfo);
+                BufferLogStore.appendBufferOperation(buffer, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                    sourceCodeInfo);
             }
             else if (f === crypto.sign)
             {
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 const callback = args[args.length - 1];
@@ -373,6 +409,7 @@ export class CryptoOperationLogger extends Analysis
                 {
                     assert.ok(isBufferLike(result));
                     BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -380,9 +417,11 @@ export class CryptoOperationLogger extends Analysis
             {
                 assert.ok(isBufferLike(args[0]));
                 BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 assert.ok(isBufferLike(args[1]));
                 BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === crypto.verify)
@@ -390,16 +429,19 @@ export class CryptoOperationLogger extends Analysis
                 if (isBufferLike(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[2]))
                 {
                     BufferLogStore.appendBufferOperation(args[2], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[2]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (isBufferLike(args[3]))
                 {
                     BufferLogStore.appendBufferOperation(args[3], 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[3]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -427,7 +469,9 @@ export class CryptoOperationLogger extends Analysis
                     {
                         if (isBufferLike(arg))
                         {
-                            BufferLogStore.appendBufferOperation(arg, 'write', 'finish', sourceCodeInfo);
+                            BufferLogStore.appendBufferOperation(arg, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(arg),
+                                sourceCodeInfo);
                         }
                     }
                 }
@@ -438,11 +482,15 @@ export class CryptoOperationLogger extends Analysis
                     {
                         if (isBufferLike(publicKey))
                         {
-                            BufferLogStore.appendBufferOperation(publicKey, 'write', 'finish', sourceCodeInfo);
+                            BufferLogStore.appendBufferOperation(publicKey, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(publicKey),
+                                sourceCodeInfo);
                         }
                         if (isBufferLike(privateKey))
                         {
-                            BufferLogStore.appendBufferOperation(privateKey, 'write', 'finish', sourceCodeInfo);
+                            BufferLogStore.appendBufferOperation(privateKey, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(privateKey),
+                                sourceCodeInfo);
                         }
                     }
                 }

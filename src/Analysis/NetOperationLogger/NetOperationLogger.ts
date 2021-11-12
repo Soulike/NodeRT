@@ -35,6 +35,7 @@ export class NetOperationLogger extends Analysis
             if (isBufferLike(args[0]))
             {
                 BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -50,6 +51,7 @@ export class NetOperationLogger extends Analysis
             if (isBufferLike(args[0]))
             {
                 BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -97,6 +99,7 @@ export class NetOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
                                 getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                         }
                     });
@@ -113,6 +116,7 @@ export class NetOperationLogger extends Analysis
                     if (isBufferLike(data))
                     {
                         BufferLogStore.appendBufferOperation(data, 'write', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
                             getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
                     }
                 });

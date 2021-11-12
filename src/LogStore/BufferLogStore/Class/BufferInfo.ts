@@ -4,6 +4,7 @@ import {StatisticsStore} from '../../StatisticsStore';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import util from 'util';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import assert from 'assert';
 
 export class BufferInfo extends ResourceInfo
 {
@@ -12,6 +13,7 @@ export class BufferInfo extends ResourceInfo
     constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo)
     {
         super('buffer', possibleDefineCodeScope);
+        assert.ok(util.types.isAnyArrayBuffer(buffer));
         this.bufferWeakRef = new WeakRef(buffer);
         StatisticsStore.addBufferCount();
     }

@@ -50,6 +50,7 @@ export class FsAsyncOperationLogger extends Analysis
                 if (isBufferLike(data))
                 {
                     BufferLogStore.appendBufferOperation(data, 'read', 'start',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
@@ -62,6 +63,7 @@ export class FsAsyncOperationLogger extends Analysis
                         if (isBufferLike(data))
                         {
                             BufferLogStore.appendBufferOperation(data, 'read', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
                         FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
@@ -261,7 +263,9 @@ export class FsAsyncOperationLogger extends Analysis
                 const [fd, buffers] = args as Parameters<typeof fs.readv>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'start', 'content', this.getSandbox(), iid);
                 buffers.forEach(buffer =>
-                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start', this.getSandbox(), iid));
+                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                        this.getSandbox(), iid));
                 const callback = args[args.length - 1] as LastParameter<typeof fs.readv>;
                 const asyncId = asyncHooks.executionAsyncId();
                 this.addRegistrationInfo(callback, {
@@ -270,7 +274,9 @@ export class FsAsyncOperationLogger extends Analysis
                     {
                         FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'finish', 'content', this.getSandbox(), iid);
                         buffers.forEach(buffer =>
-                            BufferLogStore.appendBufferOperation(buffer.buffer, 'write', 'finish', this.getSandbox(), iid));
+                            BufferLogStore.appendBufferOperation(buffer.buffer, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                                this.getSandbox(), iid));
                     },
                     registerAsyncId: asyncId,
                 });
@@ -282,7 +288,9 @@ export class FsAsyncOperationLogger extends Analysis
                     | typeof fs.writeFile>;
                 if (isBufferLike(data))
                 {
-                    BufferLogStore.appendBufferOperation(data, 'read', 'start', this.getSandbox(), iid);
+                    BufferLogStore.appendBufferOperation(data, 'read', 'start',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                        this.getSandbox(), iid);
                 }
                 else if (isObject(data))    // not precise
                 {
@@ -298,7 +306,9 @@ export class FsAsyncOperationLogger extends Analysis
                     {
                         if (isBufferLike(data))
                         {
-                            BufferLogStore.appendBufferOperation(data, 'read', 'finish', this.getSandbox(), iid);
+                            BufferLogStore.appendBufferOperation(data, 'read', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                                this.getSandbox(), iid);
                         }
                         else if (isObject(data))
                         {
@@ -313,7 +323,9 @@ export class FsAsyncOperationLogger extends Analysis
             {
                 const [fd, buffers] = args as Parameters<typeof fs.writev>;
                 buffers.forEach(buffer =>
-                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start', this.getSandbox(), iid));
+                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                        this.getSandbox(), iid));
                 const callback = args[args.length - 1] as LastParameter<typeof fs.writev>;
                 FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'start', 'content', this.getSandbox(), iid);
                 const asyncId = asyncHooks.executionAsyncId();
@@ -322,7 +334,9 @@ export class FsAsyncOperationLogger extends Analysis
                     callback: () =>
                     {
                         buffers.forEach(buffer =>
-                            BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish', this.getSandbox(), iid));
+                            BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                                this.getSandbox(), iid));
                         FileLogStoreAdaptor.appendFileOperation(fd, 'write', 'finish', 'content', this.getSandbox(), iid);
                     },
                     registerAsyncId: asyncId,
@@ -392,7 +406,9 @@ export class FsAsyncOperationLogger extends Analysis
                     if (err !== null)
                     {
                         assert.ok(isBufferLike(buffer));
-                        BufferLogStore.appendBufferOperation(buffer, 'write', 'finish', this.getSandbox(), iid);
+                        BufferLogStore.appendBufferOperation(buffer, 'write', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                            this.getSandbox(), iid);
                     }
                 }
                 else if (register === fs.readFile)
@@ -403,7 +419,9 @@ export class FsAsyncOperationLogger extends Analysis
                     {
                         if (isBufferLike(data))
                         {
-                            BufferLogStore.appendBufferOperation(data, 'write', 'finish', this.getSandbox(), iid);
+                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                                this.getSandbox(), iid);
                         }
                     }
                 }

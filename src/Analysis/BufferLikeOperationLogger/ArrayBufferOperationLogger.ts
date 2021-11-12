@@ -21,7 +21,7 @@ export class ArrayBufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, _args, result) =>
+        this.invokeFun = (iid, f, base, args, result) =>
         {
             const startTimestamp = Date.now();
 
@@ -29,7 +29,12 @@ export class ArrayBufferOperationLogger extends Analysis
                 || f === SharedArrayBuffer)
             {
                 assert(util.types.isAnyArrayBuffer(result));
-                BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                const keys: number[] = [];
+                for (let i = 0; i < result.byteLength; i++)
+                {
+                    keys.push(i);
+                }
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish', keys,
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isAnyArrayBuffer(base))
@@ -41,10 +46,30 @@ export class ArrayBufferOperationLogger extends Analysis
                 else if (f === ArrayBuffer.prototype.slice
                     || f === SharedArrayBuffer.prototype.slice)
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
+                    let [begin, end] = args as Parameters<typeof ArrayBuffer.prototype.slice
+                        | typeof SharedArrayBuffer.prototype.slice>;
+                    if (end === undefined)
+                    {
+                        end = base.byteLength;
+                    }
+                    if (begin >= base.byteLength)
+                    {
+                        begin = end;
+                    }
+                    const readKeys = [];
+                    for (let i = begin; i < end; i++)
+                    {
+                        readKeys.push(i);
+                    }
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish', readKeys,
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(util.types.isAnyArrayBuffer(result));
-                    BufferLogStore.appendBufferOperation(result, 'write', 'finish',
+                    const writtenKeys = [];
+                    for (let i = 0; i < result.byteLength; i++)
+                    {
+                        writtenKeys.push(i);
+                    }
+                    BufferLogStore.appendBufferOperation(result, 'write', 'finish', writtenKeys,
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

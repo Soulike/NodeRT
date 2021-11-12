@@ -7,26 +7,43 @@ import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 
 export class DataViewOperationLogger extends Analysis
 {
-    private static readonly getApis: Set<Function> = new Set([
+    private static readonly get8Apis: Set<Function> = new Set([
         DataView.prototype.getInt8,
         DataView.prototype.getUint8,
+    ]);
+    private static readonly get16Apis: Set<Function> = new Set([
         DataView.prototype.getInt16,
         DataView.prototype.getUint16,
+    ]);
+    private static readonly get32Apis: Set<Function> = new Set([
         DataView.prototype.getInt32,
         DataView.prototype.getUint32,
         DataView.prototype.getFloat32,
+    ]);
+    private static readonly get64Apis: Set<Function> = new Set([
+        DataView.prototype.getBigUint64,
+        DataView.prototype.getBigInt64,
         DataView.prototype.getFloat64,
     ]);
-    private static readonly setApis: Set<Function> = new Set([
+    private static readonly set8Apis: Set<Function> = new Set([
         DataView.prototype.setInt8,
         DataView.prototype.setUint8,
+    ]);
+    private static readonly set16Apis: Set<Function> = new Set([
         DataView.prototype.setInt16,
         DataView.prototype.setUint16,
+    ]);
+    private static readonly set32Apis: Set<Function> = new Set([
         DataView.prototype.setInt32,
         DataView.prototype.setUint32,
         DataView.prototype.setFloat32,
+    ]);
+    private static readonly set64Apis: Set<Function> = new Set([
+        DataView.prototype.setBigUint64,
+        DataView.prototype.setBigInt64,
         DataView.prototype.setFloat64,
     ]);
+
     public invokeFun: Hooks['invokeFun'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
@@ -46,14 +63,52 @@ export class DataViewOperationLogger extends Analysis
 
             if (util.types.isDataView(base))
             {
-                if (DataViewOperationLogger.getApis.has(f))
+                if (DataViewOperationLogger.get8Apis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'read', 'finish',
+                    const readKeys = [base.byteOffset, base.byteOffset + 1];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                else if (DataViewOperationLogger.setApis.has(f))
+                else if (DataViewOperationLogger.get16Apis.has(f))
                 {
-                    BufferLogStore.appendBufferOperation(base, 'write', 'finish',
+                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.get32Apis.has(f))
+                {
+                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.get64Apis.has(f))
+                {
+                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3, base.byteOffset + 4];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.set8Apis.has(f))
+                {
+                    const writtenKeys = [base.byteOffset, base.byteOffset + 1];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.set16Apis.has(f))
+                {
+                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.set32Apis.has(f))
+                {
+                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (DataViewOperationLogger.set64Apis.has(f))
+                {
+                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3, base.byteOffset + 4];
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

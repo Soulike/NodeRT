@@ -40,6 +40,7 @@ export class FileHandleOperationLogger extends Analysis
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read', 'start',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
@@ -49,6 +50,7 @@ export class FileHandleOperationLogger extends Analysis
                         if (isBufferLike(args[0]))
                         {
                             BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
                         FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'finish', 'content', this.getSandbox(), iid);
@@ -61,21 +63,36 @@ export class FileHandleOperationLogger extends Analysis
                 }
                 else if (f === fileHandle.read)
                 {
-                    const [bufferOrOptions] = args as Parameters<typeof fileHandle.read>;
+                    let [bufferOrOptions] = args as Parameters<typeof fileHandle.read>;
+                    let offset = args[1] as number | undefined;
+                    if (offset === undefined)
+                    {
+                        offset = 0;
+                    }
                     if (bufferOrOptions !== undefined)
                     {
                         if (isBufferLike(bufferOrOptions))
                         {
                             assert.ok(!util.types.isArrayBuffer(bufferOrOptions));
                             BufferLogStore.appendBufferOperation(bufferOrOptions.buffer, 'read', 'start',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(bufferOrOptions, offset),
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
                         else
                         {
-                            const {buffer} = bufferOrOptions;
+                            let {buffer, offset: offsetInOptions} = bufferOrOptions;
+                            if (!offsetInOptions)
+                            {
+                                offset = 0;
+                            }
+                            else
+                            {
+                                offset = offsetInOptions;
+                            }
                             if (buffer !== undefined)
                             {
-                                BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start',
+                                BufferLogStore.appendBufferOperation(buffer, 'read', 'start',
+                                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer, offset),
                                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                             }
                         }
@@ -86,6 +103,7 @@ export class FileHandleOperationLogger extends Analysis
                         .then(({buffer}) =>
                         {
                             BufferLogStore.appendBufferOperation(buffer.buffer, 'write', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer, offset),
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         })
                         .finally(() => FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'finish', 'content', this.getSandbox(), iid));
@@ -108,6 +126,7 @@ export class FileHandleOperationLogger extends Analysis
                     for (const buffer of buffers)
                     {
                         BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
@@ -118,6 +137,7 @@ export class FileHandleOperationLogger extends Analysis
                             for (const buffer of buffers)
                             {
                                 BufferLogStore.appendBufferOperation(buffer.buffer, 'write', 'finish',
+                                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
                                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                             }
                         })
@@ -142,6 +162,7 @@ export class FileHandleOperationLogger extends Analysis
                     if (isBufferLike(args[0]))
                     {
                         BufferLogStore.appendBufferOperation(args[0], 'read', 'start',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     else if (isObject(args[0]))
@@ -155,6 +176,7 @@ export class FileHandleOperationLogger extends Analysis
                         if (isBufferLike(args[0]))
                         {
                             BufferLogStore.appendBufferOperation(args[0], 'read', 'finish',
+                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                                 getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         }
                         else if (isObject(args[0]))
@@ -170,6 +192,7 @@ export class FileHandleOperationLogger extends Analysis
                     for (const buffer of buffers)
                     {
                         BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'start',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
@@ -179,6 +202,7 @@ export class FileHandleOperationLogger extends Analysis
                             for (const buffer of buffers)
                             {
                                 BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
+                                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
                                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                             }
                         })
