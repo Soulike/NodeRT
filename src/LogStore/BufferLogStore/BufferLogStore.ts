@@ -9,7 +9,6 @@ import {SourceCodeInfo} from '../Class/SourceCodeInfo';
 import {strict as assert} from 'assert';
 import asyncHooks from 'async_hooks';
 import {CallStackLogStore} from '../CallStackLogStore';
-import {EnhancedSet} from '@datastructures-js/set';
 import util from 'util';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
@@ -66,13 +65,13 @@ export class BufferLogStore
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, accessStage, new EnhancedSet(Array.from(fields)), CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
+                new BufferOperation(type, accessStage, new Set(fields), CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, accessStage, new EnhancedSet(Array.from(fields)), CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+                new BufferOperation(type, accessStage, new Set(fields), CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }
 

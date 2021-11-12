@@ -3,12 +3,11 @@
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
-import {EnhancedSet} from '@datastructures-js/set';
 
 export class BufferOperation extends ResourceOperation
 {
     private readonly accessStage: 'start' | 'finish';
-    private readonly fields: EnhancedSet<number>;
+    private readonly fields: ReadonlySet<number>;
 
     constructor(type: 'read' | 'write', accessStage: BufferOperation['accessStage'], fields: BufferOperation['fields'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
@@ -26,5 +25,13 @@ export class BufferOperation extends ResourceOperation
     public getFields()
     {
         return this.fields;
+    }
+
+    public toJSON()
+    {
+        return {
+            ...this,
+            fields: Array.from(this.fields)
+        }
     }
 }
