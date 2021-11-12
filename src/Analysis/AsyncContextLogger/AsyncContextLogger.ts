@@ -67,15 +67,6 @@ export class AsyncContextLogger extends Analysis
 
                 let triggerAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(triggerAsyncId);
                 assert.ok(triggerAsyncFunction !== undefined);
-                // skip asyncIds without related function calls or promise until global or unknown
-                while (triggerAsyncFunction.asyncType !== 'PROMISE'
-                    && triggerAsyncFunction.functionWeakRef === null
-                    && triggerAsyncFunction.asyncId !== AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID
-                    && triggerAsyncFunction.asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)
-                {
-                    triggerAsyncFunction = triggerAsyncFunction.asyncContext;    // won't be null, ensured by triggerAsyncFunction.asyncId !== ...
-                    assert.ok(triggerAsyncFunction !== undefined && triggerAsyncFunction !== null);
-                }
 
                 const placeholderAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
