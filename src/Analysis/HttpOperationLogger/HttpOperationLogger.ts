@@ -1,13 +1,12 @@
 // DO NOT INSTRUMENT
 
 import http from 'http';
-import {BufferLogStore} from '../../LogStore/BufferLogStore';
 import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
 import {OutgoingMessageLogStore} from '../../LogStore/OutgoingMessageLogStore';
 import {SocketLogStore} from '../../LogStore/SocketLogStore';
 import {StreamLogStore} from '../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
-import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../Util';
+import {shouldBeVerbose} from '../../Util';
 import {HttpAgentOperationLogger} from './SubLogger/HttpAgentOperationLogger';
 import {HttpIncomingMessageOperationLogger} from './SubLogger/HttpIncomingMessageOperationLogger';
 import {HttpOutgoingMessageOperationLogger} from './SubLogger/HttpOutgoingMessageOperationLogger';
@@ -42,15 +41,6 @@ export class HttpOperationLogger extends Analysis
                 clientRequest.on('socket', socket =>
                 {
                     SocketLogStore.appendSocketOperation(socket, 'read', 'HTTP', this.getSandbox(), iid);
-                    socket.on('data', (data) =>
-                    {
-                        if (isBufferLike(data))
-                        {
-                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
-                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
-                                getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
-                        }
-                    });
                 });
             }
             else if (f === http.createServer)
@@ -60,15 +50,6 @@ export class HttpOperationLogger extends Analysis
                 server.on('connection', socket =>
                 {
                     SocketLogStore.appendSocketOperation(socket, 'read', 'HTTP', this.getSandbox(), iid);
-                    socket.on('data', (data) =>
-                    {
-                        if (isBufferLike(data))
-                        {
-                            BufferLogStore.appendBufferOperation(data, 'write', 'finish',
-                                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
-                                getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), this.getSandbox()));
-                        }
-                    });
                 });
 
                 server.on('request', (req, res) =>
