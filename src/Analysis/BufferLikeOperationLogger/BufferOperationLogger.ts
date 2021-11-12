@@ -97,6 +97,7 @@ export class BufferOperationLogger extends Analysis
 
             if (f === Buffer.alloc)
             {
+                assert.ok(Buffer.isBuffer(result));
                 if (util.types.isTypedArray(args[1]))
                 {
                     const readKeys = [];
@@ -106,26 +107,21 @@ export class BufferOperationLogger extends Analysis
                     }
                     BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish', readKeys,
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                assert.ok(Buffer.isBuffer(result));
-                const writtenKeys = [];
-                for (let i = result.byteOffset; i < result.byteLength; i++)
+                else
                 {
-                    writtenKeys.push(i);
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', writtenKeys,
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.allocUnsafe
                 || f === Buffer.allocUnsafeSlow)
             {
                 assert.ok(Buffer.isBuffer(result));
-                const writtenKeys = [];
-                for (let i = result.byteOffset; i < result.byteLength; i++)
-                {
-                    writtenKeys.push(i);
-                }
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', writtenKeys,
+                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.compare)
