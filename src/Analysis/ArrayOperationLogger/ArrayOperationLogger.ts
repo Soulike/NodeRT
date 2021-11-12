@@ -131,8 +131,42 @@ export class ArrayOperationLogger extends Analysis
                     }
                     ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
                 }
-                else if (f === Array.prototype.fill
-                    || f === Array.prototype.reverse
+                else if (f === Array.prototype.fill)
+                {
+                    let [, start, end] = args as Parameters<typeof Array.prototype.fill>;
+                    if (start === undefined)
+                    {
+                        start = 0;
+                    }
+                    else if (start < 0)
+                    {
+                        start += base.length;
+                    }
+                    else if (start >= base.length)
+                    {
+                        return;
+                    }
+
+                    if (end === undefined)
+                    {
+                        end = base.length;
+                    }
+                    else if (end < 0)
+                    {
+                        end += base.length;
+                    }
+                    else if (end > base.length)
+                    {
+                        end = base.length;
+                    }
+                    const writtenKeys = [];
+                    for (let i = start; i < end; i++)
+                    {
+                        writtenKeys.push(i);
+                    }
+                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
+                }
+                else if (f === Array.prototype.reverse
                     || f === Array.prototype.sort)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'write', Object.keys(base), this.getSandbox(), iid);
