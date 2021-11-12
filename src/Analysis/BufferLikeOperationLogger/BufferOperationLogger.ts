@@ -100,12 +100,8 @@ export class BufferOperationLogger extends Analysis
                 assert.ok(Buffer.isBuffer(result));
                 if (util.types.isTypedArray(args[1]))
                 {
-                    const readKeys = [];
-                    for (let i = args[1].byteOffset; i < args[1].byteLength; i++)
-                    {
-                        readKeys.push(i);
-                    }
-                    BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
                         BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
@@ -152,25 +148,34 @@ export class BufferOperationLogger extends Analysis
             }
             else if (f === Buffer.from || f === Buffer)
             {
-                if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
+                assert.ok(Buffer.isBuffer(result));
+                if (typeof args[0] === 'number')    // new Buffer(size)
                 {
-                    const buffer = args[0];
-                    BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(args[0]))
                 {
                     // pass
                 }
-                else if (Array.isArray(args[0]) || isObject(args[0]))
+                else
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
+                    {
+                        const buffer = args[0];
+                        BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    else if (Array.isArray(args[0]) || isObject(args[0]))
+                    {
+                        ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    }
+
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                assert.ok(Buffer.isBuffer(result));
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === buffer.transcode)
             {
@@ -194,7 +199,7 @@ export class BufferOperationLogger extends Analysis
                 if (f === Buffer.prototype.compare)
                 {
                     let [target, targetStart, targetEnd, sourceStart, sourceEnd] = args as [
-                            Buffer | Uint8Array, number?, number?, number?, number?];
+                        Buffer | Uint8Array, number?, number?, number?, number?];
                     targetStart ??= 0;
                     targetEnd ??= target.length;
                     sourceStart ??= 0;
@@ -220,7 +225,7 @@ export class BufferOperationLogger extends Analysis
                 else if (f === Buffer.prototype.copy)
                 {
                     let [target, targetStart, sourceStart] = args as [
-                            Buffer | Uint8Array, number?, number?, number?];
+                        Buffer | Uint8Array, number?, number?, number?];
                     targetStart ??= 0;
                     sourceStart ??= 0;
                     assert.ok(typeof result === 'number');
