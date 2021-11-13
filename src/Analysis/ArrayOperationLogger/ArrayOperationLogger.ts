@@ -10,6 +10,7 @@ import {shouldBeVerbose} from '../../Util';
 /**Does not support spread expression now*/
 export class ArrayOperationLogger extends Analysis
 {
+    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
     private timeConsumed: number;
@@ -30,55 +31,18 @@ export class ArrayOperationLogger extends Analysis
             }
         };
 
-        // The literals of Arrays are logged in ObjectOperationLogger
-
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFunPre = (iid, f, base, args) =>
         {
             const startTimestamp = Date.now();
 
-            if (f === Array
-                || f === Array.of)
-            {
-                assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
-            }
-            else if (f === Array.from)
-            {
-                const arrayLike = args[0];
-                assert.ok(isObject(arrayLike));
-                ObjectLogStore.appendObjectOperation(arrayLike, 'read', Object.keys(arrayLike), this.getSandbox(), iid);
-                assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
-            }
-            else if (f === Array.isArray
+            if (f === Array.isArray
                 || f === Array.prototype.keys)
             {
                 // pass
             }
             else if (Array.isArray(base))
             {
-                if (f === Array.prototype[Symbol.iterator]
-                    || f === Array.prototype.entries
-                    || f === Array.prototype.values)
-                {
-                    IteratorLogStore.addIterator(
-                        result as IterableIterator<any>,
-                        base);
-                }
-                else if (f === Array.prototype.concat)
-                {
-                    const arrays = args as Parameters<typeof Array.prototype.concat>;
-                    for (const array of arrays)
-                    {
-                        if (isObject(array))
-                        {
-                            ObjectLogStore.appendObjectOperation(array, 'read', Object.keys(array), this.getSandbox(), iid);
-                        }
-                    }
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
-                }
-                else if (f === Array.prototype.copyWithin)
+                if (f === Array.prototype.copyWithin)
                 {
                     let [target, start, end] = args as Parameters<typeof Array.prototype.copyWithin>;
                     if (target < 0)
@@ -173,8 +137,7 @@ export class ArrayOperationLogger extends Analysis
                 }
                 else if (f === Array.prototype.shift)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [base.length.toString()], this.getSandbox(), iid);
-                    ObjectLogStore.appendObjectOperation(base, 'write', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.splice)
                 {
@@ -210,17 +173,14 @@ export class ArrayOperationLogger extends Analysis
                         {
                             writtenKeys.push(`${i}`);
                         }
+                        writtenKeys.push('length');
                     }
                     ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
-                }
-                else if (f === Array.prototype.unshift)
-                {
-                    ObjectLogStore.appendObjectOperation(base, 'write', Object.keys(base), this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.push
                     || f === Array.prototype.pop)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [`${base.length - 1}`], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [`${base.length}`, 'length'], this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.every
                     || f === Array.prototype.find
@@ -237,15 +197,6 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.toString)
                 {
                     ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
-                }
-                else if (f === Array.prototype.filter
-                    || f === Array.prototype.flat
-                    || f === Array.prototype.flatMap
-                    || f === Array.prototype.map)
-                {
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.slice)
                 {
@@ -282,12 +233,77 @@ export class ArrayOperationLogger extends Analysis
                         keys.push(`${i}`);
                     }
                     ObjectLogStore.appendObjectOperation(base, 'read', keys, this.getSandbox(), iid);
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    // result is logged in invokeFun
                 }
 
                 this.timeConsumed += Date.now() - startTimestamp;
             }
+        };
+
+        // The literals of Arrays are logged in ObjectOperationLogger
+        this.invokeFun = (iid, f, base, args, result) =>
+        {
+            const startTimestamp = Date.now();
+
+            if (f === Array
+                || f === Array.of)
+            {
+                assert.ok(isObject(result));
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+            }
+            else if (f === Array.from)
+            {
+                const arrayLike = args[0];
+                assert.ok(isObject(arrayLike));
+                ObjectLogStore.appendObjectOperation(arrayLike, 'read', Object.keys(arrayLike), this.getSandbox(), iid);
+                assert.ok(isObject(result));
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+            }
+            else if (Array.isArray(base))
+            {
+                if (f === Array.prototype[Symbol.iterator]
+                    || f === Array.prototype.entries
+                    || f === Array.prototype.values)
+                {
+                    IteratorLogStore.addIterator(
+                        result as IterableIterator<any>,
+                        base);
+                }
+                else if (f === Array.prototype.concat)
+                {
+                    const arrays = args as Parameters<typeof Array.prototype.concat>;
+                    for (const array of arrays)
+                    {
+                        if (isObject(array))
+                        {
+                            ObjectLogStore.appendObjectOperation(array, 'read', Object.keys(array), this.getSandbox(), iid);
+                        }
+                    }
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                }
+                else if (f === Array.prototype.unshift)
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], this.getSandbox(), iid);
+                }
+                else if (f === Array.prototype.filter
+                    || f === Array.prototype.flat
+                    || f === Array.prototype.flatMap
+                    || f === Array.prototype.map)
+                {
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                }
+                else if (f === Array.prototype.slice)
+                {
+                    assert.ok(isObject(result));
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                }
+            }
+            
+            this.timeConsumed += Date.now() - startTimestamp;
+
         };
     }
 }
