@@ -63,7 +63,10 @@ export class NetOperationLogger extends Analysis
         net.Socket.prototype.destroy = function (...args: any[])
         {
             const startTimestamp = Date.now();
-            SocketLogStore.appendSocketOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
+            if (!this.destroyed)
+            {
+                SocketLogStore.appendSocketOperation(this, 'write', 'destroy', loggerThis.getSandbox(), CallStackLogStore.getTopIid());
+            }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
             // @ts-ignore
             return originalSocketDestroy.call(this, ...args);
