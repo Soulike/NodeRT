@@ -114,7 +114,35 @@ export class ObjectOperationLogger extends Analysis
             // @ts-ignore
             if (base[offset] !== val)
             {
-                if (isBufferLike(base))
+                if (offset === 'length' && Array.isArray(base))
+                {
+                    const newLength = typeof val === 'number'
+                        ? val
+                        : Number.parseInt(val as string);
+                    if (!Number.isInteger(newLength))
+                    {
+                        return;
+                    }
+
+                    const writtenKeys: string[] = [];
+                    const ownKeys = new Set(Object.keys(base));
+                    if (newLength < base.length) // shrink
+                    {
+                        for (let i = newLength; i < base.length; i++)
+                        {
+                            if (ownKeys.has(`${i}`))    // ignore empty slots
+                            {
+                                writtenKeys.push(`${i}`);
+                            }
+                        }
+                    }
+                    else    // enlarge
+                    {
+                        // only length changes, pass
+                    }
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...writtenKeys, 'length'], this.getSandbox(), iid);
+                }
+                else if (isBufferLike(base))
                 {
                     if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                     {
