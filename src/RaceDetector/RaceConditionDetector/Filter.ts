@@ -21,6 +21,10 @@ export class Filter
         {
             return false;
         }
+        if (!Filter.isIntervalCloseEnough(raceConditionInfo))
+        {
+            return false;
+        }
 
         const {resourceInfo} = raceConditionInfo;
         if (resourceInfo instanceof ObjectInfo)
@@ -43,6 +47,12 @@ export class Filter
         {
             return true;
         }
+    }
+
+    public static isIntervalCloseEnough(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        // The time interval between the async context should less than 500ms
+        return raceConditionInfo.timeDiff / 1000n / 1000n <= 500n;
     }
 
     public static isObjectRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
