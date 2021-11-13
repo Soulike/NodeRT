@@ -25,6 +25,10 @@ export class Filter
         {
             return false;
         }
+        if (Filter.isInvokedByTheSameAsyncEventEmitter(raceConditionInfo))
+        {
+            return false;
+        }
 
         const {resourceInfo} = raceConditionInfo;
         if (resourceInfo instanceof ObjectInfo)
@@ -53,6 +57,28 @@ export class Filter
     {
         // The time interval between the async context should less than 500ms
         return raceConditionInfo.timeDiff / 1000n / 1000n <= 500n;
+    }
+
+    public static isInvokedByTheSameAsyncEventEmitter(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        const asyncContext1 = asyncContextToOperations1[0];
+        const asyncContext2 = asyncContextToOperations2[0];
+        if (asyncContext1.asyncContext === null || asyncContext2.asyncContext === null)
+        {
+            return false;
+        }
+        else if (asyncContext1.asyncContext.asyncId === asyncContext2.asyncContext.asyncId
+            && asyncContext1.asyncType === 'TickObject' && asyncContext2.asyncType === 'TickObject'
+            && asyncContext1.functionWeakRef?.deref() === asyncContext2.functionWeakRef?.deref()
+        )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public static isObjectRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
