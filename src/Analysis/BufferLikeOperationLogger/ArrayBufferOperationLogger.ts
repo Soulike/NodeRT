@@ -28,13 +28,8 @@ export class ArrayBufferOperationLogger extends Analysis
             if (f === ArrayBuffer
                 || f === SharedArrayBuffer)
             {
-                assert(util.types.isAnyArrayBuffer(result));
-                const keys: number[] = [];
-                for (let i = 0; i < result.byteLength; i++)
-                {
-                    keys.push(i);
-                }
-                BufferLogStore.appendBufferOperation(result, 'write', 'finish', keys,
+                assert.ok(util.types.isAnyArrayBuffer(result));
+                BufferLogStore.appendBufferOperation(result, 'write', 'finish', {start: 0, end: 0},
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isAnyArrayBuffer(base))
@@ -61,15 +56,10 @@ export class ArrayBufferOperationLogger extends Analysis
                     {
                         readKeys.push(i);
                     }
-                    BufferLogStore.appendBufferOperation(base, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(base, 'read', 'finish', {start: begin, end},
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(util.types.isAnyArrayBuffer(result));
-                    const writtenKeys = [];
-                    for (let i = 0; i < result.byteLength; i++)
-                    {
-                        writtenKeys.push(i);
-                    }
-                    BufferLogStore.appendBufferOperation(result, 'write', 'finish', writtenKeys,
+                    BufferLogStore.appendBufferOperation(result, 'write', 'finish', {start: 0, end: result.byteLength},
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

@@ -7,13 +7,17 @@ import {StatisticsStore} from '../../StatisticsStore';
 export class BufferOperation extends ResourceOperation
 {
     private readonly accessStage: 'start' | 'finish';
-    private readonly fields: ReadonlySet<number>;
+    /***
+     * [start, end)
+     * */
+    private readonly accessRange: { start: number, end: number };
 
-    constructor(type: 'read' | 'write', accessStage: BufferOperation['accessStage'], fields: BufferOperation['fields'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.accessStage = accessStage;
-        this.fields = fields;
+        const {start, end} = accessRange;
+        this.accessRange = {start, end};
         StatisticsStore.addBufferOperationCount();
     }
 
@@ -22,16 +26,8 @@ export class BufferOperation extends ResourceOperation
         return this.accessStage;
     }
 
-    public getFields()
+    public getAccessRange()
     {
-        return this.fields;
-    }
-
-    public toJSON()
-    {
-        return {
-            ...this,
-            fields: Array.from(this.fields)
-        }
+        return this.accessRange;
     }
 }

@@ -31,7 +31,7 @@ export class IteratorLogger extends Analysis
                 if (isBufferLike(iteratee))
                 {
                     BufferLogStore.appendBufferOperation(iteratee, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(iteratee),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(iteratee),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else

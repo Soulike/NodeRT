@@ -64,7 +64,7 @@ export class ZlibOperationLogger extends Analysis
                 if (isBufferLike(buffer))
                 {
                     BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 this.pendingCallbacks.add(callback);
@@ -84,11 +84,11 @@ export class ZlibOperationLogger extends Analysis
                 if (isBufferLike(buffer))
                 {
                     BufferLogStore.appendBufferOperation(buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 BufferLogStore.appendBufferOperation(returned, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(returned),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(returned),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
 
@@ -106,7 +106,7 @@ export class ZlibOperationLogger extends Analysis
                 if (err !== null)
                 {
                     BufferLogStore.appendBufferOperation(buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }

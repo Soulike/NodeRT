@@ -34,7 +34,7 @@ export class JSONOperationLogger extends Analysis
                 if (isBufferLike(value))
                 {
                     BufferLogStore.appendBufferOperation(value, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(value), this.getSandbox(), iid);
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(value), this.getSandbox(), iid);
                 }
             }
             else if (f === JSON.parse)
@@ -48,7 +48,7 @@ export class JSONOperationLogger extends Analysis
                 if (isBufferLike(object))
                 {
                     BufferLogStore.appendBufferOperation(object, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(object),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(object),
                         this.getSandbox(), iid);
                 }
             }

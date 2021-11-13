@@ -38,9 +38,9 @@ export class BufferLogStore
         return BufferLogStore.bufferDeclarations;
     }
 
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], fields: Iterable<number>, sourceCodeInfo: SourceCodeInfo): void;
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], fields: Iterable<number>, sandbox: Sandbox, iid: number): void;
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], fields: Iterable<number>, sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sourceCodeInfo: SourceCodeInfo): void;
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandbox: Sandbox, iid: number): void;
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
     {
         if (!util.types.isAnyArrayBuffer(buffer))
         {
@@ -65,27 +65,25 @@ export class BufferLogStore
         if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
         {
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, accessStage, new Set(fields), CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
+                new BufferOperation(type, accessStage, accessRange, CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));
         }
         else    // sandbox
         {
             assert.ok(iid !== undefined);
             bufferDeclaration.appendOperation(asyncContext,
-                new BufferOperation(type, accessStage, new Set(fields), CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
+                new BufferOperation(type, accessStage, accessRange, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandboxOrSourceCodeInfo)));
         }
     }
 
-    public static getArrayBufferFieldsOfArrayBufferView(arrayBufferView: ArrayBufferView | ArrayBufferLike, start = 0, end = arrayBufferView.byteLength): Iterable<number>
+    /**
+     * Map index range of `ArrayBufferView` to index range of underlying `ArrayBuffer`
+     */
+    public static getArrayBufferRangeOfArrayBufferView(arrayBufferView: ArrayBufferView | ArrayBufferLike, start = 0, end = arrayBufferView.byteLength): BufferOperation['accessRange']
     {
         if (util.types.isAnyArrayBuffer(arrayBufferView))
         {
             arrayBufferView = new DataView(arrayBufferView);
         }
-        const result = [];
-        for (let i = start; i < end; i++)
-        {
-            result.push(arrayBufferView.byteOffset + i);
-        }
-        return result;
+        return {start: start + arrayBufferView.byteOffset, end: end + arrayBufferView.byteOffset};
     }
 }

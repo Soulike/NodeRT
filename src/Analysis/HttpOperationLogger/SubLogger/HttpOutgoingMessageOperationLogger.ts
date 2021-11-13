@@ -58,7 +58,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     if (isBufferLike(chunk))
                     {
                         BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }
@@ -77,7 +77,7 @@ export class HttpOutgoingMessageOperationLogger extends Analysis
                     if (isBufferLike(chunk))
                     {
                         BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }

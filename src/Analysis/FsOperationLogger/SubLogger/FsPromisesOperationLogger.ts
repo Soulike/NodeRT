@@ -38,7 +38,7 @@ export class FsPromisesOperationLogger extends Analysis
                 if (isBufferLike(data))
                 {
                     BufferLogStore.appendBufferOperation(data, 'read', 'start',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
@@ -48,7 +48,7 @@ export class FsPromisesOperationLogger extends Analysis
                     if (isBufferLike(data))
                     {
                         BufferLogStore.appendBufferOperation(data, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
@@ -132,7 +132,7 @@ export class FsPromisesOperationLogger extends Analysis
                 if (isBufferLike(data))
                 {
                     BufferLogStore.appendBufferOperation(data, 'read', 'start',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (data instanceof Readable)
@@ -150,7 +150,7 @@ export class FsPromisesOperationLogger extends Analysis
                     if (isBufferLike(data))
                     {
                         BufferLogStore.appendBufferOperation(data, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     if (data instanceof Readable)

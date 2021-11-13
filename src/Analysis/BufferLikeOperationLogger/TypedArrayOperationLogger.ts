@@ -93,12 +93,12 @@ export class TypedArrayOperationLogger extends Analysis
                         end = base.length;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
 
                     const writtenLength = end - start;
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, target * base.BYTES_PER_ELEMENT, (target + writtenLength) * base.BYTES_PER_ELEMENT),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, target * base.BYTES_PER_ELEMENT, (target + writtenLength) * base.BYTES_PER_ELEMENT),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.fill)
@@ -130,14 +130,14 @@ export class TypedArrayOperationLogger extends Analysis
                         end = base.length;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.reverse
                     || f === TypedArrayOperationLogger.typedArrayPrototype.sort)
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.every
@@ -151,7 +151,7 @@ export class TypedArrayOperationLogger extends Analysis
                     || f === TypedArrayOperationLogger.typedArrayPrototype.toString)
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.includes
@@ -168,11 +168,11 @@ export class TypedArrayOperationLogger extends Analysis
                     if (util.types.isTypedArray(value))
                     {
                         BufferLogStore.appendBufferOperation(value.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(value),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(value),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, byteOffset),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, byteOffset),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.slice)
@@ -204,14 +204,14 @@ export class TypedArrayOperationLogger extends Analysis
                         end = base.length;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, start * base.BYTES_PER_ELEMENT, end * base.BYTES_PER_ELEMENT),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     // result is processed in invokeFun
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.join)
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.set)
@@ -224,7 +224,7 @@ export class TypedArrayOperationLogger extends Analysis
                     if (util.types.isTypedArray(source))
                     {
                         BufferLogStore.appendBufferOperation(source.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(source),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(source),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     else if (isObject(source))
@@ -233,7 +233,7 @@ export class TypedArrayOperationLogger extends Analysis
                     }
 
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset * base.BYTES_PER_ELEMENT),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset * base.BYTES_PER_ELEMENT),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.subarray)
@@ -256,10 +256,10 @@ export class TypedArrayOperationLogger extends Analysis
                 if (util.types.isTypedArray(args[0]))
                 {
                     BufferLogStore.appendBufferOperation(args[0].buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(args[0]))
@@ -270,7 +270,7 @@ export class TypedArrayOperationLogger extends Analysis
                 {
                     ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -278,7 +278,7 @@ export class TypedArrayOperationLogger extends Analysis
             {
                 assert.ok(util.types.isTypedArray(result));
                 BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (TypedArrayOperationLogger.fromApis.has(f))
@@ -288,13 +288,13 @@ export class TypedArrayOperationLogger extends Analysis
                 if (util.types.isTypedArray(source))
                 {
                     BufferLogStore.appendBufferOperation(source.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(source),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(source),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(source))
                 {
                     BufferLogStore.appendBufferOperation(source, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(Buffer.from(source)),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(Buffer.from(source)),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else
@@ -304,7 +304,7 @@ export class TypedArrayOperationLogger extends Analysis
 
                 assert.ok(util.types.isTypedArray(result));
                 BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (util.types.isTypedArray(base))
@@ -313,19 +313,19 @@ export class TypedArrayOperationLogger extends Analysis
                     || f === TypedArrayOperationLogger.typedArrayPrototype.map)
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
 
                     assert.ok(util.types.isTypedArray(result));
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype.slice)
                 {
                     assert.ok(util.types.isTypedArray(result));
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === TypedArrayOperationLogger.typedArrayPrototype[Symbol.iterator]
@@ -350,7 +350,7 @@ export class TypedArrayOperationLogger extends Analysis
                 offset = typeof offset === 'number' ? offset : Number.parseInt(offset);
                 assert.ok(!Number.isNaN(offset));
                 BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base,
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(base,
                         offset * base.BYTES_PER_ELEMENT,
                         (offset + 1) * base.BYTES_PER_ELEMENT), this.getSandbox(), iid);
             }
@@ -368,7 +368,7 @@ export class TypedArrayOperationLogger extends Analysis
                 offset = typeof offset === 'number' ? offset : Number.parseInt(offset);
                 assert.ok(!Number.isNaN(offset));
                 BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base,
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(base,
                         offset * base.BYTES_PER_ELEMENT,
                         (offset + 1) * base.BYTES_PER_ELEMENT), this.getSandbox(), iid);
             }
@@ -384,7 +384,7 @@ export class TypedArrayOperationLogger extends Analysis
             if (!isForIn && util.types.isTypedArray(lastExpressionValue) && !Buffer.isBuffer(lastExpressionValue))
             {
                 BufferLogStore.appendBufferOperation(lastExpressionValue.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(lastExpressionValue),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(lastExpressionValue),
                     this.getSandbox(), iid);
             }
 

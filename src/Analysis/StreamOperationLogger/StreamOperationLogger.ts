@@ -61,7 +61,7 @@ export class StreamOperationLogger extends Analysis
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -78,7 +78,7 @@ export class StreamOperationLogger extends Analysis
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -109,7 +109,7 @@ export class StreamOperationLogger extends Analysis
             if (isBufferLike(data))
             {
                 BufferLogStore.appendBufferOperation(data, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(data),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -125,7 +125,7 @@ export class StreamOperationLogger extends Analysis
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;
@@ -141,7 +141,7 @@ export class StreamOperationLogger extends Analysis
             if (isBufferLike(chunk))
             {
                 BufferLogStore.appendBufferOperation(chunk, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(chunk),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(chunk),
                     getSourceCodeInfoFromIid(CallStackLogStore.getTopIid(), loggerThis.getSandbox()));
             }
             loggerThis.timeConsumed += Date.now() - startTimestamp;

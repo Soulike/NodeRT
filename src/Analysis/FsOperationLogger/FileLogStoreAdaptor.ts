@@ -23,7 +23,7 @@ export class FileLogStoreAdaptor
         {
             const buffer = filePathLikeOrFdOrFileHandle;
             BufferLogStore.appendBufferOperation(buffer, type, accessStage,
-                BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer), sandbox, iid);
+                BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer), sandbox, iid);
         }
         else if (typeof filePathLikeOrFdOrFileHandle === 'number')   // fd
         {
@@ -33,7 +33,7 @@ export class FileLogStoreAdaptor
             {
                 const buffer = filePathOrBuffer;
                 BufferLogStore.appendBufferOperation(buffer, type, accessStage,
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer), sandbox, iid);
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer), sandbox, iid);
             }
             else if (typeof filePathOrBuffer === 'string')
             {

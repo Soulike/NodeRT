@@ -108,20 +108,20 @@ export class BufferOperationLogger extends Analysis
                     sourceEnd ??= base.length;
 
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, sourceStart, sourceEnd),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, sourceStart, sourceEnd),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     BufferLogStore.appendBufferOperation(target.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(target, targetStart, targetEnd),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(target, targetStart, targetEnd),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 if (f === Buffer.prototype.equals)
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     assert.ok(util.types.isTypedArray(args[0]));
                     BufferLogStore.appendBufferOperation(args[0].buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.fill)
@@ -130,7 +130,7 @@ export class BufferOperationLogger extends Analysis
                     if (util.types.isTypedArray(value))
                     {
                         BufferLogStore.appendBufferOperation(value.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(value),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(value),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     if (offset === undefined)
@@ -142,7 +142,7 @@ export class BufferOperationLogger extends Analysis
                         offset = base.length;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, end),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, end),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.includes
@@ -157,11 +157,11 @@ export class BufferOperationLogger extends Analysis
                     if (util.types.isTypedArray(value))
                     {
                         BufferLogStore.appendBufferOperation(value.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(value),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(value),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, byteOffset),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, byteOffset),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.read8OnlyApis.has(f))
@@ -172,7 +172,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 1),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 1),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.read16OnlyApis.has(f))
@@ -183,7 +183,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 2),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 2),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.read32OnlyApis.has(f))
@@ -194,7 +194,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 4),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 4),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.read64OnlyApis.has(f))
@@ -205,13 +205,13 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 8),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 8),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.readOnlyApis.has(f))
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.write8OnlyApis.has(f))
@@ -222,7 +222,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 1),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 1),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.write16OnlyApis.has(f))
@@ -233,7 +233,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 2),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 2),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.write32OnlyApis.has(f))
@@ -244,7 +244,7 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 4),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 4),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.write64OnlyApis.has(f))
@@ -255,13 +255,13 @@ export class BufferOperationLogger extends Analysis
                         offset = 0;
                     }
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + 8),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 8),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (BufferOperationLogger.writeOnlyApis.has(f))
                 {
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.readIntBE
@@ -271,7 +271,7 @@ export class BufferOperationLogger extends Analysis
                 {
                     const [offset, byteLength] = args as [number, number];
                     BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + byteLength),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + byteLength),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (f === Buffer.prototype.writeIntBE
@@ -281,7 +281,7 @@ export class BufferOperationLogger extends Analysis
                 {
                     const [offset, byteLength] = args as [number, number];
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + byteLength),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + byteLength),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -298,15 +298,15 @@ export class BufferOperationLogger extends Analysis
                 if (util.types.isTypedArray(args[1]))
                 {
                     BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(args[1]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else
                 {
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', {start: 0, end: 0},
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -314,17 +314,17 @@ export class BufferOperationLogger extends Analysis
                 || f === Buffer.allocUnsafeSlow)
             {
                 assert.ok(Buffer.isBuffer(result));
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', {start: 0, end: 0},
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.compare)
             {
                 const [buf1, buf2] = args as Parameters<typeof Buffer.compare>;
                 BufferLogStore.appendBufferOperation(buf1.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf1),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(buf1),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 BufferLogStore.appendBufferOperation(buf2.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf2),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(buf2),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.concat)
@@ -335,12 +335,12 @@ export class BufferOperationLogger extends Analysis
                 {
                     assert.ok(util.types.isTypedArray(arg));
                     BufferLogStore.appendBufferOperation(arg.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(arg),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(arg),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 assert.ok(Buffer.isBuffer(result));
                 BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.from || f === Buffer)
@@ -348,7 +348,7 @@ export class BufferOperationLogger extends Analysis
                 assert.ok(Buffer.isBuffer(result));
                 if (typeof args[0] === 'number')    // new Buffer(size)
                 {
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', {start: 0, end: 0},
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (util.types.isAnyArrayBuffer(args[0]))
@@ -361,7 +361,7 @@ export class BufferOperationLogger extends Analysis
                     {
                         const buffer = args[0];
                         BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                     else if (Array.isArray(args[0]) || isObject(args[0]))
@@ -370,7 +370,7 @@ export class BufferOperationLogger extends Analysis
                     }
 
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -378,11 +378,11 @@ export class BufferOperationLogger extends Analysis
             {
                 const [source] = args as Parameters<typeof buffer.transcode>;
                 BufferLogStore.appendBufferOperation(source.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(source),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(source),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 assert.ok(Buffer.isBuffer(result));
                 BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                     getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
             else if (f === Buffer.isBuffer
@@ -403,10 +403,10 @@ export class BufferOperationLogger extends Analysis
                     if (result !== 0)
                     {
                         BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, sourceStart, sourceStart + result),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, sourceStart, sourceStart + result),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                         BufferLogStore.appendBufferOperation(target.buffer, 'write', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(target, targetStart, targetStart + result),
+                            BufferLogStore.getArrayBufferRangeOfArrayBufferView(target, targetStart, targetStart + result),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
                 }
@@ -426,7 +426,7 @@ export class BufferOperationLogger extends Analysis
                     }
                     assert.ok(typeof result === 'number');
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + result),
+                        BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
@@ -442,7 +442,10 @@ export class BufferOperationLogger extends Analysis
             {
                 offset = typeof offset === 'number' ? offset : Number.parseInt(offset);
                 assert.ok(!Number.isNaN(offset));
-                BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', [offset], this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', {
+                    start: offset,
+                    end: offset + 1,
+                }, this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -457,7 +460,10 @@ export class BufferOperationLogger extends Analysis
             {
                 offset = typeof offset === 'number' ? offset : Number.parseInt(offset);
                 assert.ok(!Number.isNaN(offset));
-                BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', [offset], this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', {
+                    start: offset,
+                    end: offset + 1,
+                }, this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -471,7 +477,7 @@ export class BufferOperationLogger extends Analysis
             if (!isForIn && Buffer.isBuffer(lastExpressionValue))
             {
                 BufferLogStore.appendBufferOperation(lastExpressionValue.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(lastExpressionValue),
+                    BufferLogStore.getArrayBufferRangeOfArrayBufferView(lastExpressionValue),
                     this.getSandbox(), iid);
             }
 

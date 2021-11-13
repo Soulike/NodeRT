@@ -65,50 +65,66 @@ export class DataViewOperationLogger extends Analysis
             {
                 if (DataViewOperationLogger.get8Apis.has(f))
                 {
-                    const readKeys = [base.byteOffset, base.byteOffset + 1];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 1,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.get16Apis.has(f))
                 {
-                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 2,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.get32Apis.has(f))
                 {
-                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 3,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.get64Apis.has(f))
                 {
-                    const readKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3, base.byteOffset + 4];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', readKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 4,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.set8Apis.has(f))
                 {
-                    const writtenKeys = [base.byteOffset, base.byteOffset + 1];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 1,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.set16Apis.has(f))
                 {
-                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 2,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.set32Apis.has(f))
                 {
-                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 3,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
                 else if (DataViewOperationLogger.set64Apis.has(f))
                 {
-                    const writtenKeys = [base.byteOffset, base.byteOffset + 1, base.byteOffset + 2, base.byteOffset + 3, base.byteOffset + 4];
-                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', writtenKeys,
+                    BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', {
+                            start: base.byteOffset,
+                            end: base.byteOffset + 4,
+                        },
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
             }
