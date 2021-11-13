@@ -75,6 +75,7 @@ export class BufferOperationLogger extends Analysis
         Buffer.prototype.swap64,
     ]);
 
+    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
     public forObject: Hooks['forObject'] | undefined;
     public getField: Hooks['getField'] | undefined;
@@ -91,115 +92,16 @@ export class BufferOperationLogger extends Analysis
 
     protected override registerHooks(): void
     {
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFunPre = (iid, f, base, args) =>
         {
             const startTimestamp = Date.now();
 
-            if (f === Buffer.alloc)
-            {
-                assert.ok(Buffer.isBuffer(result));
-                if (util.types.isTypedArray(args[1]))
-                {
-                    BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-                else
-                {
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-            }
-            else if (f === Buffer.allocUnsafe
-                || f === Buffer.allocUnsafeSlow)
-            {
-                assert.ok(Buffer.isBuffer(result));
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === Buffer.compare)
-            {
-                const [buf1, buf2] = args as Parameters<typeof Buffer.compare>;
-                BufferLogStore.appendBufferOperation(buf1.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf1),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                BufferLogStore.appendBufferOperation(buf2.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf2),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === Buffer.concat)
-            {
-                assert.ok(Array.isArray(args[0]));
-                ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
-                for (const arg of args[0])
-                {
-                    assert.ok(util.types.isTypedArray(arg));
-                    BufferLogStore.appendBufferOperation(arg.buffer, 'read', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(arg),
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-                assert.ok(Buffer.isBuffer(result));
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === Buffer.from || f === Buffer)
-            {
-                assert.ok(Buffer.isBuffer(result));
-                if (typeof args[0] === 'number')    // new Buffer(size)
-                {
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-                else if (util.types.isAnyArrayBuffer(args[0]))
-                {
-                    // pass
-                }
-                else
-                {
-                    if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
-                    {
-                        const buffer = args[0];
-                        BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                    else if (Array.isArray(args[0]) || isObject(args[0]))
-                    {
-                        ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
-                    }
-
-                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
-                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-            }
-            else if (f === buffer.transcode)
-            {
-                const [source] = args as Parameters<typeof buffer.transcode>;
-                BufferLogStore.appendBufferOperation(source.buffer, 'read', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(source),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                assert.ok(Buffer.isBuffer(result));
-                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
-                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
-                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
-            }
-            else if (f === Buffer.isBuffer
-                || f === Buffer.isEncoding
-                || f === Buffer.prototype.keys)
-            {
-                // pass
-            }
-            else if (util.types.isTypedArray(base))
+            if (util.types.isTypedArray(base))
             {
                 if (f === Buffer.prototype.compare)
                 {
                     let [target, targetStart, targetEnd, sourceStart, sourceEnd] = args as [
-                        Buffer | Uint8Array, number?, number?, number?, number?];
+                            Buffer | Uint8Array, number?, number?, number?, number?];
                     targetStart ??= 0;
                     targetEnd ??= target.length;
                     sourceStart ??= 0;
@@ -221,30 +123,6 @@ export class BufferOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(args[0].buffer, 'read', 'finish',
                         BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[0]),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                }
-                else if (f === Buffer.prototype.copy)
-                {
-                    let [target, targetStart, sourceStart] = args as [
-                        Buffer | Uint8Array, number?, number?, number?];
-                    targetStart ??= 0;
-                    sourceStart ??= 0;
-                    assert.ok(typeof result === 'number');
-                    if (result !== 0)
-                    {
-                        BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, sourceStart, sourceStart + result),
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                        BufferLogStore.appendBufferOperation(target.buffer, 'write', 'finish',
-                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(target, targetStart, targetStart + result),
-                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
-                    }
-                }
-                else if (f === Buffer.prototype.entries
-                    || f === Buffer.prototype.values)
-                {
-                    IteratorLogStore.addIterator(
-                        result as IterableIterator<any>,
-                        base);
                 }
                 else if (f === Buffer.prototype.fill)
                 {
@@ -405,6 +283,139 @@ export class BufferOperationLogger extends Analysis
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
                         BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, offset, offset + byteLength),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+            }
+            this.timeConsumed += Date.now() - startTimestamp;
+        };
+
+        this.invokeFun = (iid, f, base, args, result) =>
+        {
+            const startTimestamp = Date.now();
+
+            if (f === Buffer.alloc)
+            {
+                assert.ok(Buffer.isBuffer(result));
+                if (util.types.isTypedArray(args[1]))
+                {
+                    BufferLogStore.appendBufferOperation(args[1].buffer, 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(args[1]),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else
+                {
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+            }
+            else if (f === Buffer.allocUnsafe
+                || f === Buffer.allocUnsafeSlow)
+            {
+                assert.ok(Buffer.isBuffer(result));
+                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.compare)
+            {
+                const [buf1, buf2] = args as Parameters<typeof Buffer.compare>;
+                BufferLogStore.appendBufferOperation(buf1.buffer, 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf1),
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                BufferLogStore.appendBufferOperation(buf2.buffer, 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buf2),
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.concat)
+            {
+                assert.ok(Array.isArray(args[0]));
+                ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                for (const arg of args[0])
+                {
+                    assert.ok(util.types.isTypedArray(arg));
+                    BufferLogStore.appendBufferOperation(arg.buffer, 'read', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(arg),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                assert.ok(Buffer.isBuffer(result));
+                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.from || f === Buffer)
+            {
+                assert.ok(Buffer.isBuffer(result));
+                if (typeof args[0] === 'number')    // new Buffer(size)
+                {
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish', [],
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+                else if (util.types.isAnyArrayBuffer(args[0]))
+                {
+                    // pass
+                }
+                else
+                {
+                    if (Buffer.isBuffer(args[0]) || util.types.isTypedArray(args[0]))
+                    {
+                        const buffer = args[0];
+                        BufferLogStore.appendBufferOperation(buffer.buffer, 'read', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(buffer),
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                    else if (Array.isArray(args[0]) || isObject(args[0]))
+                    {
+                        ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    }
+
+                    BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                        BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                        getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                }
+            }
+            else if (f === buffer.transcode)
+            {
+                const [source] = args as Parameters<typeof buffer.transcode>;
+                BufferLogStore.appendBufferOperation(source.buffer, 'read', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(source),
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                assert.ok(Buffer.isBuffer(result));
+                BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
+                    BufferLogStore.getArrayBufferFieldsOfArrayBufferView(result),
+                    getSourceCodeInfoFromIid(iid, this.getSandbox()));
+            }
+            else if (f === Buffer.isBuffer
+                || f === Buffer.isEncoding
+                || f === Buffer.prototype.keys)
+            {
+                // pass
+            }
+            else if (util.types.isTypedArray(base))
+            {
+                if (f === Buffer.prototype.copy)
+                {
+                    let [target, targetStart, sourceStart] = args as [
+                            Buffer | Uint8Array, number?, number?, number?];
+                    targetStart ??= 0;
+                    sourceStart ??= 0;
+                    assert.ok(typeof result === 'number');
+                    if (result !== 0)
+                    {
+                        BufferLogStore.appendBufferOperation(base.buffer, 'read', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(base, sourceStart, sourceStart + result),
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        BufferLogStore.appendBufferOperation(target.buffer, 'write', 'finish',
+                            BufferLogStore.getArrayBufferFieldsOfArrayBufferView(target, targetStart, targetStart + result),
+                            getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                    }
+                }
+                else if (f === Buffer.prototype.entries
+                    || f === Buffer.prototype.values)
+                {
+                    IteratorLogStore.addIterator(
+                        result as IterableIterator<any>,
+                        base);
                 }
                 else if (f === Buffer.prototype.write)
                 {
