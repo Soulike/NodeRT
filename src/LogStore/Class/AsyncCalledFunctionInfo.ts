@@ -13,12 +13,15 @@ export class AsyncCalledFunctionInfo
     public static readonly GLOBAL_ASYNC_ID = 1;
     public static readonly GLOBAL = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, 'GLOBAL', null, null);
 
+    private static lastIndex = 0;
+
     public functionWeakRef: WeakRef<Function> | null;
     public stackTrace: string[] | null;
     public asyncId: number;
     public asyncType: string;
     public asyncContext: AsyncCalledFunctionInfo | null;    // null for global
     public codeInfo: SourceCodeInfo | null;
+    public index: number;
 
     /** Whether the callback function does any writing operation on certain resource*/
     private hasWriteOperationOnResourcesSet: Set<ResourceInfo>;
@@ -34,6 +37,7 @@ export class AsyncCalledFunctionInfo
         this.asyncType = asyncType;
         this.asyncContext = asyncContext; // 被创建时所在的 scope
         this.codeInfo = codeInfo;   // 本 callback 是被什么地方的代码注册执行的
+        this.index = AsyncCalledFunctionInfo.lastIndex++;
 
         this.hasWriteOperationOnResourcesSet = new Set();
     }
