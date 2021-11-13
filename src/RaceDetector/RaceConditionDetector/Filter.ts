@@ -8,6 +8,8 @@ import {PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
 import {PrimitiveInfo} from '../../LogStore/PrimitiveLogStore/Class/PrimitiveInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
+import {BufferInfo} from '../../LogStore/BufferLogStore/Class/BufferInfo';
+import {BufferOperation} from '../../LogStore/BufferLogStore';
 
 export class Filter
 {
@@ -32,6 +34,10 @@ export class Filter
         else if (resourceInfo instanceof EventEmitterInfo)
         {
             return Filter.isEventEmitterRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof BufferInfo)
+        {
+            return Filter.isBufferRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -74,6 +80,63 @@ export class Filter
         // must be written and read on the same fields
         return ((accessedFieldsInAsyncContext1.intersect(writeFieldsInAsyncContext2)).size !== 0)
             || ((accessedFieldsInAsyncContext2.intersect(writeFieldsInAsyncContext1)).size !== 0);
+    }
+
+    public static isBufferRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof BufferInfo);
+        const asyncContext1Operations = asyncContextToOperations1[1]! as BufferOperation[];
+        const accessedRangesInAsyncContext1: BufferOperation['accessRange'][] = [];
+        const writeRangesInAsyncContext1: BufferOperation['accessRange'][] = [];
+        for (const operation of asyncContext1Operations)
+        {
+            const accessRange = operation.getAccessRange();
+            const type = operation.getType();
+            if (type === 'write')
+            {
+                writeRangesInAsyncContext1.push(accessRange);
+            }
+            accessedRangesInAsyncContext1.push(accessRange);
+        }
+
+        const asyncContext2Operations = asyncContextToOperations2[1]! as BufferOperation[];
+        const accessedRangesInAsyncContext2: BufferOperation['accessRange'][] = [];
+        const writeRangesInAsyncContext2: BufferOperation['accessRange'][] = [];
+        for (const operation of asyncContext2Operations)
+        {
+            const accessRange = operation.getAccessRange();
+            const type = operation.getType();
+            if (type === 'write')
+            {
+                writeRangesInAsyncContext2.push(accessRange);
+            }
+            accessedRangesInAsyncContext2.push(accessRange);
+        }
+
+        for (const {start: start1, end: end1} of accessedRangesInAsyncContext1)
+        {
+            for (const {start: start2, end: end2} of writeRangesInAsyncContext2)
+            {
+                if (!(end1 <= start2 || end2 <= start1)) // overlap
+                {
+                    return true;
+                }
+            }
+        }
+
+        for (const {start: start1, end: end1} of accessedRangesInAsyncContext2)
+        {
+            for (const {start: start2, end: end2} of writeRangesInAsyncContext1)
+            {
+                if (!(end1 <= start2 || end2 <= start1)) // overlap
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static isPrimitiveRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
