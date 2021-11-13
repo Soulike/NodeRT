@@ -19,14 +19,7 @@ export class RaceConditionInfo extends Info
     {
         super(resourceInfo);
         this.timeDiff = timeDiff;
-        // keep snapshot
-        this.asyncContextToOperations1 = [
-            asyncContextToOperations1[0],
-            Array.from(asyncContextToOperations1[1])
-        ];
-        this.asyncContextToOperations2 = [
-            asyncContextToOperations2[0],
-            Array.from(asyncContextToOperations2[1])
-        ];
+        this.asyncContextToOperations1 = asyncContextToOperations1;
+        this.asyncContextToOperations2 = asyncContextToOperations2;
     }
 }
