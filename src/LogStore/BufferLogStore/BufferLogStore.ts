@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import {BufferDeclaration} from './Class/BufferDeclaration';
-import {Sandbox} from '../../Type/nodeprof';
-import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {BufferOperation} from './Class/BufferOperation';
-import {getSourceCodeInfoFromIid} from '../../Util';
-import {SourceCodeInfo} from '../Class/SourceCodeInfo';
-import {strict as assert} from 'assert';
+import { strict as assert } from 'assert';
 import asyncHooks from 'async_hooks';
-import {CallStackLogStore} from '../CallStackLogStore';
 import util from 'util';
+import { Sandbox } from '../../Type/nodeprof';
+import { getSourceCodeInfoFromIid } from '../../Util';
+import { AsyncContextLogStore } from '../AsyncContextLogStore';
+import { CallStackLogStore } from '../CallStackLogStore';
+import { SourceCodeInfo } from '../Class/SourceCodeInfo';
+import { BufferDeclaration } from './Class/BufferDeclaration';
+import { BufferOperation } from './Class/BufferOperation';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -17,7 +17,7 @@ export class BufferLogStore
     private static bufferToBufferDeclaration: WeakMap<ArrayBufferLike, BufferDeclaration> = new WeakMap();
     private static bufferDeclarations: BufferDeclaration[] = [];
 
-    public static getBufferDeclaration(buffer: ArrayBufferLike, sourceCodeInfo: SourceCodeInfo)
+    public static getBufferDeclaration(buffer: ArrayBufferLike, sourceCodeInfo: SourceCodeInfo|null)
     {
         const bufferDeclaration = BufferLogStore.bufferToBufferDeclaration.get(buffer);
         if (bufferDeclaration === undefined)
@@ -38,16 +38,16 @@ export class BufferLogStore
         return BufferLogStore.bufferDeclarations;
     }
 
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sourceCodeInfo: SourceCodeInfo): void;
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sourceCodeInfo: SourceCodeInfo|null): void;
     public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandbox: Sandbox, iid: number): void;
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo, iid?: number): void
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo | null, iid?: number): void
     {
         if (!util.types.isAnyArrayBuffer(buffer))
         {
             buffer = buffer.buffer;
         }
         let bufferDeclaration: BufferDeclaration;
-        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
+        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo || sandboxOrSourceCodeInfo === null)
         {
             bufferDeclaration = BufferLogStore.getBufferDeclaration(buffer, sandboxOrSourceCodeInfo);
         }
@@ -62,7 +62,7 @@ export class BufferLogStore
         {
             asyncContext.setHasWriteOperation(bufferDeclaration);
         }
-        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo)
+        if (sandboxOrSourceCodeInfo instanceof SourceCodeInfo || sandboxOrSourceCodeInfo === null)
         {
             bufferDeclaration.appendOperation(asyncContext,
                 new BufferOperation(type, accessStage, accessRange, CallStackLogStore.getCallStack(), sandboxOrSourceCodeInfo));

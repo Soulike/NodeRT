@@ -1,18 +1,18 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {FileOperation} from './FileOperation';
-import {RaceDetector} from '../../../RaceDetector';
-import {FileInfo} from './FileInfo';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import { RaceDetector } from '../../../RaceDetector';
+import { AsyncCalledFunctionInfo } from '../../Class/AsyncCalledFunctionInfo';
+import { ResourceDeclaration } from '../../Class/ResourceDeclaration';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { FileInfo } from './FileInfo';
+import { FileOperation } from './FileOperation';
 
 export class FileDeclaration extends ResourceDeclaration
 {
     private readonly fileInfo: FileInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, FileOperation[]>;
 
-    constructor(filePath: string, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(filePath: string, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super();
         this.fileInfo = new FileInfo(filePath, possibleDefineCodeScope);

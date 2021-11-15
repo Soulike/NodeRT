@@ -1,17 +1,17 @@
 // DO NOT INSTRUMENT
 
-import {Sandbox} from '../../Type/nodeprof';
-import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
-import {FileDeclaration} from './Class/FileDeclaration';
-import {FileOperation} from './Class/FileOperation';
+import asyncHooks from 'async_hooks';
+import {FileHandle} from 'fs/promises';
+import path from 'path';
 import {URL} from 'url';
 import {BufferLike} from '../../Analysis/Type/BufferLike';
-import {FileHandle} from 'fs/promises';
-import asyncHooks from 'async_hooks';
+import {Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid} from '../../Util';
+import {AsyncContextLogStore} from '../AsyncContextLogStore';
 import {CallStackLogStore} from '../CallStackLogStore';
 import {SourceCodeInfo} from '../Class/SourceCodeInfo';
-import path from 'path';
+import {FileDeclaration} from './Class/FileDeclaration';
+import {FileOperation} from './Class/FileOperation';
 
 export class FileLogStore
 {
@@ -29,7 +29,7 @@ export class FileLogStore
         return this.fileHandles.has(fileHandle);
     }
 
-    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo)
+    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo|null)
     {
         this.fileHandles.add(fileHandle);
         this.addFd(fileHandle.fd, filePathOrBuffer, sourceCodeInfo);
@@ -41,7 +41,7 @@ export class FileLogStore
         this.fdToFilePathOrBuffer.delete(fileHandle.fd);
     }
 
-    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo)
+    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo|null)
     {
         if (typeof filePathOrBuffer === 'string')
         {
@@ -81,7 +81,7 @@ export class FileLogStore
         }
     }
 
-    public static getFileDeclaration(filePathLike: string | URL, sourceCodeInfo: SourceCodeInfo): FileDeclaration
+    public static getFileDeclaration(filePathLike: string | URL, sourceCodeInfo: SourceCodeInfo|null): FileDeclaration
     {
         const realFilePath = typeof filePathLike === 'string' ? filePathLike : filePathLike.href;
         const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(realFilePath);

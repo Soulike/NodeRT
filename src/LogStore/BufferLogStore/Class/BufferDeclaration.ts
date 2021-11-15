@@ -1,19 +1,19 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {BufferOperation} from './BufferOperation';
 import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {RaceDetector} from '../../../RaceDetector';
-import {BufferInfo} from './BufferInfo';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {BufferInfo} from './BufferInfo';
+import {BufferOperation} from './BufferOperation';
 
 export class BufferDeclaration extends ResourceDeclaration
 {
     private readonly bufferInfo: BufferInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, BufferOperation[]>;
 
-    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super();
         this.bufferInfo = new BufferInfo(buffer, possibleDefineCodeScope);

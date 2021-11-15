@@ -1,11 +1,11 @@
-import {EventEmitter} from 'events';
-import {EventEmitterDeclaration} from './Class/EventEmitterDeclaration';
-import {SourceCodeInfo} from '../Class/SourceCodeInfo';
-import {EventEmitterOperation} from './Class/EventEmitterOperation';
-import {AsyncContextLogStore} from '../AsyncContextLogStore';
+import { EnhancedSet } from '@datastructures-js/set';
 import asyncHooks from 'async_hooks';
-import {CallStackLogStore} from '../CallStackLogStore';
-import {EnhancedSet} from '@datastructures-js/set';
+import { EventEmitter } from 'events';
+import { AsyncContextLogStore } from '../AsyncContextLogStore';
+import { CallStackLogStore } from '../CallStackLogStore';
+import { SourceCodeInfo } from '../Class/SourceCodeInfo';
+import { EventEmitterDeclaration } from './Class/EventEmitterDeclaration';
+import { EventEmitterOperation } from './Class/EventEmitterOperation';
 
 export class EventEmitterLogStore
 {
@@ -13,7 +13,7 @@ export class EventEmitterLogStore
         WeakMap<EventEmitter, { [event: string | symbol]: EventEmitterDeclaration }> = new WeakMap();
     private static readonly eventEmitterDeclarations: EventEmitterDeclaration[] = [];
 
-    public static getEventEmitterDeclaration(eventEmitter: EventEmitter, event: string | symbol, sourceCodeInfo: SourceCodeInfo): EventEmitterDeclaration
+    public static getEventEmitterDeclaration(eventEmitter: EventEmitter, event: string | symbol, sourceCodeInfo: SourceCodeInfo|null): EventEmitterDeclaration
     {
         const eventToEventEmitterDeclaration = EventEmitterLogStore.eventEmitterToEventEmitterDeclaration.get(eventEmitter);
         if (eventToEventEmitterDeclaration === undefined)
@@ -46,7 +46,7 @@ export class EventEmitterLogStore
     }
 
     public static appendOperation(eventEmitter: EventEmitter, event: string | symbol,
-                                  type: 'read' | 'write', operationKind: EventEmitterOperation['operationKind'], affectedListeners: Iterable<Function>, sourceCodeInfo: SourceCodeInfo)
+                                  type: 'read' | 'write', operationKind: EventEmitterOperation['operationKind'], affectedListeners: Iterable<Function>, sourceCodeInfo: SourceCodeInfo|null)
     {
         const eventDeclaration = EventEmitterLogStore.getEventEmitterDeclaration(eventEmitter, event, sourceCodeInfo);
         const asyncContext = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncHooks.executionAsyncId());

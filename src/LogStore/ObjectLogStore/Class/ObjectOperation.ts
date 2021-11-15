@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import {isPrimitive} from '../../../Util';
-import {ResourceOperation} from '../../Class/ResourceOperation';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
-import {StatisticsStore} from '../../StatisticsStore';
+import { isPrimitive } from '../../../Util';
+import { ResourceOperation } from '../../Class/ResourceOperation';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { StatisticsStore } from '../../StatisticsStore';
 
 export class ObjectOperation extends ResourceOperation
 {
     public readonly fields: ReadonlySet<unknown>;
 
-    constructor(type: 'read' | 'write', fields: ReadonlySet<unknown>, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', fields: ReadonlySet<unknown>, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo|null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.fields = fields;

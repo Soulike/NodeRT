@@ -1,8 +1,8 @@
 // DO NOT INSTRUMENT
 
-import {ResourceOperation} from '../../Class/ResourceOperation';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
-import {StatisticsStore} from '../../StatisticsStore';
+import { ResourceOperation } from '../../Class/ResourceOperation';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { StatisticsStore } from '../../StatisticsStore';
 
 export class BufferOperation extends ResourceOperation
 {
@@ -12,7 +12,7 @@ export class BufferOperation extends ResourceOperation
      * */
     private readonly accessRange: { start: number, end: number };
 
-    constructor(type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo|null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.accessStage = accessStage;

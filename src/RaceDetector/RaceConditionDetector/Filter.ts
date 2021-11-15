@@ -17,6 +17,11 @@ export class Filter
 
     public static isTruePositive(raceConditionInfo: RaceConditionInfo): boolean
     {
+        const {resourceInfo} = raceConditionInfo;
+        if (resourceInfo.getPossibleDefineCodeScope() === null)
+        {
+            return false;
+        }
         if (!Filter.isPromiseViolationTP(raceConditionInfo))
         {
             return false;
@@ -34,7 +39,7 @@ export class Filter
             return false;
         }
 
-        const {resourceInfo} = raceConditionInfo;
+        
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectRaceConditionTP(raceConditionInfo);

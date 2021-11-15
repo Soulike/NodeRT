@@ -9,7 +9,7 @@ export class StreamOperation extends ResourceOperation
 {
     private readonly operationKind: StreamOperationKind;
 
-    constructor(type: 'read' | 'write', operationKind: StreamOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', operationKind: StreamOperation['operationKind'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo|null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.operationKind = operationKind;

@@ -1,19 +1,19 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {StreamOperation} from './StreamOperation';
 import {Readable, Writable} from 'stream';
 import {RaceDetector} from '../../../RaceDetector';
-import {StreamInfo} from './StreamInfo';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {StreamInfo} from './StreamInfo';
+import {StreamOperation} from './StreamOperation';
 
 export class StreamDeclaration extends ResourceDeclaration
 {
     private readonly streamInfo: StreamInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, StreamOperation[]>;
 
-    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super();
         this.streamInfo = new StreamInfo(stream, possibleDefineCodeScope);

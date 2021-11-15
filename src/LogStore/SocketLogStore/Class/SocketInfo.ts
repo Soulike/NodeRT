@@ -1,13 +1,13 @@
-import {ResourceInfo} from '../../Class/ResourceInfo';
 import net from 'net';
-import {StatisticsStore} from '../../StatisticsStore';
+import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class SocketInfo extends ResourceInfo
 {
     private readonly socketWeakRef: WeakRef<net.Socket>;
 
-    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super('socket', possibleDefineCodeScope);
         this.socketWeakRef = new WeakRef(socket);

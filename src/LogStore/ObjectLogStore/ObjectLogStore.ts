@@ -1,13 +1,13 @@
 // DO NOT INSTRUMENT
 
-import {Sandbox} from '../../Type/nodeprof';
-import {AsyncContextLogStore} from '../AsyncContextLogStore';
-import {getSourceCodeInfoFromIid} from '../../Util';
-import {ObjectDeclaration} from './Class/ObjectDeclaration';
-import {ObjectOperation} from './Class/ObjectOperation';
 import asyncHooks from 'async_hooks';
-import {CallStackLogStore} from '../CallStackLogStore';
-import {SourceCodeInfo} from '../Class/SourceCodeInfo';
+import { Sandbox } from '../../Type/nodeprof';
+import { getSourceCodeInfoFromIid } from '../../Util';
+import { AsyncContextLogStore } from '../AsyncContextLogStore';
+import { CallStackLogStore } from '../CallStackLogStore';
+import { SourceCodeInfo } from '../Class/SourceCodeInfo';
+import { ObjectDeclaration } from './Class/ObjectDeclaration';
+import { ObjectOperation } from './Class/ObjectOperation';
 
 export class ObjectLogStore
 {
@@ -31,7 +31,7 @@ export class ObjectLogStore
             new ObjectOperation(type, new Set(fields), CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getObjectDeclaration(object: object, sourceCodeInfo: SourceCodeInfo)
+    private static getObjectDeclaration(object: object, sourceCodeInfo: SourceCodeInfo|null)
     {
         const objectDeclaration = ObjectLogStore.objectToObjectDeclaration.get(object);
         if (objectDeclaration === undefined)

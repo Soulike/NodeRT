@@ -1,8 +1,8 @@
-import {ResourceInfo} from '../../Class/ResourceInfo';
-import {Scope} from './Scope';
-import {isFunction} from 'lodash';
-import {StatisticsStore} from '../../StatisticsStore';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import { isFunction } from 'lodash';
+import { ResourceInfo } from '../../Class/ResourceInfo';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { StatisticsStore } from '../../StatisticsStore';
+import { Scope } from './Scope';
 
 export class PrimitiveInfo extends ResourceInfo
 {
@@ -15,7 +15,7 @@ export class PrimitiveInfo extends ResourceInfo
 
     private scope: Scope | null;    // null for pending ones
 
-    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func?: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func?: Function)
     {
         super('primitive', possibleDefineCodeScope);
         this.iid = iid;

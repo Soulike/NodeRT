@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
-import {ResourceOperation} from '../../Class/ResourceOperation';
-import {StatisticsStore} from '../../StatisticsStore';
-import {isObject} from 'lodash';
+import { isObject } from 'lodash';
+import { ResourceOperation } from '../../Class/ResourceOperation';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { StatisticsStore } from '../../StatisticsStore';
 
 export class PrimitiveOperation extends ResourceOperation
 {
     public readonly valueBefore: unknown | WeakRef<any>;
     public readonly value: unknown | WeakRef<any>;
-    constructor(type: 'read' | 'write', valueBefore: unknown, value: unknown, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo)
+    constructor(type: 'read' | 'write', valueBefore: unknown, value: unknown, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo|null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.valueBefore = isObject(valueBefore) ? new WeakRef(valueBefore) : valueBefore;

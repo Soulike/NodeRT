@@ -1,20 +1,20 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {ObjectOperation} from './ObjectOperation';
 import assert from 'assert';
-import {isObject} from 'lodash';
-import {RaceDetector} from '../../../RaceDetector';
-import {ObjectInfo} from './ObjectInfo';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import { isObject } from 'lodash';
+import { RaceDetector } from '../../../RaceDetector';
+import { AsyncCalledFunctionInfo } from '../../Class/AsyncCalledFunctionInfo';
+import { ResourceDeclaration } from '../../Class/ResourceDeclaration';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { ObjectInfo } from './ObjectInfo';
+import { ObjectOperation } from './ObjectOperation';
 
 export class ObjectDeclaration extends ResourceDeclaration
 {
     private readonly objectInfo: ObjectInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, ObjectOperation[]>;
 
-    constructor(object: object, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(object: object, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super();
         assert.ok(isObject(object));

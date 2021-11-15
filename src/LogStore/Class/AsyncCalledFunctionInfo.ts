@@ -69,7 +69,7 @@ export class AsyncCalledFunctionInfo
         );
     }
 
-    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo, timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
+    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo|null, timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = new WeakRef(func);
         this.stackTrace = stackTrace;

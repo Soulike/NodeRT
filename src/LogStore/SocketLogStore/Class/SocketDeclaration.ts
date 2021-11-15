@@ -1,19 +1,19 @@
 // DO NOT INSTRUMENT
 
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {SocketOperation} from './SocketOperation';
 import net from 'net';
 import {RaceDetector} from '../../../RaceDetector';
-import {SocketInfo} from './SocketInfo';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {SocketInfo} from './SocketInfo';
+import {SocketOperation} from './SocketOperation';
 
 export class SocketDeclaration extends ResourceDeclaration
 {
     private readonly socketInfo: SocketInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, SocketOperation[]>;
 
-    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super();
         this.socketInfo = new SocketInfo(socket, possibleDefineCodeScope);

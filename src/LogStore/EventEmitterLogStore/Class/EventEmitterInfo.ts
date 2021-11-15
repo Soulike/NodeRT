@@ -1,13 +1,13 @@
-import {ResourceInfo} from '../../Class/ResourceInfo';
-import {EventEmitter} from 'events';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import { EventEmitter } from 'events';
+import { ResourceInfo } from '../../Class/ResourceInfo';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
 
 export class EventEmitterInfo extends ResourceInfo
 {
     private readonly eventEmitter: EventEmitter;
     private readonly event: string | symbol;
 
-    constructor(eventEmitter: EventEmitter, event: string | symbol, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(eventEmitter: EventEmitter, event: string | symbol, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super('eventEmitter', possibleDefineCodeScope);
         this.eventEmitter = eventEmitter;

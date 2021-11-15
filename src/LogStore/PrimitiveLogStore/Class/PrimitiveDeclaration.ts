@@ -1,21 +1,21 @@
 // DO NOT INSTRUMENT
 
-import {PrimitiveOperation} from './PrimitiveOperation';
-import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
-import {Scope} from './Scope';
-import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
-import {RaceDetector} from '../../../RaceDetector';
-import {PrimitiveInfo} from './PrimitiveInfo';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import { RaceDetector } from '../../../RaceDetector';
+import { AsyncCalledFunctionInfo } from '../../Class/AsyncCalledFunctionInfo';
+import { ResourceDeclaration } from '../../Class/ResourceDeclaration';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { PrimitiveInfo } from './PrimitiveInfo';
+import { PrimitiveOperation } from './PrimitiveOperation';
+import { Scope } from './Scope';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
     private readonly primitiveInfo: PrimitiveInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
 
-    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func: Function)
-    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo)
-    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo, func?: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func?: Function)
     {
         super();
         this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, possibleDefineCodeScope, func);

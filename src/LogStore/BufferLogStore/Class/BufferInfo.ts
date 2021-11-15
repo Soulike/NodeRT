@@ -1,16 +1,16 @@
-import {ResourceInfo} from '../../Class/ResourceInfo';
-import {ArrayBufferLike} from '../../../Analysis/Type/ArrayBufferLike';
-import {StatisticsStore} from '../../StatisticsStore';
-import {BufferLike} from '../../../Analysis/Type/BufferLike';
-import util from 'util';
-import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import assert from 'assert';
+import util from 'util';
+import { ArrayBufferLike } from '../../../Analysis/Type/ArrayBufferLike';
+import { BufferLike } from '../../../Analysis/Type/BufferLike';
+import { ResourceInfo } from '../../Class/ResourceInfo';
+import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
+import { StatisticsStore } from '../../StatisticsStore';
 
 export class BufferInfo extends ResourceInfo
 {
     private readonly bufferWeakRef: WeakRef<ArrayBufferLike>;
 
-    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo)
+    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo|null)
     {
         super('buffer', possibleDefineCodeScope);
         assert.ok(util.types.isAnyArrayBuffer(buffer));
