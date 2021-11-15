@@ -294,7 +294,7 @@ export class FsAsyncOperationLogger extends Analysis
                 }
                 else if (isObject(data))    // not precise
                 {
-                    ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), false, this.getSandbox(), iid);
                 }
                 const callback = args[args.length - 1] as LastParameter<typeof fs.write
                     | typeof fs.writeFile>;
@@ -312,7 +312,7 @@ export class FsAsyncOperationLogger extends Analysis
                         }
                         else if (isObject(data))
                         {
-                            ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), this.getSandbox(), iid);
+                            ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), false, this.getSandbox(), iid);
                         }
                         FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                     },

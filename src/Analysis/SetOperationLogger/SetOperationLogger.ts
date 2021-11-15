@@ -34,14 +34,14 @@ export class SetOperationLogger extends Analysis
                     const [value] = args as Parameters<typeof Set.prototype.add>;
                     if (!base.has(value))
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', [value], this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [value], false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Set.prototype.clear)
                 {
                     if (base.size !== 0)
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', base.keys(), this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', base.keys(), false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Set.prototype.delete)
@@ -49,16 +49,16 @@ export class SetOperationLogger extends Analysis
                     const [value] = args as Parameters<typeof Set.prototype.delete>;
                     if (base.has(value))
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', [value], this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [value], false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Set.prototype.forEach)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', base.keys(), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', base.keys(), false, this.getSandbox(), iid);
                 }
                 else if (f === Set.prototype.has)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', [args[0]], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [args[0]], false, this.getSandbox(), iid);
                 }
             }
 
@@ -73,10 +73,10 @@ export class SetOperationLogger extends Analysis
             {
                 if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
                 }
                 assert.ok(result instanceof Set);
-                ObjectLogStore.appendObjectOperation(result, 'write', result.keys(), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', result.keys(), true, this.getSandbox(), iid);
             }
             else if (base instanceof Set)
             {

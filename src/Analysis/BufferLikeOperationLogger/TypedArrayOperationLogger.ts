@@ -229,7 +229,7 @@ export class TypedArrayOperationLogger extends Analysis
                     }
                     else if (isObject(source))
                     {
-                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
                     }
 
                     BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish',
@@ -268,7 +268,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
                     BufferLogStore.appendBufferOperation(result.buffer, 'write', 'finish',
                         BufferLogStore.getArrayBufferRangeOfArrayBufferView(result),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
@@ -299,7 +299,7 @@ export class TypedArrayOperationLogger extends Analysis
                 }
                 else
                 {
-                    ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
                 }
 
                 assert.ok(util.types.isTypedArray(result));

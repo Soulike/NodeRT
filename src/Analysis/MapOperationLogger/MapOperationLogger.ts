@@ -33,7 +33,7 @@ export class MapOperationLogger extends Analysis
                 {
                     if (base.size !== 0)
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', base.keys(), this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', base.keys(), false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Map.prototype.set)
@@ -41,7 +41,7 @@ export class MapOperationLogger extends Analysis
                     const [key, value] = args as Parameters<typeof Map.prototype.set>;
                     if (base.get(key) !== value)
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', [key], this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [key], false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Map.prototype.delete)
@@ -49,22 +49,22 @@ export class MapOperationLogger extends Analysis
                     const [key] = args as Parameters<typeof Map.prototype.delete>;
                     if (base.has(key))
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', [key], this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [key], false, this.getSandbox(), iid);
                     }
                 }
                 else if (f === Map.prototype.forEach)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', base.keys(), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', base.keys(), false, this.getSandbox(), iid);
                 }
                 else if (f === Map.prototype.has)
                 {
                     const [key] = args as Parameters<typeof Map.prototype.has>;
-                    ObjectLogStore.appendObjectOperation(base, 'read', [key], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [key], false, this.getSandbox(), iid);
                 }
                 else if (f === Map.prototype.get)
                 {
                     const [key] = args as Parameters<typeof Map.prototype.get>;
-                    ObjectLogStore.appendObjectOperation(base, 'read', [key], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [key], false, this.getSandbox(), iid);
                 }
             }
 
@@ -79,10 +79,10 @@ export class MapOperationLogger extends Analysis
             {
                 if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
                 }
                 assert.ok(result instanceof Map);
-                ObjectLogStore.appendObjectOperation(result, 'write', result.keys(), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', result.keys(), true, this.getSandbox(), iid);
             }
             else if (base instanceof Map)
             {

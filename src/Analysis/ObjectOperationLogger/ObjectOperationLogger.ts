@@ -41,7 +41,7 @@ export class ObjectOperationLogger extends Analysis
 
             if (isObject(val))
             {
-                ObjectLogStore.appendObjectOperation(val, 'write', Object.keys(val), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(val, 'write', Object.keys(val), true, this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
@@ -60,7 +60,7 @@ export class ObjectOperationLogger extends Analysis
                 const property = left[1];
                 if (Object.prototype.hasOwnProperty.call(object, property))
                 {
-                    ObjectLogStore.appendObjectOperation(object, 'write', [property], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(object, 'write', [property], false, this.getSandbox(), iid);
                 }
             }
 
@@ -77,7 +77,7 @@ export class ObjectOperationLogger extends Analysis
                 assert.ok(isObject(lastExpressValue));
                 if (!isBufferLike(lastExpressValue))
                 {
-                    ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', Object.keys(lastExpressValue), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(lastExpressValue, 'read', Object.keys(lastExpressValue), false, this.getSandbox(), iid);
                 }
             }
 
@@ -92,14 +92,14 @@ export class ObjectOperationLogger extends Analysis
             {
                 if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], false, this.getSandbox(), iid);
                 }
             }
             else if (isObject(base))
             {
                 if (Object.hasOwnProperty.bind(base)(offset))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], false, this.getSandbox(), iid);
                 }
             }
 
@@ -140,18 +140,18 @@ export class ObjectOperationLogger extends Analysis
                     {
                         // only length changes, pass
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'write', [...writtenKeys, 'length'], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...writtenKeys, 'length'], false, this.getSandbox(), iid);
                 }
                 else if (isBufferLike(base))
                 {
                     if (!isArrayAccess(isComputed, offset))  // not buffer[index]
                     {
-                        ObjectLogStore.appendObjectOperation(base, 'write', [offset], this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(base, 'write', [offset], false, this.getSandbox(), iid);
                     }
                 }
                 else if (isObject(base))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [offset], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [offset], false, this.getSandbox(), iid);
                 }
             }
 
@@ -168,7 +168,7 @@ export class ObjectOperationLogger extends Analysis
                 if (args.length === 0 || !isObject(args[0]))
                 {
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
                 else if (f === Object.assign)
                 {
@@ -177,50 +177,50 @@ export class ObjectOperationLogger extends Analysis
                     for (const source of sources)
                     {
                         assert.ok(isObject(source));
-                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), this.getSandbox(), iid);
+                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
                         writtenKeys.push(...Object.keys(source));
                     }
-                    ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, false, this.getSandbox(), iid);
                 }
                 else if (f === Object.create)
                 {
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
                 else if (f === Object.defineProperties)
                 {
                     const [obj, props] = args as Parameters<typeof Object.defineProperties>;
                     assert.ok(isObject(obj));
                     const writtenKeys = Object.keys(props);
-                    ObjectLogStore.appendObjectOperation(args[0], 'write', writtenKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'write', writtenKeys, false, this.getSandbox(), iid);
                 }
                 else if (f === Object.defineProperty)
                 {
                     const [obj, prop] = args as Parameters<typeof Object.defineProperty>;
                     assert.ok(isObject(obj));
-                    ObjectLogStore.appendObjectOperation(obj, 'write', [prop], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(obj, 'write', [prop], false, this.getSandbox(), iid);
                 }
                 else if (f === Object.entries
                     || f === Object.values)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
                 }
                 else if (f === Object.fromEntries)
                 {
                     assert.ok(isObject(args[0]));
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
                 }
                 else if (f === Object.prototype.toLocaleString
                     || f === Object.prototype.toString
                     || f === Object.prototype.valueOf)
                 {
                     assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
                 }
             }
             else if (f === Function.prototype.bind)

@@ -106,7 +106,7 @@ export class Filter
         {
             const asyncContext1TimerInfo = asyncContext1.timerInfo;
             const asyncContext2TimerInfo = asyncContext2.timerInfo;
-            
+
             if (asyncContext1TimerInfo === null || asyncContext2TimerInfo === null)
             {
                 return true;
@@ -145,7 +145,7 @@ export class Filter
         {
             const asyncContext1ImmediateInfo = asyncContext1.immediateInfo;
             const asyncContext2ImmediateInfo = asyncContext2.immediateInfo;
-            
+
             if (asyncContext1ImmediateInfo === null || asyncContext2ImmediateInfo === null)
             {
                 return true;
@@ -166,7 +166,21 @@ export class Filter
         const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
         assert.ok(resourceInfo instanceof ObjectInfo);
 
+        const asyncContext1 = asyncContextToOperations1[0]!;
         const asyncContext1Operations = asyncContextToOperations1[1]! as ObjectOperation[];
+
+        if (asyncContext1.getHasWriteOperationOn(resourceInfo))
+        {
+            for (const operation of asyncContext1Operations)
+            {
+                // It's impossible that a object construction forms race condition
+                if (operation.isConstruction)
+                {
+                    return false;
+                }
+            }
+        }
+
         const accessedFieldsInAsyncContext1 = new EnhancedSet();
         const writeFieldsInAsyncContext1 = new EnhancedSet();
         for (const operation of asyncContext1Operations)

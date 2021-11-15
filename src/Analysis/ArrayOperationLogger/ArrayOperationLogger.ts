@@ -85,7 +85,7 @@ export class ArrayOperationLogger extends Analysis
                     {
                         readKeys.push(`${i}`);
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'read', readKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', readKeys, false, this.getSandbox(), iid);
 
                     const writtenLength = end - start;
                     const writtenKeys: string[] = [];
@@ -93,7 +93,7 @@ export class ArrayOperationLogger extends Analysis
                     {
                         writtenKeys.push(`${target + i}`);
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.fill)
                 {
@@ -128,16 +128,16 @@ export class ArrayOperationLogger extends Analysis
                     {
                         writtenKeys.push(i);
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.reverse
                     || f === Array.prototype.sort)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', Object.keys(base), false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.shift)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.splice)
                 {
@@ -175,12 +175,12 @@ export class ArrayOperationLogger extends Analysis
                         }
                         writtenKeys.push('length');
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', writtenKeys, false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.push
                     || f === Array.prototype.pop)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [`${base.length}`, 'length'], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [`${base.length}`, 'length'], false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.every
                     || f === Array.prototype.find
@@ -196,7 +196,7 @@ export class ArrayOperationLogger extends Analysis
                     || f === Array.prototype.toLocaleString
                     || f === Array.prototype.toString)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.slice)
                 {
@@ -232,7 +232,7 @@ export class ArrayOperationLogger extends Analysis
                     {
                         keys.push(`${i}`);
                     }
-                    ObjectLogStore.appendObjectOperation(base, 'read', keys, this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', keys, false, this.getSandbox(), iid);
                     // result is logged in invokeFun
                 }
 
@@ -249,15 +249,15 @@ export class ArrayOperationLogger extends Analysis
                 || f === Array.of)
             {
                 assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
             }
             else if (f === Array.from)
             {
                 const arrayLike = args[0];
                 assert.ok(isObject(arrayLike));
-                ObjectLogStore.appendObjectOperation(arrayLike, 'read', Object.keys(arrayLike), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(arrayLike, 'read', Object.keys(arrayLike), false, this.getSandbox(), iid);
                 assert.ok(isObject(result));
-                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
             }
             else if (Array.isArray(base))
             {
@@ -276,29 +276,29 @@ export class ArrayOperationLogger extends Analysis
                     {
                         if (isObject(array))
                         {
-                            ObjectLogStore.appendObjectOperation(array, 'read', Object.keys(array), this.getSandbox(), iid);
+                            ObjectLogStore.appendObjectOperation(array, 'read', Object.keys(array), false, this.getSandbox(), iid);
                         }
                     }
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.unshift)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'write', [...Object.keys(base), 'length'], false, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.filter
                     || f === Array.prototype.flat
                     || f === Array.prototype.flatMap
                     || f === Array.prototype.map)
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
                 else if (f === Array.prototype.slice)
                 {
                     assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), this.getSandbox(), iid);
+                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
             }
             

@@ -159,7 +159,7 @@ export class CryptoOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]),
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false,
                         this.getSandbox(), iid);
                 }
                 if (isBufferLike(result))
@@ -179,7 +179,7 @@ export class CryptoOperationLogger extends Analysis
                 }
                 else if (isObject(args[0]))
                 {
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]),
+                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false,
                         this.getSandbox(), iid);
                 }
                 if (isBufferLike(args[1]))
