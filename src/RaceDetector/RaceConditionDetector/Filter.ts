@@ -22,6 +22,10 @@ export class Filter
         {
             return false;
         }
+        if (Filter.isNonAnalyzedCodeRaceCondition(raceConditionInfo))
+        {
+            return false;
+        }
         if (!Filter.isPromiseViolationTP(raceConditionInfo))
         {
             return false;
@@ -60,6 +64,27 @@ export class Filter
         {
             return true;
         }
+    }
+
+    /**
+     * If both async context is not from analyzed code, e.g. node_modules or internal, it should be a false positive
+     */
+    public static isNonAnalyzedCodeRaceCondition(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        let asyncContext1 = asyncContextToOperations1[0];
+        let asyncContext2 = asyncContextToOperations2[0];
+
+        while (asyncContext1.asyncType === 'TickObject')
+        {
+            asyncContext1 = asyncContext1.asyncContext!;
+        }
+        while (asyncContext2.asyncType === 'TickObject')
+        {
+            asyncContext2 = asyncContext2.asyncContext!;
+        }
+
+        return asyncContext1.codeInfo === null && asyncContext2.codeInfo === null;
     }
 
     public static isIntervalCloseEnough(raceConditionInfo: RaceConditionInfo): boolean
