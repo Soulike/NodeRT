@@ -5,14 +5,15 @@ import {ResourceDeclaration} from './ResourceDeclaration';
 import assert from 'assert';
 import {ResourceInfo} from './ResourceInfo';
 import {TimerInfo} from './TimerInfo';
+import {ImmediateInfo} from './ImmediateInfo';
 
 export class AsyncCalledFunctionInfo
 {
     public static readonly UNKNOWN_ASYNC_ID = 0;
-    public static readonly UNKNOWN = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID, 'UNKNOWN', null, null, null);
+    public static readonly UNKNOWN = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID, 'UNKNOWN', null, null, null, null);
 
     public static readonly GLOBAL_ASYNC_ID = 1;
-    public static readonly GLOBAL = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, 'GLOBAL', null, null, null);
+    public static readonly GLOBAL = new AsyncCalledFunctionInfo(null, null, AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID, 'GLOBAL', null, null, null, null);
 
     private static lastIndex = 0;
 
@@ -25,6 +26,7 @@ export class AsyncCalledFunctionInfo
     public index: number;
 
     public timerInfo: TimerInfo | null;   // is TimeInfo when asyncType === Timeout
+    public immediateInfo: ImmediateInfo | null;   // is ImmediateInfo when asyncType === Immediate
 
     /** Whether the callback function does any writing operation on certain resource*/
     private hasWriteOperationOnResourcesSet: Set<ResourceInfo>;
@@ -32,7 +34,10 @@ export class AsyncCalledFunctionInfo
     /** Lazy calculation for getAsyncContextChainAsyncIds() */
     private asyncContextChainAsyncIdsCache: Set<number> | undefined;
 
-    constructor(func: Function | null, stackTrace: string[] | null, asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null, codeInfo: SourceCodeInfo | null, timerInfo: TimerInfo | null)
+    constructor(func: Function | null, stackTrace: string[] | null,
+                asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
+                codeInfo: SourceCodeInfo | null,
+                timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = func !== null ? new WeakRef(func) : null;
         this.stackTrace = stackTrace;
@@ -42,6 +47,7 @@ export class AsyncCalledFunctionInfo
         this.codeInfo = codeInfo;   // 本 callback 是被什么地方的代码注册执行的
         this.index = AsyncCalledFunctionInfo.lastIndex++;
         this.timerInfo = timerInfo;
+        this.immediateInfo = immediateInfo;
 
         this.hasWriteOperationOnResourcesSet = new Set();
     }
@@ -58,10 +64,11 @@ export class AsyncCalledFunctionInfo
             this.asyncContext,
             this.codeInfo,
             this.timerInfo,
+            this.immediateInfo,
         );
     }
 
-    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo, timerInfo: TimerInfo | null)
+    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo, timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = new WeakRef(func);
         this.stackTrace = stackTrace;
@@ -70,6 +77,7 @@ export class AsyncCalledFunctionInfo
         this.asyncContext = asyncContext;
         this.codeInfo = codeInfo;
         this.timerInfo = timerInfo;
+        this.immediateInfo = immediateInfo;
     }
 
     public setHasWriteOperation(resourceInfo: ResourceInfo): void
