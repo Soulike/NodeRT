@@ -1,6 +1,7 @@
 import {Detector} from '../Detector';
 import {RaceConditionInfo} from './RaceConditionInfo';
 import {Filter} from './Filter';
+import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 
 export const raceConditionDetector: Detector = resourceDeclaration =>
 {
@@ -28,6 +29,11 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
     const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
         - beforeLastAsyncContextOperations[beforeLastAsyncContextOperations.length - 1]!.getTimestamp();
 
+    if (lastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID) || beforeLastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)) // ignore UNKNOWN_ASYNC_ID
+    {
+        return [];
+    }
+    
     if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.getNonTickObjectAsyncId())
         && !beforeLastAsyncContextAsyncChain.has(lastAsyncContext.getNonTickObjectAsyncId()))   // no happens-before
     {
