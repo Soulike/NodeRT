@@ -77,7 +77,6 @@ export class AsyncContextLogger extends Analysis
                 if (placeholderAsyncFunction.asyncType === 'Timeout')
                 {
                     const timerInfo = TimerLogStore.getTimerInfo(triggerAsyncFunction, f);
-                    assert.ok(timerInfo !== null);
 
                     // deal with setInterval, which will repeatedly use the same async id and function, need to create a new asyncContext
                     if (placeholderAsyncFunction.functionWeakRef?.deref() === f)
@@ -85,30 +84,36 @@ export class AsyncContextLogger extends Analysis
                         const placeholderAsyncFunctionClone = placeholderAsyncFunction.clone();
                         placeholderAsyncFunctionClone.timerInfo = timerInfo;    // need to update timerInfo
                         AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunctionClone);
-                        // delete and register a new one
-                        TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
-                        TimerLogStore.addTimerInfo(triggerAsyncFunction, new TimerInfo(timerInfo.callback, timerInfo.delay, timerInfo.type));
-                    }
-                    else
-                    {
-                        // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                        placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, timerInfo, null);
-                        if (timerInfo.type === 'timeout')
-                        {
-                            TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
-                        }
-                        else
+                        if (timerInfo !== null)
                         {
                             // delete and register a new one
                             TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
                             TimerLogStore.addTimerInfo(triggerAsyncFunction, new TimerInfo(timerInfo.callback, timerInfo.delay, timerInfo.type));
                         }
                     }
+                    else
+                    {
+                        // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
+                        placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, timerInfo, null);
+                        if (timerInfo !== null)
+                        {
+                            if (timerInfo.type === 'timeout')
+                            {
+                                TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
+                            }
+                            else
+                            {
+                                // delete and register a new one
+                                TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
+                                TimerLogStore.addTimerInfo(triggerAsyncFunction, new TimerInfo(timerInfo.callback, timerInfo.delay, timerInfo.type));
+                            }
+                        }
+                    }
                 }
                 else if (placeholderAsyncFunction.asyncType === 'Immediate')
                 {
                     const immediateInfo = ImmediateLogStore.getImmediateInfo(triggerAsyncFunction, f);
-                    assert.ok(immediateInfo !== null);
+
                     // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
                     placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null, immediateInfo);
                     ImmediateLogStore.deleteImmediateInfo(triggerAsyncFunction, f);

@@ -33,6 +33,7 @@ export class AsyncCalledFunctionInfo
 
     /** Lazy calculation for getAsyncContextChainAsyncIds() */
     private asyncContextChainAsyncIdsCache: Set<number> | undefined;
+    private nonTickObjectAsyncIdCache: number | undefined;
 
     constructor(func: Function | null, stackTrace: string[] | null,
                 asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
@@ -140,6 +141,24 @@ export class AsyncCalledFunctionInfo
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
             return asyncContextChainAsyncIdsCache;
+        }
+    }
+
+    public getNonTickObjectAsyncId()
+    {
+        if (this.nonTickObjectAsyncIdCache !== undefined)
+        {
+            return this.nonTickObjectAsyncIdCache;
+        }
+        else
+        {
+            let currentAsyncContext: AsyncCalledFunctionInfo = this;
+            while (currentAsyncContext.asyncType === 'TickObject')    // get the last non TickObject async context
+            {
+                currentAsyncContext = currentAsyncContext.asyncContext!;
+            }
+            this.nonTickObjectAsyncIdCache = currentAsyncContext.asyncId;
+            return currentAsyncContext.asyncId;
         }
     }
 }

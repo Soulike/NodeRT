@@ -86,8 +86,11 @@ export class Filter
         {
             const asyncContext1TimerInfo = asyncContext1.timerInfo;
             const asyncContext2TimerInfo = asyncContext2.timerInfo;
-            assert.ok(asyncContext1TimerInfo !== null);
-            assert.ok(asyncContext2TimerInfo !== null);
+            
+            if (asyncContext1TimerInfo === null || asyncContext2TimerInfo === null)
+            {
+                return true;
+            }
 
             // If asyncContext1 is registered earlier and the delay of asyncContext1 is smaller,
             // it must happen before asyncContext2 and there is not race condition.
@@ -122,8 +125,11 @@ export class Filter
         {
             const asyncContext1ImmediateInfo = asyncContext1.immediateInfo;
             const asyncContext2ImmediateInfo = asyncContext2.immediateInfo;
-            assert.ok(asyncContext1ImmediateInfo !== null);
-            assert.ok(asyncContext2ImmediateInfo !== null);
+            
+            if (asyncContext1ImmediateInfo === null || asyncContext2ImmediateInfo === null)
+            {
+                return true;
+            }
 
             // If asyncContext1 is registered earlier,
             // it must happen before asyncContext2 and there is not race condition.

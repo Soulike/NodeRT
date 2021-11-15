@@ -22,12 +22,14 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
 
     const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[LENGTH - 2]!;
     const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
+    const beforeLastAsyncContextAsyncChain = beforeLastAsyncContext.getAsyncContextChainAsyncIds();
     const beforeLastAsyncContextOperations = beforeLastAsyncContextToOperations[1];
 
     const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
         - beforeLastAsyncContextOperations[beforeLastAsyncContextOperations.length - 1]!.getTimestamp();
 
-    if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.asyncId))   // no happens-before
+    if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.getNonTickObjectAsyncId())
+        && !beforeLastAsyncContextAsyncChain.has(lastAsyncContext.getNonTickObjectAsyncId()))   // no happens-before
     {
         if (hasWriteOperationOnResource)    // current does write
         {
