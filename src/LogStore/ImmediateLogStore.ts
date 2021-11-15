@@ -10,6 +10,10 @@ export class ImmediateLogStore
 
     public static addImmediateInfo(asyncContext: AsyncCalledFunctionInfo, immediateInfo: ImmediateInfo)
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const immediateInfos = ImmediateLogStore.asyncContextToImmediateInfos.get(asyncContext);
         if (immediateInfos !== undefined)
         {
@@ -23,6 +27,10 @@ export class ImmediateLogStore
 
     public static getImmediateInfo(asyncContext: AsyncCalledFunctionInfo, callback: Function): ImmediateInfo | null
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const immediateInfos = ImmediateLogStore.asyncContextToImmediateInfos.get(asyncContext);
         if (immediateInfos === undefined)
         {
@@ -40,6 +48,10 @@ export class ImmediateLogStore
 
     public static deleteImmediateInfo(asyncContext: AsyncCalledFunctionInfo, callback: Function)
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const immediateInfos = ImmediateLogStore.asyncContextToImmediateInfos.get(asyncContext);
         if (immediateInfos === undefined)
         {

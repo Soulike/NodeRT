@@ -10,6 +10,10 @@ export class TimerLogStore
 
     public static addTimerInfo(asyncContext: AsyncCalledFunctionInfo, timerInfo: TimerInfo)
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const timerInfos = TimerLogStore.asyncContextToTimerInfos.get(asyncContext);
         if (timerInfos !== undefined)
         {
@@ -23,6 +27,10 @@ export class TimerLogStore
 
     public static getTimerInfo(asyncContext: AsyncCalledFunctionInfo, callback: Function): TimerInfo | null
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const timerInfos = TimerLogStore.asyncContextToTimerInfos.get(asyncContext);
         if (timerInfos === undefined)
         {
@@ -40,6 +48,10 @@ export class TimerLogStore
 
     public static deleteTimerInfo(asyncContext: AsyncCalledFunctionInfo, callback: Function)
     {
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;
+        }
         const timerInfos = TimerLogStore.asyncContextToTimerInfos.get(asyncContext);
         if (timerInfos === undefined)
         {

@@ -4,6 +4,7 @@ import asyncHooks from 'async_hooks';
 import {TimerLogStore} from '../../LogStore/TimerLogStore';
 import {TimerInfo} from '../../LogStore/Class/TimerInfo';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
+import {getUnboundFunction} from '../../Util';
 
 export class TimeoutLogger extends Analysis
 {
@@ -27,6 +28,7 @@ export class TimeoutLogger extends Analysis
             if (f === setTimeout || f === setInterval)
             {
                 let [callback, delay] = args as Parameters<typeof setTimeout | typeof setInterval>;
+                callback = getUnboundFunction(callback);
                 if (delay === undefined || delay > 2147483647 || delay < 1)
                 {
                     delay = 1;
@@ -50,7 +52,7 @@ export class TimeoutLogger extends Analysis
             if (f === setTimeout || f === setInterval)
             {
                 let [callback] = args as Parameters<typeof setTimeout | typeof setInterval>;
-
+                callback = getUnboundFunction(callback);
                 const asyncContext = AsyncContextLogStore.getNonTickObjectAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
                 if (f === setTimeout)
                 {

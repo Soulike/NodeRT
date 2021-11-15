@@ -4,6 +4,7 @@ import asyncHooks from 'async_hooks';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {ImmediateLogStore} from '../../LogStore/ImmediateLogStore';
 import {ImmediateInfo} from '../../LogStore/Class/ImmediateInfo';
+import {getUnboundFunction} from '../../Util';
 
 export class ImmediateLogger extends Analysis
 {
@@ -25,7 +26,7 @@ export class ImmediateLogger extends Analysis
             if (f === setImmediate)
             {
                 let [callback] = args as Parameters<typeof setImmediate>;
-
+                callback = getUnboundFunction(callback);
                 const asyncContext = AsyncContextLogStore.getNonTickObjectAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
                 ImmediateLogStore.addImmediateInfo(asyncContext, new ImmediateInfo(callback));
             }
@@ -36,7 +37,7 @@ export class ImmediateLogger extends Analysis
             if (f === setImmediate)
             {
                 let [callback] = args as Parameters<typeof setImmediate>;
-
+                callback = getUnboundFunction(callback);
                 const asyncContext = AsyncContextLogStore.getNonTickObjectAsyncContextFromAsyncId(asyncHooks.executionAsyncId());
                 if (f === setTimeout)
                 {
