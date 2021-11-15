@@ -8,6 +8,8 @@ import {StatisticsStore} from '../../LogStore/StatisticsStore';
 import {Analysis, Hooks, Sandbox} from '../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, shouldBeVerbose} from '../../Util';
 import {CallStackLogStore} from '../../LogStore/CallStackLogStore';
+import {TimerLogStore} from '../../LogStore/TimerLogStore';
+import {TimerInfo} from '../../LogStore/Class/TimerInfo';
 
 /**
  * Logging all callback function content information into `AsyncContextLogStore`.
@@ -71,15 +73,41 @@ export class AsyncContextLogger extends Analysis
                 const placeholderAsyncFunction: AsyncCalledFunctionInfo | null | undefined = AsyncContextLogStore.getAsyncContextFromAsyncId(asyncId);
                 assert.ok(placeholderAsyncFunction !== undefined);
 
-                // deal with setInterval, which will repeatedly use the same async id and function, need to create a new asyncContext
-                if (placeholderAsyncFunction.functionWeakRef?.deref() === f)
-                {   
-                    AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunction.clone());
+                if (placeholderAsyncFunction.asyncType !== 'Timeout')
+                {
+                    // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
+                    placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null);
                 }
                 else
                 {
-                    // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                    placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo);
+                    const timerInfo = TimerLogStore.getTimerInfo(triggerAsyncFunction, f);
+                    assert.ok(timerInfo !== null);
+
+                    // deal with setInterval, which will repeatedly use the same async id and function, need to create a new asyncContext
+                    if (placeholderAsyncFunction.functionWeakRef?.deref() === f)
+                    {
+                        const placeholderAsyncFunctionClone = placeholderAsyncFunction.clone();
+                        placeholderAsyncFunctionClone.timerInfo = timerInfo;    // need to update timerInfo
+                        AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunctionClone);
+                        // delete and register a new one
+                        TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
+                        TimerLogStore.addTimerInfo(triggerAsyncFunction, new TimerInfo(timerInfo.callback, timerInfo.delay, timerInfo.type));
+                    }
+                    else
+                    {
+                        // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
+                        placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, timerInfo);
+                        if (timerInfo.type === 'timeout')
+                        {
+                            TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
+                        }
+                        else
+                        {
+                            // delete and register a new one
+                            TimerLogStore.deleteTimerInfo(triggerAsyncFunction, f);
+                            TimerLogStore.addTimerInfo(triggerAsyncFunction, new TimerInfo(timerInfo.callback, timerInfo.delay, timerInfo.type));
+                        }
+                    }
                 }
 
                 this.asyncContextChanged = false;
@@ -104,7 +132,7 @@ export class AsyncContextLogger extends Analysis
         }
         if (asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID && asyncId !== AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID)
         {
-            const placeholderAsyncFunction = new AsyncCalledFunctionInfo(null, null, asyncId, type, triggerAsyncFunction, null);
+            const placeholderAsyncFunction = new AsyncCalledFunctionInfo(null, null, asyncId, type, triggerAsyncFunction, null, null);
             AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
 

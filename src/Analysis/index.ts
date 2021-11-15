@@ -29,6 +29,7 @@ import {CallStackLogger} from './CallStackLogger';
 import {EventEmitterOperationLogger} from './EventEmitterOperationLogger';
 import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogStoreAnalysis';
 import {JSONOperationLogger} from './JSONOperationLogger';
+import {AsyncAPILogger} from './AsyncAPILogger';
 
 (function (sandbox: Sandbox)
 {
@@ -41,6 +42,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         sandbox.addAnalysis(new LastExpressionValueLogger(sandbox));
         sandbox.addAnalysis(new IteratorLogger(sandbox));
         sandbox.addAnalysis(new CallStackLogger(sandbox));
+        sandbox.addAnalysis(new AsyncAPILogger(sandbox));
 
         // object
         sandbox.addAnalysis(new ArrayOperationLogger(sandbox));
@@ -89,6 +91,7 @@ import {JSONOperationLogger} from './JSONOperationLogger';
         sandbox.addAnalysis(new LastExpressionValueLogger(sandbox));
         sandbox.addAnalysis(new IteratorLogger(sandbox));
         sandbox.addAnalysis(new CallStackLogger(sandbox));
+        sandbox.addAnalysis(new AsyncAPILogger(sandbox));
 
         // object
         sandbox.addAnalysis(new ArrayOperationLogger(sandbox));

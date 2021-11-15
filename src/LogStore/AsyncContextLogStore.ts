@@ -34,4 +34,16 @@ export class AsyncContextLogStore
         assert.ok(asyncCalledFunctionInfos !== undefined);
         return asyncCalledFunctionInfos[asyncCalledFunctionInfos.length - 1]!;
     }
+
+    public static getNonTickObjectAsyncContextFromAsyncId(asyncId: number): AsyncCalledFunctionInfo
+    {
+        const asyncCalledFunctionInfos = AsyncContextLogStore.asyncIdToAsyncCalledFunctionInfo.get(asyncId);
+        assert.ok(asyncCalledFunctionInfos !== undefined);
+        let asyncContext = asyncCalledFunctionInfos[asyncCalledFunctionInfos.length - 1]!;
+        while (asyncContext.asyncType === 'TickObject')
+        {
+            asyncContext = asyncContext.asyncContext!;  // impossible to be null since global context is not TickObject
+        }
+        return asyncContext;
+    }
 }
