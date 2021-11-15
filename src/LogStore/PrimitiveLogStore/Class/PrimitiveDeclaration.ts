@@ -13,6 +13,8 @@ export class PrimitiveDeclaration extends ResourceDeclaration
     private readonly primitiveInfo: PrimitiveInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
 
+    public hasInitialized: boolean;
+
     constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func: Function)
     constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null)
     constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func?: Function)
@@ -20,6 +22,7 @@ export class PrimitiveDeclaration extends ResourceDeclaration
         super();
         this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, possibleDefineCodeScope, func);
         this.asyncContextToOperations = new Map();
+        this.hasInitialized = false;
     }
 
     public getScope()

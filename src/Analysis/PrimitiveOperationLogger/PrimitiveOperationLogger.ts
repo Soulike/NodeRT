@@ -200,7 +200,11 @@ export class PrimitiveOperationLogger extends Analysis
             const pendingDeclaration = pendingPrimitiveDeclarations[i]!;
             if (pendingDeclaration.getResourceInfo().getName() === name)
             {
-                pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                pendingDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, type === 'write' && !pendingDeclaration.hasInitialized, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                if (type === 'write')
+                {
+                    pendingDeclaration.hasInitialized = true;
+                }
                 foundInPending = true;
                 break;
             }
@@ -214,7 +218,11 @@ export class PrimitiveOperationLogger extends Analysis
 
             if (declaration !== null)
             {
-                declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                declaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, type === 'write' && !declaration.hasInitialized, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                if (type === 'write')
+                {
+                    declaration.hasInitialized = true;
+                }
             }
             else if (isGlobal)
             {
@@ -230,7 +238,11 @@ export class PrimitiveOperationLogger extends Analysis
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
 
-                newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, type === 'write' && !newDeclaration.hasInitialized, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                if (type === 'write')
+                {
+                    newDeclaration.hasInitialized = true;
+                }
                 PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                 Scope.GLOBAL_SCOPE.declarations.push(newDeclaration);
             }
@@ -254,7 +266,11 @@ export class PrimitiveOperationLogger extends Analysis
                             currentScope, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
 
-                    newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                    newDeclaration.appendOperation(currentAsyncContext, new PrimitiveOperation(type, valBefore, val, type === 'write' && !newDeclaration.hasInitialized, CallStackLogStore.getCallStack(), sourceCodeInfo));
+                    if (type === 'write')
+                    {
+                        newDeclaration.hasInitialized = true;
+                    }
                     PrimitiveLogStore.addPrimitiveDeclaration(newDeclaration);
                     currentScope.declarations.push(newDeclaration);
                 }
