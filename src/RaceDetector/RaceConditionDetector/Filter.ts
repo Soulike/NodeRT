@@ -10,6 +10,8 @@ import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventE
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 import {BufferInfo} from '../../LogStore/BufferLogStore/Class/BufferInfo';
 import {BufferOperation} from '../../LogStore/BufferLogStore';
+import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
+import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
 
 export class Filter
 {
@@ -55,6 +57,10 @@ export class Filter
         else if (resourceInfo instanceof BufferInfo)
         {
             return Filter.isBufferRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof SocketInfo)
+        {
+            return Filter.isSocketRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -154,6 +160,27 @@ export class Filter
             // If asyncContext1 is registered earlier,
             // it must happen before asyncContext2 and there is not race condition.
             return !(asyncContext1ImmediateInfo.index <= asyncContext2ImmediateInfo.index);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof SocketInfo);
+        const asyncContext1Operations = asyncContextToOperations1[1]! as readonly SocketOperation[];
+        const asyncContext2Operations = asyncContextToOperations2[1]! as readonly SocketOperation[];
+
+        if (asyncContext1Operations.length === 1 && asyncContext2Operations.length === 1)
+        {
+            const asyncContext1Operation = asyncContext1Operations[0]!;
+            const asyncContext2Operation = asyncContext2Operations[0]!;
+            // HTTP internal operation
+            return !(asyncContext1Operation.getOperationKind() === 'end' && asyncContext1Operation.getScopeCodeInfo() === null
+                && asyncContext2Operation.getOperationKind() === 'destroy' && asyncContext2Operation.getScopeCodeInfo() === null);
         }
         else
         {
