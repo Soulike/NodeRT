@@ -373,7 +373,8 @@ export class FsAsyncOperationLogger extends Analysis
                 const {register, callback, filePathLike} = registrationInfos[registrationInfoIndex]!;
                 // registrationInfos won't be long so should be ok
                 registrationInfos.splice(registrationInfoIndex, 1);
-                if (callback)
+                const err = args[0];
+                if (callback && !err)
                 {
                     callback();
                 }
