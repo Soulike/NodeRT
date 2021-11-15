@@ -30,10 +30,6 @@ export class Filter
         {
             return false;
         }
-        if (!Filter.isIntervalCloseEnough(raceConditionInfo))
-        {
-            return false;
-        }
         if (!Filter.isTimerRaceConditionTP(raceConditionInfo))
         {
             return false;
@@ -85,12 +81,6 @@ export class Filter
         }
 
         return asyncContext1.codeInfo === null && asyncContext2.codeInfo === null;
-    }
-
-    public static isIntervalCloseEnough(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        // The time interval between the async context should less than 500ms
-        return raceConditionInfo.timeDiff / 1000n / 1000n <= 500n;
     }
 
     public static isTimerRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
