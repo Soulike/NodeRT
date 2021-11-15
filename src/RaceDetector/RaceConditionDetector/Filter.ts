@@ -39,7 +39,7 @@ export class Filter
             return false;
         }
 
-        
+
         if (resourceInfo instanceof ObjectInfo)
         {
             return Filter.isObjectRaceConditionTP(raceConditionInfo);
@@ -263,6 +263,19 @@ export class Filter
         const asyncContext2 = asyncContextToOperations2[0];
         const asyncContext1Operations = asyncContextToOperations1[1] as readonly PrimitiveOperation[];
         const asyncContext2Operations = asyncContextToOperations2[1] as readonly PrimitiveOperation[];
+
+        if (asyncContext1.getHasWriteOperationOn(resourceInfo))
+        {
+            for (const operation of asyncContext1Operations)
+            {
+                // It's impossible that a variable initialization forms race condition
+                if (operation.isInitialization)
+                {
+                    return false;
+                }
+            }
+        }
+
         if (asyncContext1.getHasWriteOperationOn(resourceInfo) && asyncContext2.getHasWriteOperationOn(resourceInfo))
         {
             let asyncContext1LastWriteOperation: PrimitiveOperation | null = null;
