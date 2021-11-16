@@ -4,7 +4,7 @@ import assert from 'assert';
 import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
 import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
-import {PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
+import {PrimitiveLogStore, PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
 import {PrimitiveInfo} from '../../LogStore/PrimitiveLogStore/Class/PrimitiveInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
@@ -40,6 +40,10 @@ export class Filter
         {
             return false;
         }
+        if (Filter.isInnerFunction(raceConditionInfo))
+        {
+            return false;
+        }
 
 
         if (resourceInfo instanceof ObjectInfo)
@@ -66,6 +70,48 @@ export class Filter
         {
             return true;
         }
+    }
+
+    /**
+     * If the function of asyncContext2 is defined inside the function of asyncContext1,
+     * no matter how the function of asyncContext2 is asynchronously called,
+     * there must be asyncContext1 -> asyncContext2
+     */
+    public static isInnerFunction(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        const asyncContext1 = asyncContextToOperations1[0];
+        const asyncContext2 = asyncContextToOperations2[0];
+        const asyncContext1Function = asyncContext1.functionWeakRef?.deref();
+        const asyncContext2Function = asyncContext2.functionWeakRef?.deref();
+        if (asyncContext1Function === undefined || asyncContext2Function === undefined)
+        {
+            return false;
+        }
+        const asyncContext1FunctionDeclaration =
+            PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(asyncContext1Function);
+        const asyncContext2FunctionDeclaration =
+            PrimitiveLogStore.findFunctionDeclarationFromPrimitiveDeclarations(asyncContext2Function);
+        if (asyncContext1FunctionDeclaration === null || asyncContext2FunctionDeclaration === null)
+        {
+            return false;
+        }
+        const asyncContext1FunctionDeclarationScope = asyncContext1FunctionDeclaration.getScope();
+        const asyncContext2FunctionDeclarationScope = asyncContext2FunctionDeclaration.getScope();
+        if (asyncContext1FunctionDeclarationScope === null || asyncContext2FunctionDeclarationScope === null)
+        {
+            return false;
+        }
+        let currentAsyncContext2FunctionDeclarationParentScope = asyncContext2FunctionDeclarationScope.parent;
+        while (currentAsyncContext2FunctionDeclarationParentScope !== null)
+        {
+            if (currentAsyncContext2FunctionDeclarationParentScope === asyncContext1FunctionDeclarationScope)
+            {
+                return true;
+            }
+            currentAsyncContext2FunctionDeclarationParentScope = currentAsyncContext2FunctionDeclarationParentScope.parent;
+        }
+        return false;
     }
 
     /**
