@@ -82,7 +82,7 @@ export class Filter
     public static isHttpIncomingMessagesOfTheSameServer(raceConditionInfo: RaceConditionInfo): boolean
     {
         const {asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
-        let asyncContext1: AsyncCalledFunctionInfo|null = asyncContextToOperations1[0];
+        let asyncContext1: AsyncCalledFunctionInfo | null = asyncContextToOperations1[0];
         let asyncContext2: AsyncCalledFunctionInfo | null = asyncContextToOperations2[0];
 
         while (asyncContext1.asyncType === 'TickObject')
@@ -263,17 +263,18 @@ export class Filter
 
     public static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
     {
-        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        const {resourceInfo, asyncContextToOperations2} = raceConditionInfo;
         assert.ok(resourceInfo instanceof SocketInfo);
-        const asyncContext1Operations = asyncContextToOperations1[1]! as readonly SocketOperation[];
         const asyncContext2Operations = asyncContextToOperations2[1]! as readonly SocketOperation[];
 
-        if (asyncContext1Operations.length === 1 && asyncContext2Operations.length === 1)
+        if (asyncContext2Operations.length === 1)
         {
             const asyncContext2Operation = asyncContext2Operations[0]!;
             // internal operation
-            return !(asyncContext2Operation.getOperationKind() === 'end' && asyncContext2Operation.getScopeCodeInfo() === null
-                || asyncContext2Operation.getOperationKind() === 'destroy' && asyncContext2Operation.getScopeCodeInfo() === null);
+            return !(
+                (asyncContext2Operation.getOperationKind() === 'destroy'
+                    || asyncContext2Operation.getOperationKind() === 'end')
+                && asyncContext2Operation.getScopeCodeInfo() === null);
         }
         else
         {
