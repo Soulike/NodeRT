@@ -466,37 +466,44 @@ export class Filter
         {
             return false;
         }
-        const hash = Filter.getRaceConditionInfoHash(raceConditionInfo);
-        if (hash === null)
+        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
+        if (hashPair === null)
         {
             return false;
         }
         else
         {
-            return hashes.has(hash);
+            return hashes.has(hashPair[0]) || hashes.has(hashPair[1]);
         }
     }
 
     public static addReported(resourceDeclaration: ResourceDeclaration, raceConditionInfo: RaceConditionInfo): void
     {
         let hashes = Filter.reportedRaceCondition.get(resourceDeclaration) ?? new Set();
-        const hash = Filter.getRaceConditionInfoHash(raceConditionInfo);
-        if (hash !== null)
+        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
+        if (hashPair !== null)
         {
-            hashes.add(hash);
+            hashes.add(hashPair[0]);
+            hashes.add(hashPair[1]);
         }
         Filter.reportedRaceCondition.set(resourceDeclaration, hashes);
     }
 
-    private static getRaceConditionInfoHash(raceConditionInfo: RaceConditionInfo): string | null
+    private static getRaceConditionInfoHashPair(raceConditionInfo: RaceConditionInfo): [string, string] | null
     {
         const {
             asyncContextToOperations1, asyncContextToOperations2,
         } = raceConditionInfo;
 
         return [
-            asyncContextToOperations1[0].index,
-            asyncContextToOperations2[0].index,
-        ].join(',');
+            [
+                asyncContextToOperations1[0].index,
+                asyncContextToOperations2[0].index,
+            ].join(','),
+            [
+                asyncContextToOperations2[0].index,
+                asyncContextToOperations1[0].index,
+            ].join(','),
+        ];
     }
 }
