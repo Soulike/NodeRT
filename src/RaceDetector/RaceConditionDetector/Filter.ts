@@ -12,6 +12,7 @@ import {BufferInfo} from '../../LogStore/BufferLogStore/Class/BufferInfo';
 import {BufferOperation} from '../../LogStore/BufferLogStore';
 import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
+import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 
 export class Filter
 {
@@ -44,6 +45,10 @@ export class Filter
         {
             return false;
         }
+        if (Filter.isHttpIncomingMessagesOfTheSameServer(raceConditionInfo))
+        {
+            return false;
+        }
 
 
         if (resourceInfo instanceof ObjectInfo)
@@ -69,6 +74,49 @@ export class Filter
         else
         {
             return true;
+        }
+    }
+    /**
+     * 2 "HTTPINCOMINGMESSAGE"s, if they are invoked by the same server, won't form race condition
+     */
+    public static isHttpIncomingMessagesOfTheSameServer(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        let asyncContext1: AsyncCalledFunctionInfo|null = asyncContextToOperations1[0];
+        let asyncContext2: AsyncCalledFunctionInfo | null = asyncContextToOperations2[0];
+
+        while (asyncContext1.asyncType === 'TickObject')
+        {
+            asyncContext1 = asyncContext1.asyncContext!;
+        }
+        while (asyncContext2.asyncType === 'TickObject')
+        {
+            asyncContext2 = asyncContext2.asyncContext!;
+        }
+
+        if (asyncContext1.asyncType !== 'HTTPINCOMINGMESSAGE' || asyncContext2.asyncType !== 'HTTPINCOMINGMESSAGE')
+        {
+            return false;
+        }
+        else
+        {
+            while (asyncContext1.asyncType !== 'TCPSERVERWRAP')
+            {
+                asyncContext1 = asyncContext1.asyncContext;
+                if (asyncContext1 === null)
+                {
+                    return false;
+                }
+            }
+            while (asyncContext2.asyncType !== 'TCPSERVERWRAP')
+            {
+                asyncContext2 = asyncContext2.asyncContext;
+                if (asyncContext2 === null)
+                {
+                    return false;
+                }
+            }
+            return asyncContext1.asyncId === asyncContext2.asyncId;
         }
     }
 
@@ -222,11 +270,10 @@ export class Filter
 
         if (asyncContext1Operations.length === 1 && asyncContext2Operations.length === 1)
         {
-            const asyncContext1Operation = asyncContext1Operations[0]!;
             const asyncContext2Operation = asyncContext2Operations[0]!;
-            // HTTP internal operation
-            return !(asyncContext1Operation.getOperationKind() === 'end' && asyncContext1Operation.getScopeCodeInfo() === null
-                && asyncContext2Operation.getOperationKind() === 'destroy' && asyncContext2Operation.getScopeCodeInfo() === null);
+            // internal operation
+            return !(asyncContext2Operation.getOperationKind() === 'end' && asyncContext2Operation.getScopeCodeInfo() === null
+                || asyncContext2Operation.getOperationKind() === 'destroy' && asyncContext2Operation.getScopeCodeInfo() === null);
         }
         else
         {
