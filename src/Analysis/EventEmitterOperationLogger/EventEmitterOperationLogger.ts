@@ -42,7 +42,7 @@ export class EventEmitterOperationLogger extends Analysis
                     || f === EventEmitter.prototype.removeListener)
                 {
                     const [event, listener] = args as Parameters<typeof EventEmitter.prototype.removeListener>;
-                    if (base.listeners(event).findIndex(listener) !== -1)
+                    if (base.listeners(event).indexOf(listener) !== -1)
                     {
                         EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
                             [listener], getSourceCodeInfoFromIid(iid, this.getSandbox()));
