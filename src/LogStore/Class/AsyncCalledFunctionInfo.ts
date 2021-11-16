@@ -36,9 +36,9 @@ export class AsyncCalledFunctionInfo
     private nonTickObjectAsyncIdCache: number | undefined;
 
     constructor(func: Function | null, stackTrace: string[] | null,
-                asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
-                codeInfo: SourceCodeInfo | null,
-                timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
+        asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
+        codeInfo: SourceCodeInfo | null,
+        timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = func !== null ? new WeakRef(func) : null;
         this.stackTrace = stackTrace;
@@ -69,7 +69,7 @@ export class AsyncCalledFunctionInfo
         );
     }
 
-    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo|null, timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
+    public setInfo(func: Function, stackTrace: string[], asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo, codeInfo: SourceCodeInfo | null, timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = new WeakRef(func);
         this.stackTrace = stackTrace;
@@ -81,9 +81,9 @@ export class AsyncCalledFunctionInfo
         this.immediateInfo = immediateInfo;
     }
 
-    public setHasWriteOperation(resourceInfo: ResourceInfo): void
-    public setHasWriteOperation(resourceDeclaration: ResourceDeclaration): void
-    public setHasWriteOperation(resourceDeclarationOrInfo: ResourceInfo|ResourceDeclaration)
+    public setHasWriteOperation(resourceInfo: ResourceInfo): void;
+    public setHasWriteOperation(resourceDeclaration: ResourceDeclaration): void;
+    public setHasWriteOperation(resourceDeclarationOrInfo: ResourceInfo | ResourceDeclaration)
     {
         if (resourceDeclarationOrInfo instanceof ResourceDeclaration)
         {
@@ -95,8 +95,8 @@ export class AsyncCalledFunctionInfo
         }
     }
 
-    public getHasWriteOperationOn(resourceInfo: ResourceInfo): boolean
-    public getHasWriteOperationOn(resourceDeclaration: ResourceDeclaration): boolean
+    public getHasWriteOperationOn(resourceInfo: ResourceInfo): boolean;
+    public getHasWriteOperationOn(resourceDeclaration: ResourceDeclaration): boolean;
     public getHasWriteOperationOn(resourceDeclarationOrInfo: ResourceInfo | ResourceDeclaration): boolean
     {
         if (resourceDeclarationOrInfo instanceof ResourceDeclaration)
@@ -109,14 +109,21 @@ export class AsyncCalledFunctionInfo
         }
     }
 
-    public toJSON(): Partial<this>
+    public toJSON()
     {
-        return {
-            ...this,
-            functionWeakRef: undefined,
-            hasWriteOperationOnResourcesSet: undefined,
-            asyncContextChainAsyncIdsCache: undefined,
-        };
+        if (this.codeInfo === null && this.asyncType === 'Immediate')
+        {
+            return null;
+        }
+        else
+        {
+            return {
+                ...this,
+                functionWeakRef: undefined,
+                hasWriteOperationOnResourcesSet: undefined,
+                asyncContextChainAsyncIdsCache: undefined,
+            };
+        }
     }
 
     /** get all asyncIds on the async context chain */
