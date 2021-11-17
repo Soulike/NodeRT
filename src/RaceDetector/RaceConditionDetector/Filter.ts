@@ -383,6 +383,16 @@ export class Filter
                     || asyncContext2Operation.getOperationKind() === 'end')
                 && asyncContext2Operation.getScopeCodeInfo() === null);
         }
+        else if (asyncContext2Operations.length === 2)
+        {
+            const asyncContext2Operation1 = asyncContext2Operations[0]!;
+            const asyncContext2Operation2 = asyncContext2Operations[1]!;
+            // internal operation
+            return !(
+                (asyncContext2Operation1.getOperationKind() === 'end' && asyncContext2Operation1.getScopeCodeInfo() === null)
+                && asyncContext2Operation2.getOperationKind() === 'destroy' && asyncContext2Operation2.getScopeCodeInfo() === null
+            );
+        }
         else
         {
             return true;
