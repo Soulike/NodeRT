@@ -122,6 +122,7 @@ export class AsyncCalledFunctionInfo
                 functionWeakRef: undefined,
                 hasWriteOperationOnResourcesSet: undefined,
                 asyncContextChainAsyncIdsCache: undefined,
+                nonTickObjectAsyncIdCache: undefined,
             };
         }
     }
