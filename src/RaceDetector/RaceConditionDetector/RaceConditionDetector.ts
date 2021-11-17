@@ -50,7 +50,7 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
                     new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
             }
         }
-        else
+        else if (hasWriteOperationOnResource === beforeLastAsyncContext.getHasWriteOperationOn(resourceDeclaration))
         {
             break;
         }
