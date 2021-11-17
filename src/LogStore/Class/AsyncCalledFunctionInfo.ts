@@ -145,6 +145,11 @@ export class AsyncCalledFunctionInfo
                 {
                     asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
                 }
+                // Ignore async context introduced by test framework.
+                if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+                {
+                    break;
+                }
                 currentAsyncContext = currentAsyncContext.asyncContext;
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
