@@ -21,31 +21,38 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
     const lastAsyncContextAsyncChain = lastAsyncContext.getAsyncContextChainAsyncIds();
     const hasWriteOperationOnResource = lastAsyncContext.getHasWriteOperationOn(resourceDeclaration);
 
-    const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[LENGTH - 2]!;
-    const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
-    const beforeLastAsyncContextAsyncChain = beforeLastAsyncContext.getAsyncContextChainAsyncIds();
-    const beforeLastAsyncContextOperations = beforeLastAsyncContextToOperations[1];
-
-    const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
-        - beforeLastAsyncContextOperations[beforeLastAsyncContextOperations.length - 1]!.getTimestamp();
-
-    if (lastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID) || beforeLastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)) // ignore UNKNOWN_ASYNC_ID
+    for (let i = LENGTH - 2; i >= 0; i--)
     {
-        return [];
-    }
-    
-    if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.getNonTickObjectAsyncId())
-        && !beforeLastAsyncContextAsyncChain.has(lastAsyncContext.getNonTickObjectAsyncId()))   // no happens-before
-    {
-        if (hasWriteOperationOnResource)    // current does write
+        const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[i]!;
+        const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
+        const beforeLastAsyncContextAsyncChain = beforeLastAsyncContext.getAsyncContextChainAsyncIds();
+        const beforeLastAsyncContextOperations = beforeLastAsyncContextToOperations[1];
+
+        const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
+            - beforeLastAsyncContextOperations[beforeLastAsyncContextOperations.length - 1]!.getTimestamp();
+
+        if (lastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID) || beforeLastAsyncContextAsyncChain.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)) // ignore UNKNOWN_ASYNC_ID
         {
-            raceConditionInfos.push(
-                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
+            continue;
         }
-        else if (beforeLastAsyncContext.getHasWriteOperationOn(resourceDeclaration))    // another does write
+
+        if (!lastAsyncContextAsyncChain.has(beforeLastAsyncContext.getNonTickObjectAsyncId())
+            && !beforeLastAsyncContextAsyncChain.has(lastAsyncContext.getNonTickObjectAsyncId()))   // no happens-before
         {
-            raceConditionInfos.push(
-                new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
+            if (hasWriteOperationOnResource)    // current does write
+            {
+                raceConditionInfos.push(
+                    new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
+            }
+            else if (beforeLastAsyncContext.getHasWriteOperationOn(resourceDeclaration))    // another does write
+            {
+                raceConditionInfos.push(
+                    new RaceConditionInfo(resourceInfo, beforeLastAsyncContextToOperations, lastAsyncContentToOperations, timeDiff));
+            }
+        }
+        else
+        {
+            break;
         }
     }
 
