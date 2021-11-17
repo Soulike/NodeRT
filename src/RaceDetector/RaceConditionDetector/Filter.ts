@@ -235,10 +235,18 @@ export class Filter
         let asyncContext1 = asyncContextToOperations1[0];
         let asyncContext2 = asyncContextToOperations2[0];
 
-        // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
-        // These initializations won't form race condition.
+        // Test frameworks like mocha use setImmediate to start test case
+        // These invokes won't form race condition
         if (asyncContext1.asyncType === 'Immediate' && asyncContext1.immediateInfo === null
             || asyncContext2.asyncType === 'Immediate' && asyncContext2.immediateInfo === null)
+        {
+            return false;
+        }
+        
+        // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
+        // These initializations won't form race condition.
+        if (asyncContext1.asyncType === 'Immediate' && asyncContext1.codeInfo === null
+            || asyncContext2.asyncType === 'Immediate' && asyncContext2.codeInfo === null)
         {
             return false;
         }
@@ -386,7 +394,15 @@ export class Filter
         const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
         assert.ok(resourceInfo instanceof ObjectInfo);
 
+        // It's impossible that any operation to a object is invoked before its constructor
         const asyncContext1 = asyncContextToOperations1[0]!;
+        const object = resourceInfo.getObject();
+        assert.ok(object !== undefined);
+        if (asyncContext1.functionWeakRef?.deref() === Object.getPrototypeOf(object).constructor)
+        {
+            return false;
+        }
+
         const asyncContext1Operations = asyncContextToOperations1[1]! as ObjectOperation[];
 
         if (asyncContext1.getHasWriteOperationOn(resourceInfo))
@@ -644,12 +660,12 @@ export class Filter
 
         return [
             [
-                asyncContextToOperations1[0].functionWeakRef?.deref(),
-                asyncContextToOperations2[0].functionWeakRef?.deref(),
+                asyncContextToOperations1[0].codeInfo,
+                asyncContextToOperations2[0].codeInfo,
             ].join(','),
             [
-                asyncContextToOperations2[0].functionWeakRef?.deref(),
-                asyncContextToOperations1[0].functionWeakRef?.deref(),
+                asyncContextToOperations2[0].codeInfo,
+                asyncContextToOperations1[0].codeInfo,
             ].join(','),
         ];
     }

@@ -29,4 +29,9 @@ export class ObjectInfo extends ResourceInfo
             objectWeakRef: objectType,
         };
     }
+
+    public getObject()
+    {
+        return this.objectWeakRef.deref();
+    }
 }
