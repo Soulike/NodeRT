@@ -13,6 +13,8 @@ import {BufferOperation} from '../../LogStore/BufferLogStore';
 import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
 import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperation';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
+import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
+import {FileOperation} from '../../LogStore/FileLogStore';
 
 export class Filter
 {
@@ -70,6 +72,10 @@ export class Filter
         else if (resourceInfo instanceof SocketInfo)
         {
             return Filter.isSocketRaceConditionTP(raceConditionInfo);
+        }
+        else if (resourceInfo instanceof FileInfo)
+        {
+            return Filter.isFileRaceConditionTP(raceConditionInfo);
         }
         else
         {
@@ -267,6 +273,91 @@ export class Filter
         {
             return true;
         }
+    }
+
+    public static isFileRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        assert.ok(resourceInfo instanceof FileInfo);
+        const asyncContext1Operations = asyncContextToOperations1[1]! as readonly FileOperation[];
+        const asyncContext2Operations = asyncContextToOperations2[1]! as readonly FileOperation[];
+
+        let asyncContext1ReadStat = false;
+        let asyncContext1WriteStat = false;
+        let asyncContext2ReadStat = false;
+        let asyncContext2WriteStat = false;
+
+        let asyncContext1ReadContent = false;
+        let asyncContext1WriteContent = false;
+        let asyncContext2ReadContent = false;
+        let asyncContext2WriteContent = false;
+
+        for (const operation of asyncContext1Operations)
+        {
+            const operationOn = operation.getOperationOn();
+            if (operationOn === 'stat')
+            {
+                if (operation.getType() === 'read')
+                {
+                    asyncContext1ReadStat = true;
+                }
+                else
+                {
+                    asyncContext1WriteStat = true;
+                }
+            }
+            else if (operationOn === 'content')
+            {
+                if (operation.getType() === 'read')
+                {
+                    asyncContext1ReadContent = true;
+                }
+                else
+                {
+                    asyncContext1WriteContent = true;
+                }
+            }
+        }
+
+        for (const operation of asyncContext2Operations)
+        {
+            const operationOn = operation.getOperationOn();
+            if (operationOn === 'stat')
+            {
+                if (operation.getType() === 'read')
+                {
+                    asyncContext2ReadStat = true;
+                }
+                else
+                {
+                    asyncContext2WriteStat = true;
+                }
+            }
+            else if (operationOn === 'content')
+            {
+                if (operation.getType() === 'read')
+                {
+                    asyncContext2ReadContent = true;
+                }
+                else
+                {
+                    asyncContext2WriteContent = true;
+                }
+            }
+        }
+
+        return (asyncContext1ReadStat && asyncContext2WriteStat)
+            || (asyncContext1WriteStat && asyncContext2ReadStat)
+
+            || (asyncContext1WriteStat && asyncContext2WriteStat)
+
+            || (asyncContext1ReadContent && asyncContext2WriteContent)
+            || (asyncContext1WriteContent && asyncContext2ReadContent)
+
+            || (asyncContext1WriteContent && asyncContext2WriteContent)
+
+            || ((asyncContext1ReadContent || asyncContext1WriteContent) && asyncContext2WriteStat)
+            || (asyncContext1WriteStat && (asyncContext2ReadContent || asyncContext2WriteContent));
     }
 
     public static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
