@@ -140,11 +140,6 @@ export class AsyncCalledFunctionInfo
             let currentAsyncContext: AsyncCalledFunctionInfo | null = this;
             while (currentAsyncContext !== null)    // get the async id chain
             {
-                // It's impossible to interleave otherAsyncType -> TickObject, ignore TickObject
-                if (currentAsyncContext.asyncType !== 'TickObject')
-                {
-                    asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
-                }
                 // Ignore async context introduced by test framework.
                 if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
                 {
@@ -152,6 +147,12 @@ export class AsyncCalledFunctionInfo
                     asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
                     break;
                 }
+                // It's impossible to interleave otherAsyncType -> TickObject, ignore TickObject
+                if (currentAsyncContext.asyncType !== 'TickObject')
+                {
+                    asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
+                }
+                
                 currentAsyncContext = currentAsyncContext.asyncContext;
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
