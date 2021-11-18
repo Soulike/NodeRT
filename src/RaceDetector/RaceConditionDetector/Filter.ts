@@ -236,14 +236,6 @@ export class Filter
         let asyncContext1 = asyncContextToOperations1[0];
         let asyncContext2 = asyncContextToOperations2[0];
 
-        // Test frameworks like mocha use setImmediate to start test case
-        // These invokes won't form race condition
-        if (asyncContext1.asyncType === 'Immediate' && asyncContext1.immediateInfo === null
-            || asyncContext2.asyncType === 'Immediate' && asyncContext2.immediateInfo === null)
-        {
-            return false;
-        }
-
         // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
         // These initializations won't form race condition.
         if (asyncContext1.asyncType === 'Immediate' && asyncContext1.codeInfo === null
