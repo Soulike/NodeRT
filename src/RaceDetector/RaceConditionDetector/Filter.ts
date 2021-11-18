@@ -681,12 +681,12 @@ export class Filter
 
         return [
             [
-                asyncContextToOperations1[0].codeInfo,
-                asyncContextToOperations2[0].codeInfo,
+                JSON.stringify(asyncContextToOperations1[0].codeInfo),
+                JSON.stringify(asyncContextToOperations2[0].codeInfo),
             ].join(','),
             [
-                asyncContextToOperations2[0].codeInfo,
-                asyncContextToOperations1[0].codeInfo,
+                JSON.stringify(asyncContextToOperations2[0].codeInfo),
+                JSON.stringify(asyncContextToOperations1[0].codeInfo),
             ].join(','),
         ];
     }
