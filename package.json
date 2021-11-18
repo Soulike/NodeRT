@@ -12,6 +12,7 @@
     "prenodeprof:raw": "yarn build",
     "preraw": "yarn build",
     "nodeprof": "node ./dist/bin/nodeprof.js",
+    "nodeprof:test": "node ./dist/bin/nodeprof-test.js",
     "nodeprof:raw": "node ./dist/bin/nodeprof-raw.js",
     "raw": "node ./dist/bin/node.js"
   },
