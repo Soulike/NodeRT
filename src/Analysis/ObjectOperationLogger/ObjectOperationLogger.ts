@@ -9,6 +9,7 @@ import {isArrayAccess, isBufferLike, logUnboundFunction, shouldBeVerbose} from '
 
 export class ObjectOperationLogger extends Analysis
 {
+    public invokeFunPre: Hooks['invokeFunPre'] | undefined;
     public invokeFun: Hooks['invokeFun'] | undefined;
     public putFieldPre: Hooks['putFieldPre'] | undefined;
     public getField: Hooks['getField'] | undefined;
@@ -17,11 +18,13 @@ export class ObjectOperationLogger extends Analysis
     public unaryPre: Hooks['unaryPre'] | undefined;
     public endExecution: Hooks['endExecution'] | undefined;
 
+    private constructorStack: Function[];
     private timeConsumed: number;
 
     constructor(sandbox: Sandbox)
     {
         super(sandbox);
+        this.constructorStack = [];
         this.timeConsumed = 0;
     }
 
@@ -99,7 +102,8 @@ export class ObjectOperationLogger extends Analysis
             {
                 if (Object.hasOwnProperty.bind(base)(offset))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], false, this.getSandbox(), iid);
+                    const isConstructing = this.constructorStack.length !== 0;
+                    ObjectLogStore.appendObjectOperation(base, 'read', [offset], isConstructing, this.getSandbox(), iid);
                 }
             }
 
@@ -151,77 +155,92 @@ export class ObjectOperationLogger extends Analysis
                 }
                 else if (isObject(base))
                 {
-                    ObjectLogStore.appendObjectOperation(base, 'write', [offset], false, this.getSandbox(), iid);
+                    const isConstructing = this.constructorStack.length !== 0;
+                    ObjectLogStore.appendObjectOperation(base, 'write', [offset], isConstructing, this.getSandbox(), iid);
                 }
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
         };
 
+        this.invokeFunPre = (_iid, f, _base, _args, isConstructor) =>
+        {
+            if (isConstructor)
+            {
+                this.constructorStack.push(f);
+            }
+        };
+
         // Object.prototype and Object static methods only
-        this.invokeFun = (iid, f, base, args, result) =>
+        this.invokeFun = (iid, f, base, args, result, isConstructor) =>
         {
             const startTimestamp = Date.now();
 
+            if (isConstructor)
+            {
+                const currentConstructor = this.constructorStack.pop();
+                assert.ok(currentConstructor === f);
+            }
+
             if (f === Object)
             {
-                if (args.length === 0 || !isObject(args[0]))
+                if (!isObject(args[0]))
                 {
                     assert.ok(isObject(result));
                     ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
-                else if (f === Object.assign)
+            }
+            else if (f === Object.assign)
+            {
+                const [target, ...sources] = args as Parameters<typeof Object.assign>;
+                const writtenKeys: string[] = [];
+                for (const source of sources)
                 {
-                    const [target, ...sources] = args as Parameters<typeof Object.assign>;
-                    const writtenKeys: string[] = [];
-                    for (const source of sources)
-                    {
-                        assert.ok(isObject(source));
-                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
-                        writtenKeys.push(...Object.keys(source));
-                    }
-                    ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, false, this.getSandbox(), iid);
+                    assert.ok(isObject(source));
+                    ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
+                    writtenKeys.push(...Object.keys(source));
                 }
-                else if (f === Object.create)
-                {
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
-                }
-                else if (f === Object.defineProperties)
-                {
-                    const [obj, props] = args as Parameters<typeof Object.defineProperties>;
-                    assert.ok(isObject(obj));
-                    const writtenKeys = Object.keys(props);
-                    ObjectLogStore.appendObjectOperation(args[0], 'write', writtenKeys, false, this.getSandbox(), iid);
-                }
-                else if (f === Object.defineProperty)
-                {
-                    const [obj, prop] = args as Parameters<typeof Object.defineProperty>;
-                    assert.ok(isObject(obj));
-                    ObjectLogStore.appendObjectOperation(obj, 'write', [prop], false, this.getSandbox(), iid);
-                }
-                else if (f === Object.entries
-                    || f === Object.values)
-                {
-                    assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
-                }
-                else if (f === Object.fromEntries)
-                {
-                    assert.ok(isObject(args[0]));
-                    ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
-                    assert.ok(isObject(result));
-                    ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
-                }
-                else if (f === Object.prototype.toLocaleString
-                    || f === Object.prototype.toString
-                    || f === Object.prototype.valueOf)
-                {
-                    assert.ok(isObject(base));
-                    ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
-                }
+                ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, false, this.getSandbox(), iid);
+            }
+            else if (f === Object.create)
+            {
+                assert.ok(isObject(result));
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
+            }
+            else if (f === Object.defineProperties)
+            {
+                const [obj, props] = args as Parameters<typeof Object.defineProperties>;
+                assert.ok(isObject(obj));
+                const writtenKeys = Object.keys(props);
+                ObjectLogStore.appendObjectOperation(obj, 'write', writtenKeys, false, this.getSandbox(), iid);
+            }
+            else if (f === Object.defineProperty)
+            {
+                const [obj, prop] = args as Parameters<typeof Object.defineProperty>;
+                assert.ok(isObject(obj));
+                ObjectLogStore.appendObjectOperation(obj, 'write', [prop], false, this.getSandbox(), iid);
+            }
+            else if (f === Object.entries
+                || f === Object.values)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
+                assert.ok(isObject(result));
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
+            }
+            else if (f === Object.fromEntries)
+            {
+                assert.ok(isObject(args[0]));
+                ObjectLogStore.appendObjectOperation(args[0], 'read', Object.keys(args[0]), false, this.getSandbox(), iid);
+                assert.ok(isObject(result));
+                ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), false, this.getSandbox(), iid);
+            }
+            else if (f === Object.prototype.toLocaleString
+                || f === Object.prototype.toString
+                || f === Object.prototype.valueOf)
+            {
+                assert.ok(isObject(base));
+                ObjectLogStore.appendObjectOperation(base, 'read', Object.keys(base), false, this.getSandbox(), iid);
             }
             else if (f === Function.prototype.bind)
             {
