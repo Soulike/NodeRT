@@ -58,11 +58,11 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
 
     return raceConditionInfos.filter(raceConditionInfo =>
     {
-        const shouldReport = !Filter.hasReported(resourceDeclaration, raceConditionInfo)
+        const shouldReport = !Filter.hasReported(raceConditionInfo)
             && Filter.isTruePositive(raceConditionInfo);
         if (shouldReport)
         {
-            Filter.addReported(resourceDeclaration, raceConditionInfo);
+            Filter.addReported(raceConditionInfo);
         }
         return shouldReport;
     });

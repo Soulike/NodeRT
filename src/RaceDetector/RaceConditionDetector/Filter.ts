@@ -1,4 +1,3 @@
-import {ResourceDeclaration} from '../../LogStore/Class/ResourceDeclaration';
 import {RaceConditionInfo} from './RaceConditionInfo';
 import assert from 'assert';
 import {ObjectInfo} from '../../LogStore/ObjectLogStore/Class/ObjectInfo';
@@ -16,10 +15,11 @@ import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionI
 import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
 import {FileOperation} from '../../LogStore/FileLogStore';
 import objectHash from 'object-hash';
+import {ResourceInfo} from '../../LogStore/Class/ResourceInfo';
 
 export class Filter
 {
-    private static readonly reportedRaceCondition = new Map<ResourceDeclaration, Set<string>>();
+    private static readonly reportedRaceCondition = new Map<string, Set<string>>();
 
     public static isTruePositive(raceConditionInfo: RaceConditionInfo): boolean
     {
@@ -644,9 +644,9 @@ export class Filter
     /**
      * Check if the RaceConditionInfo has been reported
      */
-    public static hasReported(resourceDeclaration: ResourceDeclaration, raceConditionInfo: RaceConditionInfo): boolean
+    public static hasReported(raceConditionInfo: RaceConditionInfo): boolean
     {
-        const hashes = Filter.reportedRaceCondition.get(resourceDeclaration);
+        const hashes = Filter.reportedRaceCondition.get(Filter.getResourceInfoHash(raceConditionInfo.resourceInfo));
         if (hashes === undefined)
         {
             return false;
@@ -662,16 +662,17 @@ export class Filter
         }
     }
 
-    public static addReported(resourceDeclaration: ResourceDeclaration, raceConditionInfo: RaceConditionInfo): void
+    public static addReported(raceConditionInfo: RaceConditionInfo): void
     {
-        let hashes = Filter.reportedRaceCondition.get(resourceDeclaration) ?? new Set();
+        const resourceInfoHash = Filter.getResourceInfoHash(raceConditionInfo.resourceInfo);
+        let hashes = Filter.reportedRaceCondition.get(resourceInfoHash) ?? new Set();
         const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
         if (hashPair !== null)
         {
             hashes.add(hashPair[0]);
             hashes.add(hashPair[1]);
         }
-        Filter.reportedRaceCondition.set(resourceDeclaration, hashes);
+        Filter.reportedRaceCondition.set(resourceInfoHash, hashes);
     }
 
     private static getRaceConditionInfoHashPair(raceConditionInfo: RaceConditionInfo): [string, string] | null
@@ -690,5 +691,13 @@ export class Filter
                 objectHash(asyncContextToOperations1[0].codeInfo, {algorithm: 'md5'}),
             ].join(','),
         ];
+    }
+
+    private static getResourceInfoHash(resourceInfo: ResourceInfo): string
+    {
+        return [
+            objectHash(resourceInfo.getType(), {algorithm: 'md5'}),
+            objectHash(resourceInfo.getPossibleDefineCodeScope(), {algorithm: 'md5'}),
+        ].join(',');
     }
 }
