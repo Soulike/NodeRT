@@ -6,10 +6,9 @@ export default {
   output: {
     file: '../bundle.js',
     format: 'cjs',
-    banner()
-    {
+    banner() {
       return '// DO NOT INSTRUMENT';
-    },
+    }
   },
-  plugins: [commonjs(), resolve()],
+  plugins: [ commonjs(), resolve() ]
 };

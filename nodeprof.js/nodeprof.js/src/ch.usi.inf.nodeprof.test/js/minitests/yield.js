@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function dummy(arg)
-{
-    return {};
+function dummy(arg) {
+  return {};
 }
 
-function* myGen()
-{
-    const boom = dummy(
-        yield 'Crash',
-    );
+function* myGen() {
+  const boom = dummy(
+    yield 'Crash'
+  );
 }
 
 a = myGen();

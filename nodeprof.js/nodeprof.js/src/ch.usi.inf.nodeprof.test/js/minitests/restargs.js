@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function foo(...args)
-{
-    return bar(...args);
+function foo(...args) {
+  return bar(...args);
 }
-
-function bar()
-{
-    return arguments;
+function bar() {
+  return arguments;
 }
-
 console.log(foo('bar'));
 console.log(foo(42, 'baz'));

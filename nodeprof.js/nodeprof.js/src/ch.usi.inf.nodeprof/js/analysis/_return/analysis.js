@@ -15,14 +15,11 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
-        this._return = function (iid, val)
-        {
+(function (sandbox) {
+    function MyAnalysis() {
+        this._return = function(iid, val) {
             console.log('return', J$.iidToLocation(iid), 'val returns', val);
-        };
+        }
     }
 
     sandbox.analysis = new MyAnalysis();

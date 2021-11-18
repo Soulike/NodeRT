@@ -14,21 +14,16 @@
  * limitations under the License.
  *******************************************************************************/
 
-async function countTo6(x)
-{
-    if (x > 1)
-    {
-        return x;
-    }
-    else
-    {
+async function countTo6(x) {
+    if (x > 1) {
+	      return x;
+    } else {
         return await countTo6(x + 1);
     }
 }
 
-async function main()
-{
-    return await countTo6(1);
+async function main() {
+	  return await countTo6(1);
 }
 
-main().then(v => console.log('done! answer = ' + v));
+main().then(v => console.log("done! answer = " + v));

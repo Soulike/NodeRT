@@ -13,33 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-//DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function FieldTest()
-        {
-            var assert = require('assert');
-
-            function getLocation(sid, iid)
-            {
-                if (typeof Graal === 'object')
-                    // Truffle-Jalangi has unique IIDs
-                {
-                    return J$.iidToLocation(iid);
-                }
-                else
-                    // Jalangi on V8/Node needs sid
-                {
-                    return J$.iidToLocation(sid, iid);
-                }
-            }
-
-            this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
-            {
-                console.log('getField ' + getLocation(J$.sid, iid) + " in inclusion.js");
-            };
-        }
-
-        sandbox.addAnalysis(new FieldTest(), {includes: "testFilter.js"});
+ //DO NOT INSTRUMENT
+((function(sandbox){
+  function FieldTest() {
+    var assert = require("assert");
+    function getLocation(sid, iid) {
+      if (typeof Graal === 'object')
+        // Truffle-Jalangi has unique IIDs
+        return  J$.iidToLocation(iid);
+      else
+        // Jalangi on V8/Node needs sid
+        return J$.iidToLocation(sid, iid);
     }
+    this.getField = function(iid, base, offset, val, isComputed, isOpAssign, isMethodCall) {
+      console.log("getField "+getLocation(J$.sid, iid)+" in inclusion.js");
+    };
+  }
+  sandbox.addAnalysis(new FieldTest(), {includes:"testFilter.js"});
+}
 )(J$));

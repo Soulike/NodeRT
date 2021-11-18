@@ -14,80 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-//DO NOT INSTRUMENT
-((function (sandbox)
-    {
+ //DO NOT INSTRUMENT
+((function(sandbox){
 
-        var assert = require('assert');
-        var internals = new Set();
-        var internalCalls = new Set();
-        var builtins = new Set();
-        var mute = false;
+  var assert = require("assert");
+  var internals = new Set();
+  var internalCalls = new Set();
+  var builtins = new Set();
+  var mute = false;
 
-        function NodeInternal()
-        {
-            const analysis = 'node-module';
-            this.functionEnter = function (iid, f, dis, args)
-            {
-                if (f.name == '' || f.name == 'readPackage' || mute)
-                {
-                    return;
-                }
-                // Do not log Node.js internals in test output
-                // console.log("%s: functionEnter: %s / %s / %d", analysis, f.name, J$.iidToLocation(iid).replace(/:.*[0-9]/,''), arguments.length);
-                internalCalls.add(J$.iidToSourceObject(iid).name);
-            };
-            this.endExecution = function ()
-            {
-                mute = true;
-                console.log(analysis + ': internal source', internals);
-                assert(internalCalls.size >= 3, 'missing calls to internal functions');
-            };
+  function NodeInternal() {
+    const analysis = 'node-module';
+    this.functionEnter = function (iid, f, dis, args) {
+      if (f.name == '' || f.name == 'readPackage' || mute)
+        return;
+      // Do not log Node.js internals in test output
+      // console.log("%s: functionEnter: %s / %s / %d", analysis, f.name, J$.iidToLocation(iid).replace(/:.*[0-9]/,''), arguments.length);
+      internalCalls.add(J$.iidToSourceObject(iid).name);
+    };
+    this.endExecution = function () {
+      mute = true;
+      console.log(analysis + ': internal source', internals);
+      assert(internalCalls.size >= 3, 'missing calls to internal functions');
+    };
+  }
+
+  // run NodeInternal analysis only with one test
+  if (process.argv[process.argv.length - 1].endsWith('donotinstrument.js')) {
+    sandbox.addAnalysis(new NodeInternal(), function filter(source) {
+      if (source.internal && source.name.includes('module')) {
+        if (source.name.endsWith('transform_source.js')) {
+          // XXX this source shows up only sometimes, is this a callback bug? exclude for now
+        } else {
+          internals.add(source.name);
         }
+        return true;
+      }
+    });
+  }
 
-        // run NodeInternal analysis only with one test
-        if (process.argv[process.argv.length - 1].endsWith('donotinstrument.js'))
-        {
-            sandbox.addAnalysis(new NodeInternal(), function filter(source)
-            {
-                if (source.internal && source.name.includes('module'))
-                {
-                    if (source.name.endsWith('transform_source.js'))
-                    {
-                        // XXX this source shows up only sometimes, is this a callback bug? exclude for now
-                    }
-                    else
-                    {
-                        internals.add(source.name);
-                    }
-                    return true;
-                }
-            });
-        }
-
-        function BI()
-        {
-            const analysis = 'builtin';
-            this.builtinEnter = function (builtinName, func, base, args)
-            {
-                if (builtinName)
-                {
-                    builtins.add(builtinName);
-                }
-            };
-            this.endExecution = function ()
-            {
-                mute = true;
-                console.log([...builtins].filter(x => x.includes('create')));
-            };
-        }
-
-        sandbox.addAnalysis(new BI(), function filter(source)
-        {
-            if (source.name === '<builtin>')
-            {
-                return true;
-            }
-        });
+  function BI() {
+    const analysis = 'builtin';
+    this.builtinEnter = function(builtinName, func, base, args){
+      if(builtinName){
+        builtins.add(builtinName);
+      }
     }
+    this.endExecution = function () {
+      mute = true;
+      console.log([...builtins].filter(x => x.includes('create')));
+    };
+  }
+  sandbox.addAnalysis(new BI(), function filter(source) {
+    if (source.name === '<builtin>') {
+      return true;
+    }
+  });
+}
 )(J$));

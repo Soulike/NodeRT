@@ -14,14 +14,11 @@
  * limitations under the License.
  *******************************************************************************/
 var Box2d = {};
-Box2d.postDefs = [function ()
-{
-}];
+Box2d.postDefs = [function(){}];
 
-function test()
-{
-    var i = 0;
-    Box2d.postDefs[i]();
+function test(){
+  var i = 0;
+  Box2d.postDefs[i]();
 }
 
 test();

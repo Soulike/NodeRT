@@ -15,33 +15,21 @@
  *******************************************************************************/
 // DO NOT INSTRUMENT
 
-function Literal()
-{
-    const astHelper = J$.getAstHelper();
-
-    function skipModule(iid)
-    {
-        var locObj = J$.iidToSourceObject(iid);
-        return (locObj.loc.start.line === 1 && locObj.loc.start.column === 1);
+function Literal(){
+  const astHelper = J$.getAstHelper();
+  function skipModule(iid) {
+    var locObj = J$.iidToSourceObject(iid);
+    return (locObj.loc.start.line === 1 && locObj.loc.start.column === 1);
+  }
+  this.literal = function(iid, val, fakeHasGetterSetter, type){
+    if (skipModule(iid)) return;
+    let hasGetterSetter = false;
+    let fields = undefined;
+    if (type === 'ObjectLiteral') {
+      ({ hasGetterSetter, fields } = astHelper.parseObjectLiteral(iid));
     }
-
-    this.literal = function (iid, val, fakeHasGetterSetter, type)
-    {
-        if (skipModule(iid))
-        {
-            return;
-        }
-        let hasGetterSetter = false;
-        let fields = undefined;
-        if (type === 'ObjectLiteral')
-        {
-            ({
-                hasGetterSetter,
-                fields,
-            } = astHelper.parseObjectLiteral(iid));
-        }
-        console.log(J$.iidToLocation(iid), typeof (val), hasGetterSetter, type, fields);
-    };
+    console.log(J$.iidToLocation(iid), typeof(val), hasGetterSetter, type, fields);
+  }
 }
 
 J$.addAnalysis(new Literal());

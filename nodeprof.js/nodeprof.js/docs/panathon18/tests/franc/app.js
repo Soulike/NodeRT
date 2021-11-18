@@ -6,4 +6,4 @@ const franc = require('franc');
 
 const str = 'NodeProf ist ein Werkzeug zur Analyse von Programmen.';
 console.log('Running franc on "%s"', str);
-console.log('Top 3 language guesses:', franc.all(str).map(x => x[0]).slice(0, 3));
+console.log('Top 3 language guesses:', franc.all(str).map(x => x[0]).slice(0,3));

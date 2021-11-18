@@ -14,41 +14,33 @@
  * limitations under the License.
  *******************************************************************************/
 
-(function testWrapper()
-{
-    let foo = 42; // statement-end (discard)
+(function testWrapper() {
+let foo = 42; // statement-end (discard)
 })();
 
-(function testWrapper()
-{
-    let foo = 42; // statement-end (discard)
-    const o = {}; // statement-end (discard)
+(function testWrapper() {
+let foo = 42; // statement-end (discard)
+const o = {}; // statement-end (discard)
 })();
 
-(function testWrapper()
-{
-    var foo = 42; // statement-end (discard)
-    const o = {}; // statement-end (discard)
-    '42'; // statement-end (discard)
+(function testWrapper() {
+var foo = 42; // statement-end (discard)
+const o = {}; // statement-end (discard)
+'42'; // statement-end (discard)
 })();
 
-(function testWrapper()
-{
-    const o = {}; // statement-end (discard)
-    return '42'; // statement-end (discard)
+(function testWrapper() {
+const o = {}; // statement-end (discard)
+return '42'; // statement-end (discard)
 })();
 
-(function testWrapper()
-{
-    const o = {}; // statement-end (discard)
-    return o.foo = '42'; // statement-end (discard)
+(function testWrapper() {
+const o = {}; // statement-end (discard)
+return o.foo = '42'; // statement-end (discard)
 })();
 
-(function testWrapper()
-{
-    function bar()
-    {
-    }; // declaration TODO
-    bar(); // statement-end (discard)
-    return bar(); // statement-end (discard)
+(function testWrapper() {
+function bar() {}; // declaration TODO
+bar(); // statement-end (discard)
+return bar(); // statement-end (discard)
 })();

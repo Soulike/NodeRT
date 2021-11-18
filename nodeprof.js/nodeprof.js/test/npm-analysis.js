@@ -14,27 +14,18 @@
  * limitations under the License.
  *******************************************************************************/
 // DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
+(function (sandbox) {
+    function MyAnalysis() {
 
         let sourceCount = 0;
 
         /**
          * These callbacks are called before and after a function, method, or constructor invocation.
          **/
-        this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid)
-        {
-            return {
-                f: f,
-                base: base,
-                args: args,
-                skip: false,
-            };
+        this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid) {
+            return {f: f, base: base, args: args, skip: false};
         };
-        this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid)
-        {
+        this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) {
             return {result: result};
         };
 
@@ -46,179 +37,132 @@
          * literalType is a new argument provided by NodeProf showing the type of literal
          *
          * memberNames: an array of member fields' names, each name in form of [getter/setter]-name
-         *  e.g, setter-x => setter for member field x
+         *  e.g, setter-x => setter for member field x 
          *  -y => a normal member field y
          *  Please be noted that the name can include a '-' as well, so always use the first '-' as the delimiter for the flag
          **/
-        this.literal = function (iid, val, hasGetterSetter, literalType, memberNames)
-        {
+        this.literal = function (iid, val, hasGetterSetter, literalType, memberNames) {
             return {result: val};
         };
         // optional literal type filter: by specifying the types in an array, only given types of literals will be instrumented
-        this.literal.types = ['ObjectLiteral', 'FunctionLiteral'];
+        this.literal.types = ["ObjectLiteral", "FunctionLiteral"];
 
         /**
          * These callbacks are called before and after a property of an object is accessed.
          **/
-        this.getFieldPre = function (iid, base, offset, isComputed, isOpAssign, isMethodCall)
-        {
-            return {
-                base: base,
-                offset: offset,
-                skip: false,
-            };
+        this.getFieldPre = function (iid, base, offset, isComputed, isOpAssign, isMethodCall) {
+            return {base: base, offset: offset, skip: false};
         };
-        this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
-        {
+        this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall) {
             return {result: val};
         };
 
         /**
          * These callbacks are called before a property of an object is written
          **/
-        this.putFieldPre = function (iid, base, offset, val, isComputed, isOpAssign)
-        {
-            return {
-                base: base,
-                offset: offset,
-                val: val,
-                skip: false,
-            };
+        this.putFieldPre = function (iid, base, offset, val, isComputed, isOpAssign) {
+            return {base: base, offset: offset, val: val, skip: false};
         };
-        this.putField = function (iid, base, offset, val, isComputed, isOpAssign)
-        {
+        this.putField = function (iid, base, offset, val, isComputed, isOpAssign) {
             return {result: val};
         };
 
         /**
          * These callbacks are called after a variable is read or written.
          **/
-        this.read = function (iid, name, val, isGlobal, isScriptLocal)
-        {
+        this.read = function (iid, name, val, isGlobal, isScriptLocal) {
             return {result: val};
         };
-        this.write = function (iid, name, val, lhs, isGlobal, isScriptLocal)
-        {
+        this.write = function (iid, name, val, lhs, isGlobal, isScriptLocal) {
             return {result: val};
         };
 
         /**
          * These callbacks are called before the execution of a function body starts and after it completes.
          **/
-        this.functionEnter = function (iid, f, dis, args)
-        {
+        this.functionEnter = function (iid, f, dis, args) {
         };
-        this.functionExit = function (iid, returnVal, wrappedExceptionVal)
-        {
-            return {
-                returnVal: returnVal,
-                wrappedExceptionVal: wrappedExceptionVal,
-                isBacktrack: false,
-            };
+        this.functionExit = function (iid, returnVal, wrappedExceptionVal) {
+            return {returnVal: returnVal, wrappedExceptionVal: wrappedExceptionVal, isBacktrack: false};
         };
 
         /**
          * These callbacks are called before the execution of a builtin function body starts and after it completes.
          **/
-        this.builtinEnter = function (name, f, dis, args)
-        {
+        this.builtinEnter = function (name, f, dis, args) {
         };
-        this.builtinExit = function (name, f, dis, args, returnVal, exceptionVal)
-        {
+        this.builtinExit = function (name, f, dis, args, returnVal, exceptionVal) {
             return {returnVal: returnVal};
         };
 
         /**
          * These callbacks are called before and after a binary operation.
          **/
-        this.binaryPre = function (iid, op, left, right, isOpAssign, isSwitchCaseComparison, isComputed)
-        {
-            return {
-                op: op,
-                left: left,
-                right: right,
-                skip: false,
-            };
+        this.binaryPre = function (iid, op, left, right, isOpAssign, isSwitchCaseComparison, isComputed) {
+            return {op: op, left: left, right: right, skip: false};
         };
-        this.binary = function (iid, op, left, right, result, isOpAssign, isSwitchCaseComparison, isComputed)
-        {
+        this.binary = function (iid, op, left, right, result, isOpAssign, isSwitchCaseComparison, isComputed) {
             return {result: result};
         };
 
         /**
          * These callbacks are called before and after a unary operation.
          **/
-        this.unaryPre = function (iid, op, left)
-        {
-            return {
-                op: op,
-                left: left,
-                skip: false,
-            };
+        this.unaryPre = function (iid, op, left) {
+            return {op: op, left: left, skip: false};
         };
-        this.unary = function (iid, op, left, result)
-        {
+        this.unary = function (iid, op, left, result) {
             return {result: result};
         };
 
         /**
          * This callback is called after a conditional expression has been evaluated
          **/
-        this.conditional = function (iid, result)
-        {
+        this.conditional = function (iid, result) {
             return {result: result};
         };
 
         /**
          * The callbacks are called before and after an expression
-         * @param iid {integer} source code location id
+         * @param iid {integer} source code location id 
          * @param type {string} type of the expression, TODO: use some standard type names, e.g., ESTree
          * @param result {} the execution result of the expression
          **/
-        this.startExpression = function (iid, type)
-        {
+        this.startExpression = function (iid, type) {
         };
 
-        this.endExpression = function (iid, type, result)
-        {
+        this.endExpression = function (iid, type, result) {
         };
 
         /**
          * This callback is called when an execution terminates in node.js.
          **/
-        this.endExecution = function ()
-        {
+        this.endExecution = function () {
         };
 
         //for callbacks that are new or different from Jalangi
         var extraFeatures = true;
-        if (extraFeatures)
-        {
+        if(extraFeatures) {
             /**
              *  These callbacks are called before and after code is executed by eval.
              **/
-            this.evalPre = function (iid, str)
-            {
+            this.evalPre = function (iid, str) {
             };
-            this.evalPost = function (iid, str)
-            {
+            this.evalPost = function (iid, str) {
             };
 
             /**
              *  These callabcks are called before and after body of functions defined with the Function constructor are executed.
              **/
-            this.evalFunctionPre = function (args)
-            {
+            this.evalFunctionPre = function(args) {
             };
-            this.evalFunctionPost = function (args, ret, exceptionVal)
-            {
+            this.evalFunctionPost = function(args, ret, exceptionVal) {
             };
 
             /**
              * This callback is called when new source code is encountered during instrumentation.
              **/
-            this.newSource = function (sourceInfo, source)
-            {
+            this.newSource = function(sourceInfo, source) {
                 console.log(`${++sourceCount} source(s) loaded, last: ${sourceInfo.name}`);
             };
 
@@ -226,17 +170,15 @@
              *  Declaration of a symbol, type can be `const, let, var`
              *  Jalangi version: this.declare = function (iid, name, val, isArgument, argumentIndex, isCatchParam) {
              **/
-            this.declare = function (iid, name, type)
-            {
+            this.declare = function (iid, name, type) {
             };
 
             /**
              *  forin or forof support
              *  the object being iterated can be known by checking the last expression's result (via endExpression)
              **/
-            this.forObject = function (iid, isForIn)
-            {
-            };
+            this.forObject = function (iid, isForIn) {
+            }
 
             /**
              * This callback is called before a value is returned from a function using the <tt>return</tt> keyword.
@@ -252,71 +194,56 @@
              * @param {number} iid - Static unique instruction identifier of this callback
              * @param {*} val - Value to be returned
              */
-            this._return = function (iid, val)
-            {
+            this._return = function (iid, val) {
             };
 
-            this.asyncFunctionEnter = function (iid)
-            {
-            };
-            this.asyncFunctionExit = function (iid, result, exceptionVal)
-            {
-            };
-            this.awaitPre = function (iid, valAwaited)
-            {
-            };
-            this.awaitPost = function (iid, result, exceptionVal)
-            {
-            };
+            this.asyncFunctionEnter = function (iid) {
+            }
+            this.asyncFunctionExit = function (iid, result, exceptionVal) {
+            }
+            this.awaitPre = function (iid, valAwaited) {
+            }
+            this.awaitPost = function (iid, result, exceptionVal) {
+            }
 
         }
 
-        if (false)
-        {
+        if(false) {
             // replaced with forObject including support for forin and forof
-            this.forinObject = function (iid, val)
-            {
+            this.forinObject = function (iid, val) {
             };
 
             //not supported yet
-            this._throw = function (iid, val)
-            {
+            this._throw = function (iid, val) {
             };
 
             //not supported yet
-            this._with = function (iid, val)
-            {
+            this._with = function (iid, val) {
             };
 
             //not supported yet
-            this.scriptEnter = function (iid, instrumentedFileName, originalFileName)
-            {
+            this.scriptEnter = function (iid, instrumentedFileName, originalFileName) {
             };
 
             //not supported yet
-            this.scriptExit = function (iid, wrappedExceptionVal)
-            {
+            this.scriptExit = function (iid, wrappedExceptionVal) {
             };
 
             //not supported yet
-            this.runInstrumentedFunctionBody = function (iid, f, functionIid, functionSid)
-            {
+            this.runInstrumentedFunctionBody = function (iid, f, functionIid, functionSid) {
             };
 
             //not supported yet
-            this.onReady = function (cb)
-            {
+            this.onReady = function (cb) {
                 cb();
             };
 
             //not supported yet
-            this.instrumentCodePre = function (iid, code, isDirect)
-            {
+            this.instrumentCodePre = function (iid, code, isDirect) {
             };
 
             //not supported yet
-            this.instrumentCode = function (iid, newCode, newAst, isDirect)
-            {
+            this.instrumentCode = function (iid, newCode, newAst, isDirect) {
             };
         }
     }

@@ -15,45 +15,39 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-    {
-        J$.nativeLog('default');
-        J$.nativeLog('debug', J$.nativeLog.DEBUG); // unchecked: debug off in tests
-        J$.nativeLog('info', J$.nativeLog.INFO);
-        J$.nativeLog('warning', J$.nativeLog.WARNING); // unchecked: emits to stderr
-        J$.nativeLog('error', J$.nativeLog.ERROR); // unchecked: emits to stderr
-        J$.nativeLog('neg level', -1);
-        J$.nativeLog('string level', '1');
+(function(sandbox){
+  J$.nativeLog('default');
+  J$.nativeLog('debug', J$.nativeLog.DEBUG); // unchecked: debug off in tests
+  J$.nativeLog('info', J$.nativeLog.INFO);
+  J$.nativeLog('warning', J$.nativeLog.WARNING); // unchecked: emits to stderr
+  J$.nativeLog('error', J$.nativeLog.ERROR); // unchecked: emits to stderr
+  J$.nativeLog('neg level', -1);
+  J$.nativeLog('string level', "1");
 
-        function SourceObjTest()
-        {
-            this.prop = 42;
-            this.functionEnter = function (iid, f, dis, args)
-            {
-                var locObj = J$.iidToSourceObject(iid);
-                if (locObj.symbolic)
-                {
-                    console.log(`symbolic location '${locObj.symbolic}':`, J$.iidToLocation(iid));
-                }
+  function SourceObjTest() {
+    this.prop = 42;
+    this.functionEnter = function (iid, f, dis, args) {
+      var locObj = J$.iidToSourceObject(iid);
+      if (locObj.symbolic) {
+        console.log(`symbolic location '${locObj.symbolic}':`, J$.iidToLocation(iid));
+      }
 
-                if (f.name !== 'foo')
-                {
-                    return;
-                }
+      if (f.name !== 'foo')
+        return;
 
-                console.log('callback this arg is global:', dis === global);
-                console.log(dis.__jalangiAdapter);
-                console.log('analysis this.prop', this.prop);
-                console.log('num props:', Object.getOwnPropertyNames(locObj).length);
-                console.log('name:', locObj.name);
-                // do not log the range directly, it includes the Node.js module wrapper function as a prefix
-                console.log('src length from range:', locObj.range[1] - locObj.range[0]);
-                console.log('loc.start:', locObj.loc.start);
-                console.log('loc.end:', locObj.loc.end);
-                console.log('symbolic:', !!locObj.symbolic);
-            };
-        }
+      console.log('callback this arg is global:', dis === global);
+      console.log(dis.__jalangiAdapter);
+      console.log('analysis this.prop', this.prop);
+      console.log('num props:', Object.getOwnPropertyNames(locObj).length);
+      console.log('name:', locObj.name);
+      // do not log the range directly, it includes the Node.js module wrapper function as a prefix
+      console.log('src length from range:', locObj.range[1] - locObj.range[0]);
+      console.log('loc.start:', locObj.loc.start);
+      console.log('loc.end:', locObj.loc.end);
+      console.log('symbolic:', !!locObj.symbolic);
+    };
+  }
 
-        sandbox.addAnalysis(new SourceObjTest());
-    }
+  sandbox.addAnalysis(new SourceObjTest());
+}
 )(J$);

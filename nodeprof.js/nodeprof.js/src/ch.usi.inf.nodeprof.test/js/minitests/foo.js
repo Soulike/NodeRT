@@ -1,5 +1,4 @@
-function foo(a)
-{
+function foo(a){
 }
 
 foo(1);

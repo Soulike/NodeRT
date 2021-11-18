@@ -14,34 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-//DO NOT INSTRUMENT
-((function (sandbox)
-    {
+ //DO NOT INSTRUMENT
+((function(sandbox){
 
-        function EvalLike()
-        {
-            const analysis = 'eval-like';
-            this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
-            {
-                console.log('%s: getField: %s / %s / %d', analysis, offset, J$.iidToLocation(iid), arguments.length);
-            };
-            this.functionEnter = function (iid, f, dis, args)
-            {
-                if (f.name == '')
-                {
-                    return;
-                }
-                console.log('%s: functionEnter: %s / %s / %d', analysis, f.name, J$.iidToLocation(iid), arguments.length);
-            };
-        }
-
-        sandbox.addAnalysis(new EvalLike(), function filter(source)
-        {
-            if (source.internal && (source.name.includes('function') || source.name.includes('eval')))
-            {
-                return true;
-            }
-            return false;
-        });
-    }
+  function EvalLike() {
+    const analysis = 'eval-like';
+    this.getField = function(iid, base, offset, val, isComputed, isOpAssign, isMethodCall) {
+      console.log("%s: getField: %s / %s / %d", analysis, offset, J$.iidToLocation(iid), arguments.length);
+    };
+    this.functionEnter = function (iid, f, dis, args) {
+      if (f.name == '')
+        return;
+      console.log("%s: functionEnter: %s / %s / %d", analysis, f.name, J$.iidToLocation(iid), arguments.length);
+    };
+  }
+  sandbox.addAnalysis(new EvalLike(), function filter(source) {
+    if (source.internal && (source.name.includes('function') || source.name.includes('eval')))
+      return true;
+    return false;
+  });
+}
 )(J$));

@@ -15,46 +15,32 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function getLocation(sid, iid)
-    {
+(function (sandbox) {
+    function getLocation(sid, iid) {
         if (typeof Graal === 'object')
             // Truffle-Jalangi has unique IIDs
-        {
-            return J$.iidToLocation(iid);
-        }
+            return  J$.iidToLocation(iid);
         else
             // Jalangi on V8/Node needs sid
-        {
             return J$.iidToLocation(sid, iid);
-        }
     }
 
-    function argsToString(args)
-    {
+    function argsToString(args) {
         console.log(args);
     }
 
-    function MyAnalysis()
-    {
-        this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid)
-        {
-            var logStr = 'invokeFunPre @ ' + typeof (base) + ' ' + typeof (f) + ' ' + getLocation(J$.sid, iid);
+    function MyAnalysis() {
+        this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod, functionIid, functionSid) {
+            var logStr = "invokeFunPre @ " + typeof(base) + " " + typeof(f) + " " + getLocation(J$.sid, iid);
             if (isConstructor)
-            {
-                logStr += ' isConstructor';
-            }
+              logStr += " isConstructor";
             if (isMethod)
-            {
-                logStr += ' isMethod';
-            }
+              logStr += " isMethod";
             console.log(logStr);
             argsToString(args);
         };
 
-        this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid)
-        {
+        this.invokeFun = function (iid, f, base, args, result, isConstructor, isMethod, functionIid, functionSid) {
             console.log("invokeFun @ " + getLocation(J$.sid, iid));
         };
     }

@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function bar()
-{
+function bar(){
 }
 
-function foo()
-{
-    this.v = new bar();
+function foo(){
+  this.v = new bar();
 }
 
-foo.prototype.x = function ()
-{
-    this.y()[0] = 1;
-};
+foo.prototype.x = function(){
+  this.y()[0]=1;
+}
 
-foo.prototype.y = function ()
-{
-    return this.v;
-};
+foo.prototype.y = function(){
+  return this.v;
+}
 
 var cnt = 0;
 var a = new foo();
-while (cnt < 10)
-{
-    a.x();
-    cnt++;
+while(cnt < 10) {
+  a.x();
+  cnt++;
 }

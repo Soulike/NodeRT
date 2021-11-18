@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-var elems = [0, '0.0', '0.1', 'a', undefined, null, Symbol('test'), true];
-var vals = [0, Object.create(null), undefined, null, 'abc', Symbol('t'), true];
+var elems = [0, "0.0", "0.1", "a", undefined, null, Symbol("test"), true];
+var vals = [0, Object.create(null), undefined, null, "abc", Symbol("t"), true];
 
 var obj = {};
 
-for (i in elems)
-{
-    var elem = elems[i];
-    var val = vals[i % vals.length];
-    obj[elem] = val;
+for(i in elems) {
+  var elem = elems[i];
+  var val = vals[i % vals.length];
+  obj[elem] = val;
 }
-for (j in vals)
-{
-    var elem = elems[j];
-    console.log(obj[elem]);
+for(j in vals) {
+  var elem = elems[j];
+  console.log(obj[elem]);
 }

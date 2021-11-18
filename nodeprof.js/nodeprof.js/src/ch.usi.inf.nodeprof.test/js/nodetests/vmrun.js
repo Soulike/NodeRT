@@ -19,30 +19,21 @@ const vm = require('vm');
 
 let isDone = false;
 let sandbox = {
-    done: function done()
-    {
-        isDone = true;
-    },
+  done: function done() { isDone = true; }
 };
 
 vm.createContext(sandbox);
-try
-{
-    let res = vm.runInContext(
-        'var res; function insideVM(){ res = 42; }; insideVM(); done(); res',
-        sandbox,
-        {timeout: 1000});
-    console.log(res);
-}
-catch (err)
-{
-    console.log('runInContext failed (as expected):', err.message);
+try {
+  let res  = vm.runInContext(
+      'var res; function insideVM(){ res = 42; }; insideVM(); done(); res',
+      sandbox,
+      { timeout: 1000 });
+  console.log(res);
+} catch (err) {
+  console.log('runInContext failed (as expected):', err.message);
 }
 
-function foo()
-{
-}
-
+function foo() {}
 foo();
 // whether done() is called seems to depend on running w/ or w/o compilation,
 // so we no longer check for it here

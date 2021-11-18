@@ -15,28 +15,22 @@
  * limitations under the License.
  *******************************************************************************/
 
-async function countTo6(x)
-{
+async function countTo6(x) {
     console.log('in count', x);
-    process.nextTick(() =>
-    {
+    process.nextTick(()=>{
         console.log('in count', x);
     });
-    if (x > 5)
-    {
-        return x;
-    }
-    else
-    {
+    if (x > 5) {
+	      return x;
+    } else {
         return await countTo6(x + 1);
     }
 }
 
-async function main()
-{
-    return await countTo6(1);
+async function main() {
+	  return await countTo6(1);
 }
 
-main().then(v => console.log('done! answer = ' + v));
+main().then(v => console.log("done! answer = " + v));
 
 console.log('***************** event loop first tick ***********************');

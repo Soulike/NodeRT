@@ -13,5 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-var a = {'x': 1};
-a.x = 100 > 0 ? 1 : 0;
+var a = {"x":1};
+a.x = 100>0?1:0;

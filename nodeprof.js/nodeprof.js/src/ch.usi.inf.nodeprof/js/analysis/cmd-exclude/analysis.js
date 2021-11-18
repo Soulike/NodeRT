@@ -14,18 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-//DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function FieldTest()
-        {
-            console.log('Loading FieldTest..');
-            this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
-            {
-                console.log('all code should be excluded!');
-            };
-        }
-
-        sandbox.addAnalysis(new FieldTest());
-    }
+ //DO NOT INSTRUMENT
+((function(sandbox){
+  function FieldTest() {
+    console.log('Loading FieldTest..');
+    this.getField = function(iid, base, offset, val, isComputed, isOpAssign, isMethodCall) {
+      console.log('all code should be excluded!');
+    };
+  }
+  sandbox.addAnalysis(new FieldTest());
+}
 )(J$));

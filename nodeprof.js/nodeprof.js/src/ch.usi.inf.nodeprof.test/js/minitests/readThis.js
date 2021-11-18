@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-(function ()
-{
-    function Foo()
-    {
-        let self = this;
-        self.a = 0;
-    }
+(function() {
+function Foo(){
+    let self = this;
+    self.a = 0;
+}
 
-    let foo = new Foo();
+let foo = new Foo();
 
-    function bar()
-    {
-        return this;
-    }
-
-    let baz = bar();
+function bar() {
+  return this;
+}
+let baz = bar();
 })();

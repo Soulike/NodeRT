@@ -15,34 +15,23 @@
  *******************************************************************************/
 
 // DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function TestBuiltin()
-        {
-            function getLocation(iid)
-            {
-                if (typeof Graal === 'object')
-                {
-                    return sandbox.iidToLocation(iid);
-                }
-                else
-                {
-                    return sandbox.iidToLocation(sandbox.sid, iid);
-                }
-            }
-
-            this.builtinEnter = function (builtinName, func, base, args)
-            {
-                if (builtinName && builtinName.indexOf('Promise') > -1)
-                {
-                    J$.nativeLog('builtin used ' + builtinName);
-                }
-            };
-            this.invokeFunPre = function (iid, func, base, args)
-            {
-                J$.nativeLog('invoking ' + getLocation(iid) + ' ' + func.name);
-            }
-        };
-        sandbox.addAnalysis(new TestBuiltin(), {includes: "builtin"});
+((function(sandbox){
+  function TestBuiltin() {
+    function getLocation(iid) {
+      if (typeof Graal === 'object')
+        return sandbox.iidToLocation(iid);
+      else
+        return sandbox.iidToLocation(sandbox.sid, iid);
     }
+    this.builtinEnter = function(builtinName, func, base, args){
+      if(builtinName && builtinName.indexOf("Promise") > -1){
+        J$.nativeLog("builtin used "+builtinName);
+      }
+    }
+    this.invokeFunPre = function(iid, func, base, args){
+      J$.nativeLog("invoking "+getLocation(iid)+" "+func.name);
+    }
+  };
+  sandbox.addAnalysis(new TestBuiltin(), {includes:"builtin"});
+}
 )(J$));

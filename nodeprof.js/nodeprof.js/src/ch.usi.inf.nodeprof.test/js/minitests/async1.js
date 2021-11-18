@@ -15,11 +15,8 @@
  *******************************************************************************/
 
 (
-    async function foo(v)
-    {
-        if (v < 1)
-        {
-            return await foo(v + 1);
-        }
+    async function foo(v) { 
+        if (v < 1) {
+            return await foo(v+1);} 
     }
 )(0);

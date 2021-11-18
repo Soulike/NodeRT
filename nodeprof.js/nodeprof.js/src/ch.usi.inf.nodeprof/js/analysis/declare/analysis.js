@@ -14,22 +14,17 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
-        this.declare = function (iid, name, type)
-        {
+(function (sandbox) {
+    function MyAnalysis() {
+        this.declare = function (iid, name, type) {
             console.log(`declare ${J$.iidToLocation(iid)}::${name} ${type}`);
         };
-        this.read = function (iid, name, val)
-        {
-            console.log('read', J$.iidToLocation(iid), name, val);
-        };
-        this.write = function (iid, name, val)
-        {
-            console.log('write', J$.iidToLocation(iid), name, val);
-        };
+        this.read = function(iid, name, val) {
+            console.log("read", J$.iidToLocation(iid), name, val);
+        }
+        this.write = function(iid, name, val) {
+            console.log("write", J$.iidToLocation(iid), name, val);
+        }
     }
 
     sandbox.analysis = new MyAnalysis();

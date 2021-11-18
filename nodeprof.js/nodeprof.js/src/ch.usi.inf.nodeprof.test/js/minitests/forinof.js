@@ -1,14 +1,12 @@
 let obj = {
-    x: 'valueX',
-    y: 'valueY',
+    x:'valueX', 
+    y:'valueY',
 };
 
-for (let key in obj)
-{
+for (let key in obj) {
 }
 
-let arr = [41, 42, 43];
+let arr = [41,42,43];
 
-for (let val of arr)
-{
+for (let val of arr) {
 }

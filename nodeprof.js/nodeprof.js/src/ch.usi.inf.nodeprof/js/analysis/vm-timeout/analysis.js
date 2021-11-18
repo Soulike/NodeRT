@@ -14,32 +14,18 @@
  * limitations under the License.
  *******************************************************************************/
 // DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
-        const funcNameFilter = new Set(['foo', 'insideVM']);
-        this.functionEnter = function (iid, f, dis, args)
-        {
-            if (!funcNameFilter.has(f.name))
-            {
-                return;
-            }
-            console.log('functionEnter: %s / %s / %d', f.name, J$.iidToLocation(iid), arguments.length);
-            if (f.name === 'insideVM')
-            {
-                // run until runInContext times out
-                (function ()
-                {
-                    let i = 0;
-                    while (true)
-                    {
-                        i++;
-                    }
-                })();
-            }
-        };
-    }
-
-    sandbox.addAnalysis(new MyAnalysis());
+(function (sandbox) {
+  function MyAnalysis() {
+    const funcNameFilter = new Set(['foo', 'insideVM'])
+    this.functionEnter = function (iid, f, dis, args) {
+      if (!funcNameFilter.has(f.name))
+        return
+      console.log("functionEnter: %s / %s / %d", f.name, J$.iidToLocation(iid), arguments.length);
+      if (f.name === 'insideVM') {
+        // run until runInContext times out
+        (function () { let i = 0; while (true) i++; })();
+      }
+    };
+  }
+  sandbox.addAnalysis(new MyAnalysis());
 })(J$);

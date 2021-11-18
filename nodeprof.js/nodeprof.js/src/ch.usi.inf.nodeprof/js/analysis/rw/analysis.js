@@ -15,28 +15,22 @@
  *******************************************************************************/
 
 // DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function RW()
-        {
-            this.read = function (iid, name, val)
-            {
-                console.log('read', J$.iidToLocation(iid), name, typeof (val));
-            };
-            this.write = function (iid, name, val)
-            {
-                console.log('write', J$.iidToLocation(iid), name, typeof (val));
-            };
-            this.functionEnter = function (iid, f, dis, args)
-            {
-                if (!f.name)
-                {
-                    return;
-                }
-                const disStr = dis === global ? global.toString() : dis;
-                console.log('functionEnter', J$.iidToLocation(iid), f.name, disStr, args);
-            };
-        };
-        sandbox.addAnalysis(new RW());
+((function(sandbox){
+  function RW() {
+    this.read = function(iid, name, val){
+        console.log('read', J$.iidToLocation(iid), name, typeof(val));
     }
+    this.write = function(iid, name, val){
+        console.log('write', J$.iidToLocation(iid), name, typeof(val));
+    }
+    this.functionEnter = function (iid, f, dis, args) {
+      if (!f.name) {
+        return;
+      }
+      const disStr = dis === global ? global.toString() : dis;
+      console.log('functionEnter', J$.iidToLocation(iid), f.name, disStr, args);
+    }
+  };
+  sandbox.addAnalysis(new RW());
+}
 )(J$));

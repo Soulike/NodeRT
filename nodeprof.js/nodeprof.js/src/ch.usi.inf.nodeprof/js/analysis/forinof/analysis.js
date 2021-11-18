@@ -15,19 +15,15 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
+(function (sandbox) {
+    function MyAnalysis() {
         let lastExprResult;
-        this.forObject = function (iid, isForIn)
-        {
+        this.forObject = function (iid, isForIn) {
             console.log('forObject@', J$.iidToLocation(iid), isForIn, lastExprResult);
-        };
-        this.endExpression = function (iid, type, result)
-        {
+        }
+        this.endExpression = function (iid, type, result) {
             lastExprResult = result;
-        };
+        }
     }
 
     sandbox.analysis = new MyAnalysis();

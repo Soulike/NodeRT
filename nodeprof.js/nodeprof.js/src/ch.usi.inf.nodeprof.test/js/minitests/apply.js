@@ -14,19 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function foo(a)
-{
+function foo(a) {
     return a;
 }
-
-function bar()
-{
+function bar() {
     return foo.apply(undefined, arguments);
 }
-
-function baz(a)
-{
+function baz(a) {
     return a;
 }
-
 baz(bar(1));

@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-var foo = function ()
-{
-};
+var foo = function(){};
 var o = {
-    oFunc: function ()
-    {
-        function func()
-        {
-        };
-        var arrow = () =>
-        {
-            escape(this);
-        };
-        func();
-        arrow();
-    },
+  oFunc: function() {
+    function func() {};
+    var arrow = () => {
+      escape(this);
+    };
+    func();
+    arrow();
+  }
 };
 o.oFunc();

@@ -16,30 +16,27 @@
 
 let bar = 1; // statement-end (discard)
 
-['42'].forEach(x =>
-{
-    switch (x)
-    { // switch discriminant: extra statement-end (discard)
-        case 1:
-            break;
-        default:
-            bar--; // statement-end (discard)
-        case 1 + bar:
-            foo = 2; // statement-end (discard)
-            break;
-        case '42' + bar:
-            'foo' + 'bar';
-            break;
-    } // TODO: switch is not a statement
+['42'].forEach(x => {
+  switch (x) { // switch discriminant: extra statement-end (discard)
+    case 1:
+      break;
+    default:
+      bar--; // statement-end (discard)
+    case 1 + bar:
+      foo = 2; // statement-end (discard)
+      break;
+    case '42' + bar:
+      'foo' + 'bar';
+      break;
+} // TODO: switch is not a statement
 }); // statement-end (discard)
 
-switch (foo + 1)
-{ // switch discriminant: extra statement-end (discard)
-    case 3: // conditional: extra statement-end (discard)
-        bar--; // statement-end (discard)
-        console.log(bar); // statement-end (discard)
-        break;
-    default:
-        bar--;
-        break;
+switch (foo + 1) { // switch discriminant: extra statement-end (discard)
+  case 3: // conditional: extra statement-end (discard)
+    bar--; // statement-end (discard)
+    console.log(bar); // statement-end (discard)
+    break;
+  default:
+    bar--;
+    break;
 } // TODO: switch is not a statement

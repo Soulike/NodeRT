@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-class Base
-{
-    constructor()
-    {
-        this.someObj = {};
-    }
-
-    def()
-    {
-        console.log(this.someObj);
-    }
+class Base {
+  constructor(){
+    this.someObj = {};
+  }
+  def(){
+    console.log(this.someObj);
+  }
 }
 
-class Bar extends Base
-{
-    use()
-    {
-        super.def();
-    }
+class Bar extends Base{
+  use() {
+    super.def();
+  }
 }
 
 var bar = new Bar();

@@ -15,62 +15,44 @@
  * limitations under the License.
  *******************************************************************************/
 
-function foo()
-{
-    throw 'this is an exception';
+function foo(){
+  throw "this is an exception";
 };
 
-function bar()
-{
-    throw new Error('this is an error');
+function bar(){
+  throw new Error("this is an error");
 };
 
-function baz()
-{
-    throw undefined;
+function baz(){
+  throw undefined;
 };
 
-try
-{
-    foo();
-}
-catch (e)
-{
-    console.log('exception: ' + e);
+try {
+  foo();
+}catch(e){
+  console.log("exception: "+e);
 }
 
-try
-{
-    bar();
-}
-catch (e)
-{
-    console.log('exception: ' + e);
+try {
+  bar();
+}catch(e){
+  console.log("exception: "+e);
 }
 
-try
-{
-    baz();
-}
-catch (e)
-{
-    console.log('exception: ' + e);
+try {
+  baz();
+}catch(e){
+  console.log("exception: "+e);
 }
 
-(function ()
-{
-    try
-    {
-        throw Error('with finally');
-        return 'nope';
-    }
-    catch (e)
-    {
-        return 42;
-    }
-    finally
-    {
-        return 43;
-    }
-    return 'nope';
+(function() {
+ try {
+   throw Error("with finally");
+   return 'nope';
+ } catch(e) {
+   return 42;
+ } finally {
+   return 43;
+ }
+ return 'nope';
 })();

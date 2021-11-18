@@ -3,19 +3,17 @@
 An efficient instrumentation and profiling framework for [Graal.js](https://github.com/graalvm/graaljs).
 
 ## Getting Started
-
 Get the [mx](https://github.com/graalvm/mx) build tool:
 
 ```
 git clone https://github.com/graalvm/mx.git
 ```
 
-Download and set the JAVA_HOME to the given JDK needed for building:
+Use mx to download a JDK for building GraalVM and set the JAVA_HOME environment variable accordingly:
 
 ```
-wget https://github.com/graalvm/openjdk8-jvmci-builder/releases/download/jvmci-0.46/openjdk-8u172-jvmci-0.46-linux-amd64.tar.gz
-tar xvf openjdk-8u172-jvmci-0.46-linux-amd64.tar.gz
-export JAVA_HOME=PATH_TO_THIS_JDK
+mx fetch-jdk --java-distribution labsjdk-ce-11
+export JAVA_HOME=PATH_TO_THE_DOWNLOADED_JDK
 ```
 
 Get dependent projects and build:
@@ -30,7 +28,6 @@ mx build
 ```
 
 Run tests:
-
 ```
 mx test-all
 ```
@@ -38,21 +35,18 @@ mx test-all
 Detailed explanation can be found in the [Tutorial](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/Tutorial.md);
 
 ## Goals
-
 The goals of NodeProf are:
 
-* Use AST-level instrumentation which can benefit from the partial evaluation of the Graal compiler and have a much
-  lower overhead compared to source-code instrumentation framework such as Jalangi
-* Compatible to analysis written in
-  Jalangi [detail](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/Difference.md).
+* Use AST-level instrumentation which can benefit from the partial evaluation of the Graal compiler and have a much lower overhead compared to source-code instrumentation framework such as Jalangi
+* Compatible to analysis written in Jalangi [detail](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/Difference.md).
 * Comprehensive coverage for NPM modules and Node.js libraries.
 * Compliant to the latest ECMAScript specification (thanks to Graal.js)
 
 ## Author
 
 * Haiyang Sun
-    - haiyang.sun@usi.ch
-    - Università della Svizzera italiana (USI), Lugano, Switzerland
+	- haiyang.sun@usi.ch
+	- Università della Svizzera italiana (USI), Lugano, Switzerland
 
 ## Publication
 
@@ -66,5 +60,4 @@ NodeProf is available under the following license:
 
 ## Acknowledgement
 
-Thanks to Daniele Bonetta, Alexander Jordan, and Christian Humer from Oracle Labs for the help during the
-implementation.
+Thanks to Daniele Bonetta, Alexander Jordan, and Christian Humer from Oracle Labs for the help during the implementation.

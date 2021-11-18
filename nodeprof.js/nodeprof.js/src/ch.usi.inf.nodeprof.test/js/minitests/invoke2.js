@@ -13,31 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function foo(a)
-{
-    return a;
+function foo(a){
+  return a;
 }
-
-function bar(b)
-{
-    return b;
+function bar(b){
+  return b;
 }
-
-function run()
-{
-    this.f();
+function run() {
+  this.f();
 }
-
-function T()
-{
-    this.f = foo;
-    this.r = run;
+function T() {
+  this.f = foo;
+  this.r = run;
 }
-
-for (var i = 0; i < 2; i++)
-{
-    var t = new T();
-    t.r();
-    t.f = bar;
-    t.r();
+for(var i = 0; i < 2; i++) {
+  var t = new T();
+  t.r();
+  t.f = bar;
+  t.r();
 }

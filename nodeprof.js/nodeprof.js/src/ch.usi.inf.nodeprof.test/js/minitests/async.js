@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-async function foo()
-{
+async function foo() {
     return 42;
 }
 
-(async () =>
-{
-    let writeVal = await foo();
-    return await 43 + await foo();
-})();
+(async()=>{let writeVal = await foo(); return await 43 + await foo();})()
 
 console.log('#####');

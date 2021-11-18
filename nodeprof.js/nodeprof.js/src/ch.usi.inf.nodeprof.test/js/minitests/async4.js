@@ -14,21 +14,18 @@
  * limitations under the License.
  *******************************************************************************/
 
-async function func1(x)
-{
+async function func1(x) {
     console.log('func1', x);
     await func2(x);
     await func2(x);
 }
 
-async function func2(x)
-{
+async function func2(x) {
     console.log('func2', x);
     return await func3(x);
 }
 
-async function func3(x)
-{
+async function func3(x) {
     console.log('func3', x);
     return x;
 }

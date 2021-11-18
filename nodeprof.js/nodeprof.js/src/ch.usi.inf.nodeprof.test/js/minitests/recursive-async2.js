@@ -15,28 +15,22 @@
  * limitations under the License.
  *******************************************************************************/
 
-async function fib(x)
-{
+async function fib(x) {
     console.log('in fib', x);
-    process.nextTick(() =>
-    {
+    process.nextTick(()=>{
         console.log('in fib', x);
     });
-    if (x < 2)
-    {
-        return x;
-    }
-    else
-    {
-        return await fib(x - 1) + await fib(x - 2);
+    if (x < 2) {
+	      return x;
+    } else {
+        return await fib(x-1) + await fib(x-2);
     }
 }
 
-async function main()
-{
-    return await fib(4);
+async function main() {
+	  return await fib(4);
 }
 
-main().then(v => console.log('done! answer = ' + v));
+main().then(v => console.log("done! answer = " + v));
 
 console.log('***************** event loop first tick ***********************');

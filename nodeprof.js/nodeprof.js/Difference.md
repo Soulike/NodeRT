@@ -1,8 +1,7 @@
 ## API Differences compared to Jalangi
 
-NodeProf supports most of the callbacks of Jalangi and can run existing Jalangi analysis using these callbacks without
-modification. NodeProf also supports several features not supported by Jalangi. Details can be found in the following
-sections.
+NodeProf supports most of the callbacks of Jalangi and can run existing Jalangi analysis using these callbacks without modification.
+NodeProf also supports several features not supported by Jalangi. Details can be found in the following sections.
 
 ### Extra features supported in NodeProf
 
@@ -53,11 +52,9 @@ this.newSource = function (name, source) {
 ```
 
 Examples can be found:
-[1](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/src/ch.usi.inf.nodeprof/js/analysis/extra-features/extra.js)
-, [2](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/src/ch.usi.inf.nodeprof/js/analysis/builtin-feature/analysis.js)
+[1](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/src/ch.usi.inf.nodeprof/js/analysis/extra-features/extra.js), [2](https://github.com/Haiyang-Sun/nodeprof.js/blob/master/src/ch.usi.inf.nodeprof/js/analysis/builtin-feature/analysis.js)
 
 #### Expressions and Statements (endExpression replacement)
-
 NodeProf adds the following callbacks in favor of `endExpression`:
 
 ```
@@ -71,14 +68,16 @@ this.endStatement = function (iid, type) {
 };
 ```
 
-Note that the callback behavior may depend on Graal.js internals and NodeProf cannot guarantee that type values will
-remain stable over time. Analyses relying on these callbacks should be defensive and check that their behavior
+Note that the callback behavior may depend on Graal.js internals and NodeProf 
+cannot guarantee that type values will remain stable over time. Analyses
+relying on these callbacks should be defensive and check that their behavior
 and `type` values are consistent with expectations.
+
 
 #### Source selection (selective instrumentation)
 
-NodeProf supports selecting source files for instrumentation if their name is matched by a string in an inclusion (or
-exclusion) list provided when registering the analysis object:
+NodeProf supports selecting source files for instrumentation if their name is matched by a string
+in an inclusion (or exclusion) list provided when registering the analysis object:
 
 ```
 sandbox.addAnalysis(new MyAnalysis(), {excludes: 'badSource.js'});
@@ -89,9 +88,8 @@ Details can be found in the [tutorial](Tutorial.md).
 ### Jalangi features not yet supported
 
 #### Changing the return value:
+Jalangi can change the return value of an event by returning a specific object, e.g., {result: XXX} in the callback. This is not yet supported in NodeProf.
 
-Jalangi can change the return value of an event by returning a specific object, e.g., {result: XXX} in the callback.
-This is not yet supported in NodeProf.
 
 #### Callbacks to be added:
 
@@ -107,7 +105,7 @@ This is not yet supported in NodeProf.
 
 - ``` this.onReady = function (cb) ```
 
-#### Discarded callbacks due to the difference in instrumentation:
+####  Discarded callbacks due to the difference in instrumentation:
 
 - ``` this.scriptEnter = function (iid, instrumentedFileName, originalFileName) ```
 

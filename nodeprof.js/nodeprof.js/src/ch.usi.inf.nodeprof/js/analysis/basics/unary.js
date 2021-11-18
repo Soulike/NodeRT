@@ -13,33 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-//DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function FieldTest()
-        {
-            function getLocation(sid, iid)
-            {
-                if (typeof Graal === 'object')
-                {
-                    return J$.iidToLocation(iid);
-                }
-                else
-                {
-                    return J$.iidToLocation(sid, iid);
-                }
-            }
-
-            this.unary = function (iid, op, val)
-            {
-                console.log('unary ' + getLocation(J$.sid, iid) + ' ' + op + ' ' + typeof val);
-                if (op == 'delete')
-                {
-                    console.log("delete key: " + val[1]);
-                }
-            };
-        }
-
-        sandbox.analysis = new FieldTest();
+ //DO NOT INSTRUMENT
+((function(sandbox){
+  function FieldTest() {
+    function getLocation(sid, iid) {
+      if (typeof Graal === 'object')
+        return  J$.iidToLocation(iid);
+      else
+        return J$.iidToLocation(sid, iid);
     }
+    this.unary = function (iid, op, val) {
+      console.log("unary "+getLocation(J$.sid, iid)+" "+op+" "+typeof val);
+      if(op == "delete"){
+        console.log("delete key: "+val[1]);
+      }
+    };
+  }
+  sandbox.analysis = new FieldTest();
+}
 )(J$));

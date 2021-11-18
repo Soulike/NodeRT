@@ -15,65 +15,49 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-(function (sandbox)
-{
-    function MyAnalysis()
-    {
+(function (sandbox) {
+    function MyAnalysis() {
         let promises = new Map();
 
-        function getPromiseId(p)
-        {
+        function getPromiseId(p) {
             if (!(p instanceof Promise))
-            {
                 return p;
-            }
-            if (!promises.has(p))
-            {
-                promises.set(p, '<p' + promises.size + '>');
+            if (!promises.has(p)) {
+                promises.set(p, '<p'+promises.size+'>');
             }
             return promises.get(p);
         }
 
-        this.functionEnter = function (iid, f, base, args)
-        {
-            console.log('functionEnter@ ' + J$.iidToLocation(iid));
+        this.functionEnter = function (iid, f, base, args) {
+            console.log("functionEnter@ " + J$.iidToLocation(iid));
         };
-        this.functionExit = function (iid, result, exception)
-        {
-            console.log('functionExit@ ' + J$.iidToLocation(iid), result, exception);
+        this.functionExit = function (iid, result, exception) {
+            console.log("functionExit@ " + J$.iidToLocation(iid), result, exception);
         };
-        this.asyncFunctionEnter = function (iid)
-        {
+        this.asyncFunctionEnter = function(iid) {
             console.log('asyncEnter', J$.iidToLocation(iid));
-        };
-        this.asyncFunctionExit = function (iid, returnVal, wrappedException)
-        {
+        }
+        this.asyncFunctionExit = function(iid, returnVal, wrappedException) {
             console.log('asyncExit', J$.iidToLocation(iid), returnVal, wrappedException);
-        };
-        this.awaitPre = function (iid, valAwaited)
-        {
+        }
+        this.awaitPre = function(iid, valAwaited) {
             console.log('awaitPre', J$.iidToLocation(iid), getPromiseId(valAwaited));
-        };
-        this.awaitPost = function (iid, valAwaited, result, rejected)
-        {
-            console.log('awaitPost', J$.iidToLocation(iid), getPromiseId(valAwaited), getPromiseId(result), rejected ? 'rejected' : 'resolved');
-        };
-        this.binary = function (iid, op, left, right, result)
-        {
+        }
+        this.awaitPost = function(iid, valAwaited, result, rejected) {
+            console.log('awaitPost', J$.iidToLocation(iid), getPromiseId(valAwaited), getPromiseId(result), rejected?"rejected":"resolved");
+        }
+        this.binary = function(iid, op, left, right, result) {
             console.log('binary', left, op, right, '=', result);
-        };
-        this.write = function (iid, name, val)
-        {
+        }
+        this.write = function(iid, name, val) {
             console.log('write', J$.iidToLocation(iid), name, val);
-        };
-        this._return = function (iid, val)
-        {
+        }
+        this._return = function(iid, val) {
             console.log('return', J$.iidToLocation(iid), val);
-        };
-        this.conditional = function (iid, cond)
-        {
+        }
+        this.conditional = function(iid, cond) {
             console.log('conditional', J$.iidToLocation(iid), cond);
-        };
+        }
     }
 
     sandbox.analysis = new MyAnalysis();

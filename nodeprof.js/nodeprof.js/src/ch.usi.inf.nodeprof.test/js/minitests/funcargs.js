@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function foo()
-{
-    this.bar = function ()
-    {
-    };
+function foo() {
+  this.bar = function(){}
 }
 
-foo(1, 2, 3);
+foo(1,2,3)
 
-var f = new foo(4, 5, 6);
+var f = new foo(4,5,6);
 
-f.bar(7, 8, 9);
+f.bar(7,8,9)

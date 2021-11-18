@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function fib(n)
-{
+function fib(n){
     if (n < 2)
-    {
         return n;
-    }
-    return fib(n - 1) + fib(n - 2);
+    return fib(n-1)+fib(n-2);
 }
 
 fib(10);

@@ -17,60 +17,47 @@
 
 const path = require('path');
 
-((function (sandbox)
-    {
-        function TestEval()
-        {
-            this.cache = null;
-            this.evalPre = function (iid, str)
-            {
-                console.log('pre ' + str);
-            };
-            this.evalPost = function (iid, str, ret)
-            {
-                console.log('post ' + str);
-                if (ret)
-                {
-                    console.log('post implicit ret: ' + ret);
-                }
-            };
-            this.evalFunctionPost = function (args, ret)
-            {
-                console.log('new Function body ' + args[0]);
-                console.log('result function: ' + ret.name);
-                this.cache = ret;
-            };
-            this.invokeFun = function (iid, func, base, args, result)
-            {
-                console.log('invoking func: ' + func.name);
-                if (func.name == 'foo')
-                {
-                    var match = J$.iidToLocation(iid).match(/eval(?:func)?[0-9\.]+js:([0-9]+):/);
-                    if (match)
-                    {
-                        var line = match[1];
-                        console.log('location inside eval on line: %d', line);
-                    }
-                    else
-                    {
-                        console.log('failed to find source line in: ', J$.iidToLocation(iid));
-                    }
-                }
-                if (this.cache == func)
-                {
-                    console.log('at end of invocation at %s, result: %d', J$.iidToLocation(iid), result);
-                }
-            };
-
-            this.newSource = function (source, code)
-            {
-                const name = source.name;
-                // count something in source contents to make sure it's there
-                const re = /foo|var/g;
-                console.log('newSource: %s / internal: %s / eval: %s / %d', name, source.internal, 'eval' in source, arguments.length);
-                console.log('newSource matches: %d', (code.match(re) || []).length);
-            };
-        };
-        sandbox.addAnalysis(new TestEval(), {includes: 'eval.js,eval2.js,evalfunc.js'});
+((function(sandbox){
+  function TestEval() {
+    this.cache = null;
+    this.evalPre = function (iid, str) {
+      console.log("pre "+str);
     }
+    this.evalPost = function (iid, str, ret) {
+      console.log("post "+str);
+      if (ret) {
+        console.log("post implicit ret: "+ret);
+      }
+    }
+    this.evalFunctionPost = function(args, ret){
+      console.log("new Function body "+args[0]);
+      console.log("result function: "+ret.name);
+      this.cache = ret;
+    }
+    this.invokeFun = function(iid, func, base, args, result) {
+      console.log("invoking func: "+func.name);
+      if (func.name == 'foo') {
+        var match = J$.iidToLocation(iid).match(/eval(?:func)?[0-9\.]+js:([0-9]+):/);
+        if (match) {
+          var line = match[1];
+          console.log("location inside eval on line: %d", line);
+        } else {
+          console.log("failed to find source line in: ", J$.iidToLocation(iid));
+        }
+      }
+      if(this.cache == func) {
+        console.log("at end of invocation at %s, result: %d", J$.iidToLocation(iid), result);
+      }
+    }
+
+    this.newSource = function (source, code) {
+      const name = source.name;
+      // count something in source contents to make sure it's there
+      const re = /foo|var/g;
+      console.log("newSource: %s / internal: %s / eval: %s / %d", name, source.internal, 'eval' in source, arguments.length);
+      console.log("newSource matches: %d", (code.match(re) || []).length);
+    }
+  };
+  sandbox.addAnalysis(new TestEval(), {includes: 'eval.js,eval2.js,evalfunc.js'});
+}
 )(J$));

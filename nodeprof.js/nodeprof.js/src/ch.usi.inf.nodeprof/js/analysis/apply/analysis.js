@@ -15,17 +15,14 @@
  *******************************************************************************/
 
 // DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function TestApply()
-        {
-            this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod)
-            {
-                funclog = f !== undefined ? f.name : 'undefined';
-                baselog = typeof base === 'function' ? 'func: ' + base.name : String(base);
-                console.log('invokeFunPre: %s / %s / %s / method: %s', funclog, baselog, J$.iidToLocation(iid), isMethod);
-            };
-        };
-        sandbox.addAnalysis(new TestApply());
-    }
+((function(sandbox){
+  function TestApply() {
+    this.invokeFunPre = function (iid, f, base, args, isConstructor, isMethod) {
+      funclog = f !== undefined ? f.name : 'undefined';
+      baselog = typeof base === 'function' ? 'func: ' + base.name : String(base);
+      console.log("invokeFunPre: %s / %s / %s / method: %s", funclog, baselog, J$.iidToLocation(iid), isMethod);
+    };
+  };
+  sandbox.addAnalysis(new TestApply());
+}
 )(J$));

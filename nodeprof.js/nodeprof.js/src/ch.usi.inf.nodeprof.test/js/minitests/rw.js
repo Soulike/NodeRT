@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-let self = this;
-switch (self)
-{
+let self = this
+switch(self){
     case 1:
     default:
 }

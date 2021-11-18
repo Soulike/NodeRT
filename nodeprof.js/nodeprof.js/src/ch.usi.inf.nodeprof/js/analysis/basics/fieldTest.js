@@ -14,36 +14,24 @@
  * limitations under the License.
  *******************************************************************************/
 //DO NOT INSTRUMENT
-((function (sandbox)
-    {
-        function FieldTest()
-        {
-            var assert = require('assert');
-
-            function getLocation(sid, iid)
-            {
-                if (typeof Graal === 'object')
-                    // Truffle-Jalangi has unique IIDs
-                {
-                    return J$.iidToLocation(iid);
-                }
-                else
-                    // Jalangi on V8/Node needs sid
-                {
-                    return J$.iidToLocation(sid, iid);
-                }
-            }
-
-            this.getField = function (iid, base, offset, val, isComputed, isOpAssign, isMethodCall)
-            {
-                console.log('getField @ ', getLocation(J$.sid, iid), ' base type:', typeof (base), ' offset type:', typeof (offset), ' val type:', typeof (val), isComputed, J$.iidToCode(iid));
-            };
-            this.putField = function (iid, base, offset, val, isComputed, isOpAssign)
-            {
-                console.log('putField @ ', getLocation(J$.sid, iid), ' base type:', typeof (base), ' offset type:', typeof (offset), ' val type:', typeof (val), isComputed, J$.iidToCode(iid));
-            };
-        }
-
-        sandbox.analysis = new FieldTest();
+((function(sandbox){
+  function FieldTest() {
+    var assert = require("assert");
+    function getLocation(sid, iid) {
+      if (typeof Graal === 'object')
+        // Truffle-Jalangi has unique IIDs
+        return  J$.iidToLocation(iid);
+      else
+        // Jalangi on V8/Node needs sid
+        return J$.iidToLocation(sid, iid);
     }
+    this.getField = function(iid, base, offset, val, isComputed, isOpAssign, isMethodCall) {
+      console.log("getField @ ", getLocation(J$.sid, iid), " base type:",typeof(base), " offset type:", typeof(offset), " val type:", typeof(val), isComputed, J$.iidToCode(iid));
+    };
+    this.putField = function (iid, base, offset, val, isComputed, isOpAssign) {
+      console.log("putField @ ", getLocation(J$.sid, iid)," base type:",typeof(base), " offset type:", typeof(offset), " val type:", typeof(val), isComputed, J$.iidToCode(iid));
+    };
+  }
+  sandbox.analysis = new FieldTest();
+}
 )(J$));

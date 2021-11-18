@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-function* binaryOnYield()
-{
+function* binaryOnYield() {
     1 && (yield 42);
     1 + (yield 43);
     1 && 2;
 }
 
-for (let k of binaryOnYield())
-{
+for (let k of binaryOnYield()){
     console.log(k);
 }

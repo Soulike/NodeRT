@@ -13,10 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-var a = {
-    x: 0,
-    y: function ()
-    {
-    },
-};
+var a = {x:0, y:function(){}};
 a.x = a.y();

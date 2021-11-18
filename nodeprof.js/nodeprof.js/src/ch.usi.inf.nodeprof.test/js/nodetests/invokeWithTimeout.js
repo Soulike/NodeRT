@@ -14,16 +14,11 @@
  * limitations under the License.
  *******************************************************************************/
 
-function foo()
-{
-    return 'bar';
+function foo(){ return 'bar';
 }
 
 foo(1);
 
 foo(2);
 
-setTimeout(function ()
-{
-    foo(3);
-}, 100);
+setTimeout(function(){foo(3);}, 100);
