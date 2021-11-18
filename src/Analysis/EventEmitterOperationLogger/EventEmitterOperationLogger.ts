@@ -51,10 +51,13 @@ export class EventEmitterOperationLogger extends Analysis
                 else if (f === EventEmitter.prototype.removeAllListeners)
                 {
                     const [event] = args as Parameters<typeof EventEmitter.prototype.removeAllListeners>;
-                    if (event !== undefined && base.listenerCount(event) !== 0)
+                    if (event !== undefined)
                     {
-                        EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
-                            base.listeners(event), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        if (base.listenerCount(event) !== 0)
+                        {
+                            EventEmitterLogStore.appendOperation(base, event, 'write', 'removeListener',
+                                base.listeners(event), getSourceCodeInfoFromIid(iid, this.getSandbox()));
+                        }
                     }
                     else
                     {
