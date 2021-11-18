@@ -148,6 +148,8 @@ export class AsyncCalledFunctionInfo
                 // Ignore async context introduced by test framework.
                 if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
                 {
+                    // Fake global. Prevent async context introduced by test framework form race condition with real global
+                    asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
                     break;
                 }
                 currentAsyncContext = currentAsyncContext.asyncContext;
