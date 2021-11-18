@@ -242,7 +242,7 @@ export class Filter
         {
             return false;
         }
-        
+
         // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
         // These initializations won't form race condition.
         if (asyncContext1.asyncType === 'Immediate' && asyncContext1.codeInfo === null
@@ -370,8 +370,19 @@ export class Filter
 
     public static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
     {
-        const {resourceInfo, asyncContextToOperations2} = raceConditionInfo;
+        const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
         assert.ok(resourceInfo instanceof SocketInfo);
+
+        const asyncContext1Operations = asyncContextToOperations1[1]! as readonly SocketOperation[];
+        for (const operation of asyncContext1Operations)
+        {
+            // no operation can be done before construction. no race here
+            if (operation.getOperationKind() === 'construction')
+            {
+                return false;
+            }
+        }
+
         const asyncContext2Operations = asyncContextToOperations2[1]! as readonly SocketOperation[];
 
         if (asyncContext2Operations.length === 1)
