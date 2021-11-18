@@ -4,7 +4,6 @@ import {isPrimitive} from '../../../Util';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
-import assert from 'assert';
 
 export class ObjectOperation extends ResourceOperation
 {
@@ -14,10 +13,6 @@ export class ObjectOperation extends ResourceOperation
     constructor(type: 'read' | 'write', fields: ReadonlySet<unknown>, isConstruction: boolean, stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo | null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
-        if (type === 'read')
-        {
-            assert.ok(!isConstruction);
-        }
         this.fields = fields;
         this.isConstruction = isConstruction;
         StatisticsStore.addObjectOperationCount();
