@@ -15,6 +15,7 @@ import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperati
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
 import {FileOperation} from '../../LogStore/FileLogStore';
+import objectHash from 'object-hash';
 
 export class Filter
 {
@@ -681,12 +682,12 @@ export class Filter
 
         return [
             [
-                JSON.stringify(asyncContextToOperations1[0].codeInfo),
-                JSON.stringify(asyncContextToOperations2[0].codeInfo),
+                objectHash(asyncContextToOperations1[0].codeInfo, {algorithm: 'md5'}),
+                objectHash(asyncContextToOperations2[0].codeInfo, {algorithm: 'md5'}),
             ].join(','),
             [
-                JSON.stringify(asyncContextToOperations2[0].codeInfo),
-                JSON.stringify(asyncContextToOperations1[0].codeInfo),
+                objectHash(asyncContextToOperations2[0].codeInfo, {algorithm: 'md5'}),
+                objectHash(asyncContextToOperations1[0].codeInfo, {algorithm: 'md5'}),
             ].join(','),
         ];
     }
