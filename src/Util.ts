@@ -51,7 +51,9 @@ export function toJSON(object: unknown): string
     catch (e)
     {
         console.error(e);
-        return '';
+        return util.inspect(object, {
+            depth: 5,
+        });
     }
 
 }
