@@ -154,6 +154,10 @@ export class AsyncCalledFunctionInfo
                 }
                 
                 currentAsyncContext = currentAsyncContext.asyncContext;
+                if (asyncContextChainAsyncIdsCache.size === 30) // avoid being too deep
+                {
+                    break;
+                }
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
             return asyncContextChainAsyncIdsCache;
