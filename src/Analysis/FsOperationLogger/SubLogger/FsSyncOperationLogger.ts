@@ -166,10 +166,38 @@ export class FsSyncOperationLogger extends Analysis
                         BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                         this.getSandbox(), iid));
             }
-            else if (f === fs.createReadStream || f === fs.createWriteStream)
+            else if (f === fs.createReadStream)
             {
-                assert.ok(result instanceof Readable || result instanceof Writable);
+                const [path] = args as Parameters<typeof fs.createReadStream>;
+                assert.ok(result instanceof Readable);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
                 StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
+                result.once('close', () =>
+                {
+                    FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'content', this.getSandbox(), iid);
+                });
+            }
+            else if (f === fs.createWriteStream)
+            {
+                const [path, opts] = args as Parameters<typeof fs.createWriteStream>;
+                assert.ok(result instanceof Writable);
+                let operationTypeOnStart: 'read'|'write' = 'read';
+                if (opts === undefined
+                    || typeof opts === 'string'
+                    || opts.flags === undefined)    // 'w' by default
+                {
+                    operationTypeOnStart = 'write';
+                }
+                else
+                {
+                    operationTypeOnStart = opts.flags.includes('w') ? 'write' : 'read';
+                }
+                FileLogStoreAdaptor.appendFileOperation(path, operationTypeOnStart, 'start', 'content', this.getSandbox(), iid);
+                StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
+                result.once('close', () =>
+                {
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                });
             }
             else if (f === fs.fstatSync)
             {
