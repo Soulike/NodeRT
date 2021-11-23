@@ -55,7 +55,6 @@ export class FsSyncOperationLogger extends Analysis
                 const [src, dst] = args as Parameters<typeof fs.copyFileSync
                     | typeof fs.cpSync>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
-                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
             else if (f === fs.renameSync)
@@ -63,8 +62,6 @@ export class FsSyncOperationLogger extends Analysis
                 const [src, dst] = args as Parameters<typeof fs.copyFileSync
                     | typeof fs.cpSync
                     | typeof fs.renameSync>;
-                FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'stat', this.getSandbox(), iid);
-                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
@@ -88,7 +85,6 @@ export class FsSyncOperationLogger extends Analysis
                     | typeof fs.rmdirSync
                     | typeof fs.rmSync
                     | typeof fs.unlinkSync>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
             else if (f === fs.truncateSync)
@@ -214,7 +210,6 @@ export class FsSyncOperationLogger extends Analysis
             if (f === fs.mkdtempSync)
             {
                 const path = result as ReturnType<typeof fs.mkdtempSync>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
             else if (f === fs.openSync)
