@@ -148,16 +148,20 @@ export class FsPromisesOperationLogger extends Analysis
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'content', this.getSandbox(), iid));
             }
             else if (f === fsPromise.access
-                || f === fsPromise.stat)
+                || f === fsPromise.stat
+            || f === fsPromise.lstat)
             {
                 const [path] = args as Parameters<typeof fsPromise.stat
+                    | typeof fsPromise.lstat
                     | typeof fsPromise.access>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'stat', this.getSandbox(), iid));
             }
             else if (f === fsPromise.chmod
-                || f === fsPromise.chown)
+                || f === fsPromise.chown
+                || f === fsPromise.lchmod
+                || f === fsPromise.lchown)
             {
                 const [path] = args as Parameters<typeof fsPromise.chmod>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);

@@ -204,7 +204,9 @@ export class FsAsyncOperationLogger extends Analysis
                 });
             }
             else if (f === fs.chmod
-                || f === fs.chown)
+                || f === fs.chown
+                || f === fs.lchmod
+                || f === fs.lchown)
             {
                 const [path] = args as Parameters<typeof fs.chmod>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
@@ -268,11 +270,13 @@ export class FsAsyncOperationLogger extends Analysis
             }
             else if (f === fs.access
                 || f === fs.exists
-                || f === fs.stat)
+                || f === fs.stat
+                || f === fs.lstat)
             {
                 const [path] = args as Parameters<typeof fs.access
                     | typeof fs.exists
-                    | typeof fs.stat>;
+                    | typeof fs.stat
+                    | typeof fs.lstat>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
                 const callback = args[args.length - 1] as LastParameter<typeof fs.access
                     | typeof fs.exists
