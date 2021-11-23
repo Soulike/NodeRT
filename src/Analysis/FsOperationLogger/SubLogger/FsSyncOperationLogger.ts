@@ -11,6 +11,7 @@ import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 import {Analysis, Hooks, Sandbox} from '../../../Type/nodeprof';
 import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../Util';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
+import {willFileBeCreatedOrTruncated} from '../Util';
 
 export class FsSyncOperationLogger extends Analysis
 {
@@ -48,12 +49,21 @@ export class FsSyncOperationLogger extends Analysis
                 FileLogStore.deleteFd(fd);
             }
             else if (f === fs.copyFileSync
-                || f === fs.cpSync
-                || f === fs.renameSync)
+                || f === fs.cpSync)
+            {
+                const [src, dst] = args as Parameters<typeof fs.copyFileSync
+                    | typeof fs.cpSync>;
+                FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
+            }
+            else if (f === fs.renameSync)
             {
                 const [src, dst] = args as Parameters<typeof fs.copyFileSync
                     | typeof fs.cpSync
                     | typeof fs.renameSync>;
+                FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
@@ -71,14 +81,18 @@ export class FsSyncOperationLogger extends Analysis
             else if (f === fs.mkdirSync
                 || f === fs.rmdirSync
                 || f === fs.rmSync
-                || f === fs.truncateSync
                 || f === fs.unlinkSync)
             {
                 const [path] = args as Parameters<typeof fs.mkdirSync
                     | typeof fs.rmdirSync
                     | typeof fs.rmSync
-                    | typeof fs.truncateSync
                     | typeof fs.unlinkSync>;
+                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+            }
+            else if (f === fs.truncateSync)
+            {
+                const [path] = args as Parameters<typeof fs.truncateSync>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
             else if (f === fs.chmodSync
@@ -91,11 +105,17 @@ export class FsSyncOperationLogger extends Analysis
             else if (f === fs.mkdtempSync)
             {
                 const path = result as ReturnType<typeof fs.mkdtempSync>;
+                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
             }
             else if (f === fs.openSync)
             {
-                const [path] = args as Parameters<typeof fs.openSync>;
+                const [path, flags] = args as Parameters<typeof fs.openSync>;
+                const fileWillBeCreatedOrTruncated = willFileBeCreatedOrTruncated(flags);
+                if (fileWillBeCreatedOrTruncated)
+                {
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                }
                 const fd = result as ReturnType<typeof fs.openSync>;
                 FileLogStore.addFd(fd, path, getSourceCodeInfoFromIid(iid, this.getSandbox()));
             }
@@ -106,9 +126,13 @@ export class FsSyncOperationLogger extends Analysis
             }
             else if (f === fs.accessSync
                 || f === fs.existsSync
-                || f === fs.fstatSync)
+                || f === fs.fstatSync
+                || f === fs.statSync)
             {
-                const [path] = args as Parameters<typeof fs.readdirSync>;
+                const [path] = args as Parameters<typeof fs.accessSync
+                    | typeof fs.existsSync
+                    | typeof fs.fstatSync
+                    | typeof fs.statSync>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'stat', this.getSandbox(), iid);
             }
             else if (f === fs.readFileSync)
@@ -181,7 +205,7 @@ export class FsSyncOperationLogger extends Analysis
             {
                 const [path, opts] = args as Parameters<typeof fs.createWriteStream>;
                 assert.ok(result instanceof Writable);
-                let operationTypeOnStart: 'read'|'write' = 'read';
+                let operationTypeOnStart: 'read' | 'write' = 'read';
                 if (opts === undefined
                     || typeof opts === 'string'
                     || opts.flags === undefined)    // 'w' by default
@@ -198,11 +222,6 @@ export class FsSyncOperationLogger extends Analysis
                 {
                     FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                 });
-            }
-            else if (f === fs.fstatSync)
-            {
-                const [fd] = args as Parameters<typeof fs.fstat>;
-                FileLogStoreAdaptor.appendFileOperation(fd, 'read', 'finish', 'stat', this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
