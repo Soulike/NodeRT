@@ -442,6 +442,7 @@ export class FsAsyncOperationLogger extends Analysis
                     if (err === null)
                     {
                         assert.ok(typeof directory === 'string');
+                        FileLogStoreAdaptor.appendFileOperation(directory, 'write', 'finish', 'stat', this.getSandbox(), iid);
                         FileLogStoreAdaptor.appendFileOperation(directory, 'write', 'finish', 'content', this.getSandbox(), iid);
                     }
                 }
