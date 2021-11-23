@@ -150,14 +150,7 @@ export class AsyncCalledFunctionInfo
 
             asyncContextCopies[asyncContextCopies.length - 1]!.asyncContext = '[Omitted]';
 
-            return {
-                ...this,
-                asyncContext: asyncContextCopies[0],
-                functionWeakRef: undefined,
-                hasWriteOperationOnResourcesSet: undefined,
-                asyncContextChainAsyncIdsCache: undefined,
-                nonTickObjectAsyncIdCache: undefined,
-            };
+            return asyncContextCopies[0];
         }
     }
 
