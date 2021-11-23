@@ -12,6 +12,7 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import assert from 'assert';
 import util from 'util';
+import fs from 'fs';
 
 export class FsPromisesOperationLogger extends Analysis
 {
@@ -55,17 +56,34 @@ export class FsPromisesOperationLogger extends Analysis
                 });
             }
             else if (f === fsPromise.copyFile
-                || f === fsPromise.cp
-                || f === fsPromise.rename)
+                || f === fsPromise.cp)
             {
                 const [src, dst] = args as Parameters<typeof fsPromise.copyFile
-                    | typeof fsPromise.cp
-                    | typeof fsPromise.rename>;
+                    | typeof fsPromise.cp>;
+                FileLogStoreAdaptor.appendFileOperation(src, 'read', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'content', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() =>
+                {
+                    FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
+                });
+
+            }
+            else if (f === fsPromise.rename)
+            {
+                const [src, dst] = args as Parameters<typeof fsPromise.rename>;
+                FileLogStoreAdaptor.appendFileOperation(src, 'read', 'start', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'stat', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'start', 'content', this.getSandbox(), iid);
                 FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {
+                    FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'stat', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'stat', this.getSandbox(), iid);
                     FileLogStoreAdaptor.appendFileOperation(src, 'read', 'finish', 'content', this.getSandbox(), iid);
                     FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'finish', 'content', this.getSandbox(), iid);
                 });
@@ -74,14 +92,24 @@ export class FsPromisesOperationLogger extends Analysis
             else if (f === fsPromise.mkdir
                 || f === fsPromise.rmdir
                 || f === fsPromise.rm
-                || f === fsPromise.truncate
                 || f === fsPromise.unlink)
             {
                 const [path] = args as Parameters<typeof fsPromise.mkdir
                     | typeof fsPromise.rmdir
                     | typeof fsPromise.rm
-                    | typeof fsPromise.truncate
                     | typeof fsPromise.unlink>;
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
+                assert.ok(util.types.isPromise(result));
+                result.finally(() =>
+                {
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                });
+            }
+            else if (f === fsPromise.truncate)
+            {
+                const [path] = args as Parameters<typeof fsPromise.truncate>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid));
@@ -90,13 +118,35 @@ export class FsPromisesOperationLogger extends Analysis
             else if (f === fsPromise.mkdtemp)
             {
                 (result as ReturnType<typeof fsPromise.mkdtemp>).then(
-                    path => FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid));
+                    path =>
+                    {
+                        FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
+                        FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                    });
             }
             else if (f === fsPromise.open)
             {
-                const [path] = args as Parameters<typeof fsPromise.open>;
+                const [path, flags] = args as Parameters<typeof fsPromise.open>;
+                let fileWillBeCreatedOrTruncated = false;
+                if (flags !== undefined)
+                {
+                    fileWillBeCreatedOrTruncated = (typeof flags === 'string' && flags.includes('w'))
+                        || (typeof flags === 'number' && (
+                            flags & (fs.constants.O_CREAT
+                                | fs.constants.O_TRUNC)) !== 0);
+                }
+
+                if (fileWillBeCreatedOrTruncated)
+                {
+                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'content', this.getSandbox(), iid);
+                }
+
                 (result as ReturnType<typeof fsPromise.open>).then(fileHandle =>
                 {
+                    if (fileWillBeCreatedOrTruncated)
+                    {
+                        FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                    }
                     FileLogStore.addFileHandle(fileHandle, path, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
             }
@@ -109,10 +159,10 @@ export class FsPromisesOperationLogger extends Analysis
                 assert.ok(util.types.isPromise(result));
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'content', this.getSandbox(), iid));
             }
-            else if (f === fsPromise.access)
+            else if (f === fsPromise.access
+                || f === fsPromise.stat)
             {
-                const [path] = args as Parameters<typeof fsPromise.readdir
-                    | typeof fsPromise.readFile
+                const [path] = args as Parameters<typeof fsPromise.stat
                     | typeof fsPromise.access>;
                 FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
