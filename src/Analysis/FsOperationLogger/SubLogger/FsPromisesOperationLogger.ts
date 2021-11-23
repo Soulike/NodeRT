@@ -12,7 +12,7 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import assert from 'assert';
 import util from 'util';
-import fs from 'fs';
+import {willFileBeCreatedOrTruncated} from '../Util';
 
 export class FsPromisesOperationLogger extends Analysis
 {
@@ -127,19 +127,7 @@ export class FsPromisesOperationLogger extends Analysis
             else if (f === fsPromise.open)
             {
                 const [path, flags] = args as Parameters<typeof fsPromise.open>;
-                let fileWillBeCreatedOrTruncated = false;
-                if (flags !== undefined)
-                {
-                    fileWillBeCreatedOrTruncated = (typeof flags === 'string' && flags.includes('w'))
-                        || (typeof flags === 'number' && (
-                            flags & (fs.constants.O_CREAT
-                                | fs.constants.O_TRUNC)) !== 0);
-                }
-
-                if (fileWillBeCreatedOrTruncated)
-                {
-                    FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'content', this.getSandbox(), iid);
-                }
+                const fileWillBeCreatedOrTruncated = willFileBeCreatedOrTruncated(flags);
 
                 (result as ReturnType<typeof fsPromise.open>).then(fileHandle =>
                 {

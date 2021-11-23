@@ -12,6 +12,7 @@ import {BufferLike} from '../../Type/BufferLike';
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import asyncHooks from 'async_hooks';
 import {AsyncContextLogStore} from '../../../LogStore/AsyncContextLogStore';
+import {willFileBeCreatedOrTruncated} from '../Util';
 
 interface RegistrationInfo
 {
@@ -225,15 +226,7 @@ export class FsAsyncOperationLogger extends Analysis
             {
                 const [filePath, flags] = args as Parameters<typeof fs.open>;
 
-                let fileWillBeCreatedOrTruncated = false;
-                if (flags !== undefined)
-                {
-                    fileWillBeCreatedOrTruncated = (typeof flags === 'string' && flags.includes('w'))
-                        || (typeof flags === 'number' && (
-                            flags & (fs.constants.O_CREAT
-                                | fs.constants.O_TRUNC)) !== 0);
-                }
-
+                const fileWillBeCreatedOrTruncated = willFileBeCreatedOrTruncated(flags);
                 if (fileWillBeCreatedOrTruncated)
                 {
                     FileLogStoreAdaptor.appendFileOperation(filePath, 'write', 'start', 'content', this.getSandbox(), iid);
