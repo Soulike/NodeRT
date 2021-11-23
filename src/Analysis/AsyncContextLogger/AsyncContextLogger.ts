@@ -94,7 +94,7 @@ export class AsyncContextLogger extends Analysis
                     else
                     {
                         // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                        placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, timerInfo, null);
+                        placeholderAsyncFunction.setInfo(f, placeholderAsyncFunction.stackTrace!, asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, timerInfo, null);
                         if (timerInfo !== null)
                         {
                             if (timerInfo.type === 'timeout')
@@ -115,13 +115,13 @@ export class AsyncContextLogger extends Analysis
                     const immediateInfo = ImmediateLogStore.getImmediateInfo(triggerAsyncFunction, f);
 
                     // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                    placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null, immediateInfo);
+                    placeholderAsyncFunction.setInfo(f, placeholderAsyncFunction.stackTrace!, asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null, immediateInfo);
                     ImmediateLogStore.deleteImmediateInfo(triggerAsyncFunction, f);
                 }
                 else
                 {
                     // because asyncHookInit may be called before functionEnter, we must modify placeholderAsyncFunction directly
-                    placeholderAsyncFunction.setInfo(f, CallStackLogStore.getCallStack(), asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null, null);
+                    placeholderAsyncFunction.setInfo(f, placeholderAsyncFunction.stackTrace!, asyncId, placeholderAsyncFunction.asyncType, triggerAsyncFunction, sourceCodeInfo, null, null);
                 }
 
                 this.asyncContextChanged = false;
@@ -146,7 +146,7 @@ export class AsyncContextLogger extends Analysis
         }
         if (asyncId !== AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID && asyncId !== AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID)
         {
-            const placeholderAsyncFunction = new AsyncCalledFunctionInfo(null, null, asyncId, type, triggerAsyncFunction, null, null, null);
+            const placeholderAsyncFunction = new AsyncCalledFunctionInfo(null, CallStackLogStore.getCallStack(), asyncId, type, triggerAsyncFunction, null, null, null);
             AsyncContextLogStore.setAsyncIdToAsyncContext(asyncId, placeholderAsyncFunction); // should be overwritten by functionEnter() if there is a function call
         }
 
