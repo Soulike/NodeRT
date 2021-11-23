@@ -10,6 +10,7 @@ import {getSourceCodeInfoFromIid, isBufferLike, shouldBeVerbose} from '../../../
 import {FileLogStoreAdaptor} from '../FileLogStoreAdaptor';
 import assert from 'assert';
 import util from 'util';
+import {StreamLogStore} from '../../../LogStore/StreamLogStore';
 
 export class FileHandleOperationLogger extends Analysis
 {
@@ -60,6 +61,32 @@ export class FileHandleOperationLogger extends Analysis
                 {
                     (result as ReturnType<typeof fileHandle.close>).then(
                         () => FileLogStore.deleteFileHandle(fileHandle));
+                }
+                else if (f === fileHandle.createReadStream)
+                {
+                    const stream = result as ReturnType<typeof fileHandle.createReadStream>;
+                    StreamLogStore.appendStreamOperation(stream, 'write',
+                        'construction', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start',
+                        'content', this.getSandbox(), iid);
+                    stream.on('close', () =>
+                    {
+                        FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'finish',
+                            'content', this.getSandbox(), iid);
+                    });
+                }
+                else if (f === fileHandle.createWriteStream)    // TODO: fsPromise.open 打开模式的记录
+                {
+                    const stream = result as ReturnType<typeof fileHandle.createWriteStream>;
+                    StreamLogStore.appendStreamOperation(stream, 'write',
+                        'construction', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start',
+                        'content', this.getSandbox(), iid);
+                    stream.on('close', () =>
+                    {
+                        FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'finish',
+                            'content', this.getSandbox(), iid);
+                    });
                 }
                 else if (f === fileHandle.read)
                 {
