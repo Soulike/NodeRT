@@ -109,6 +109,17 @@ export class AsyncCalledFunctionInfo
         }
     }
 
+    private getPlainCopy(): Record<keyof AsyncCalledFunctionInfo, any>
+    {
+        return {
+            ...this,
+            functionWeakRef: undefined,
+            hasWriteOperationOnResourcesSet: undefined,
+            asyncContextChainAsyncIdsCache: undefined,
+            nonTickObjectAsyncIdCache: undefined,
+        };
+    }
+
     public toJSON()
     {
         if (this.codeInfo === null && this.asyncType === 'Immediate')
@@ -117,8 +128,31 @@ export class AsyncCalledFunctionInfo
         }
         else
         {
+            // prevent the chain from being too long to output
+            const asyncContextMaxDepth = 20;
+            const asyncContextCopies: Record<keyof AsyncCalledFunctionInfo, any>[] = [];
+            
+            let currentAsyncContextDepth = 1;
+            let currentAsyncContextCopy = this.getPlainCopy();
+            asyncContextCopies.push(currentAsyncContextCopy);
+
+            while (currentAsyncContextCopy.asyncContext !== null && currentAsyncContextDepth < asyncContextMaxDepth)
+            {
+                currentAsyncContextCopy = currentAsyncContextCopy.asyncContext.getPlainCopy();
+                asyncContextCopies.push(currentAsyncContextCopy);
+                currentAsyncContextDepth++;
+            }
+
+            for (let i = 0; i < asyncContextCopies.length-1; i++)
+            {
+                asyncContextCopies[i]!.asyncContext = asyncContextCopies[i + 1];
+            }
+
+            asyncContextCopies[asyncContextCopies.length - 1]!.asyncContext = null;
+
             return {
                 ...this,
+                asyncContext: asyncContextCopies[0],
                 functionWeakRef: undefined,
                 hasWriteOperationOnResourcesSet: undefined,
                 asyncContextChainAsyncIdsCache: undefined,
