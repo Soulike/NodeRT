@@ -83,6 +83,7 @@ export class Filter
             return true;
         }
     }
+
     /**
      * 2 "HTTPINCOMINGMESSAGE"s, if they are invoked by the same server, won't form race condition
      */
@@ -611,21 +612,40 @@ export class Filter
         }
     }
 
-    /**
-     * In some apis (e.g. fs), we log operations on resolve of promises (using .finally())
-     * which do not race with user code. So filter them out.
-     * */
     private static isPromiseViolationTP(raceConditionInfo: RaceConditionInfo): boolean
     {
         const {
             asyncContextToOperations1: [asyncContext1],
             asyncContextToOperations2: [asyncContext2],
         } = raceConditionInfo;
+        /**
+         * In some apis (e.g. fs), we log operations on resolve of promises (using .finally())
+         * which do not race with user code. So filter them out.
+         * */
         if (asyncContext1.asyncType === 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
         {
-            return !(asyncContext1.codeInfo === null    // violator is located in analysis code
+            if (asyncContext1.codeInfo === null    // violator is located in analysis code
                 && asyncContext2.codeInfo !== null    // operation2 is located in user code
-            );
+            )
+            {
+                return false;
+            }
+        }
+
+        /**
+         * Filter out promise priority related false positives
+         */
+        if (asyncContext1.asyncType === 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
+        {
+            return asyncContext1.index > asyncContext2.index;
+        }
+        else if (asyncContext1.asyncType !== 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
+        {
+            return true;
+        }
+        else if (asyncContext1.asyncType === 'PROMISE' && asyncContext2.asyncType !== 'PROMISE')
+        {
+            return false;
         }
         else
         {
