@@ -148,7 +148,7 @@ export class AsyncCalledFunctionInfo
                 asyncContextCopies[i]!.asyncContext = asyncContextCopies[i + 1];
             }
 
-            asyncContextCopies[asyncContextCopies.length - 1]!.asyncContext = null;
+            asyncContextCopies[asyncContextCopies.length - 1]!.asyncContext = '[Omitted]';
 
             return {
                 ...this,
