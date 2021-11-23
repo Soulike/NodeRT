@@ -31,7 +31,8 @@ export class AsyncCalledFunctionInfo
     /** Whether the callback function does any writing operation on certain resource*/
     private hasWriteOperationOnResourcesSet: Set<ResourceInfo>;
 
-    /** Lazy calculation for getAsyncContextChainAsyncIds() */
+    /** Lazy calculation */
+    private asyncContextChainWithoutTickObjectsAsyncIdsCache: Set<number> | undefined;
     private asyncContextChainAsyncIdsCache: Set<number> | undefined;
     private nonTickObjectAsyncIdCache: number | undefined;
 
@@ -116,6 +117,7 @@ export class AsyncCalledFunctionInfo
             functionWeakRef: undefined,
             hasWriteOperationOnResourcesSet: undefined,
             asyncContextChainAsyncIdsCache: undefined,
+            asyncContextChainWithoutTickObjectsAsyncIdsCache: undefined,
             nonTickObjectAsyncIdCache: undefined,
         };
     }
@@ -139,8 +141,11 @@ export class AsyncCalledFunctionInfo
             while (currentAsyncContextCopy.asyncContext !== null && currentAsyncContextDepth < asyncContextMaxDepth)
             {
                 currentAsyncContextCopy = currentAsyncContextCopy.asyncContext.getPlainCopy();
-                asyncContextCopies.push(currentAsyncContextCopy);
-                currentAsyncContextDepth++;
+                if (!(currentAsyncContextCopy.asyncType === 'Immediate' && currentAsyncContextCopy.codeInfo === null))
+                {
+                    asyncContextCopies.push(currentAsyncContextCopy);
+                    currentAsyncContextDepth++;
+                }
             }
 
             for (let i = 0; i < asyncContextCopies.length-1; i++)
@@ -151,6 +156,40 @@ export class AsyncCalledFunctionInfo
             asyncContextCopies[asyncContextCopies.length - 1]!.asyncContext = '[Omitted]';
 
             return asyncContextCopies[0];
+        }
+    }
+
+    /** get all asyncIds on the async context chain */
+    public getAsyncContextChainAsyncIdsWithoutTickObjects(): Set<number>
+    {
+        if (this.asyncContextChainWithoutTickObjectsAsyncIdsCache)
+        {
+            return this.asyncContextChainWithoutTickObjectsAsyncIdsCache;
+        }
+        else
+        {
+            const asyncContextChainWithoutTickObjectsAsyncIdsCache = new Set<number>();
+            let currentAsyncContext: AsyncCalledFunctionInfo | null = this;
+            while (currentAsyncContext !== null)    // get the async id chain
+            {
+                // It's impossible to interleave otherAsyncType -> TickObject, ignore TickObject
+                if (currentAsyncContext.asyncType !== 'TickObject')
+                {
+                    asyncContextChainWithoutTickObjectsAsyncIdsCache.add(currentAsyncContext.asyncId);
+                }
+
+                // Ignore async context introduced by test framework.
+                if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+                {
+                    // Fake global. Prevent async context introduced by test framework form race condition with real global
+                    asyncContextChainWithoutTickObjectsAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
+                    break;
+                }
+                
+                currentAsyncContext = currentAsyncContext.asyncContext;
+            }
+            this.asyncContextChainWithoutTickObjectsAsyncIdsCache = asyncContextChainWithoutTickObjectsAsyncIdsCache;
+            return asyncContextChainWithoutTickObjectsAsyncIdsCache;
         }
     }
 
@@ -167,24 +206,16 @@ export class AsyncCalledFunctionInfo
             let currentAsyncContext: AsyncCalledFunctionInfo | null = this;
             while (currentAsyncContext !== null)    // get the async id chain
             {
-                // Ignore async context introduced by test framework.
+                asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
+                // Ignore the chain introduced by test framework.
                 if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
                 {
                     // Fake global. Prevent async context introduced by test framework form race condition with real global
                     asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
                     break;
                 }
-                // It's impossible to interleave otherAsyncType -> TickObject, ignore TickObject
-                if (currentAsyncContext.asyncType !== 'TickObject')
-                {
-                    asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
-                }
-                
+
                 currentAsyncContext = currentAsyncContext.asyncContext;
-                if (asyncContextChainAsyncIdsCache.size === 30) // avoid being too deep
-                {
-                    break;
-                }
             }
             this.asyncContextChainAsyncIdsCache = asyncContextChainAsyncIdsCache;
             return asyncContextChainAsyncIdsCache;

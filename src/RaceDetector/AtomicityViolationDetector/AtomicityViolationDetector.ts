@@ -17,7 +17,7 @@ export const atomicityViolationDetector: Detector = (resourceDeclaration) =>
     const lastAsyncContextToOperation = asyncContextToOperations[LENGTH - 1]!;
     const lastAsyncContext = lastAsyncContextToOperation[0];
 
-    const lastAsyncContextAsyncIds = lastAsyncContext.getAsyncContextChainAsyncIds();
+    const lastAsyncContextAsyncIds = lastAsyncContext.getAsyncContextChainAsyncIdsWithoutTickObjects();
     if (lastAsyncContextAsyncIds.has(AsyncCalledFunctionInfo.UNKNOWN_ASYNC_ID)) // ignore asyncId=0 due to GraalVM bug
     {
         return [];

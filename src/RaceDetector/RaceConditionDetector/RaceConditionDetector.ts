@@ -18,14 +18,14 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
     const lastAsyncContentToOperations = asyncContextToOperationsArray[LENGTH - 1]!;
     const lastAsyncContentOperations = lastAsyncContentToOperations[1];
     const [lastAsyncContext] = lastAsyncContentToOperations;
-    const lastAsyncContextAsyncChain = lastAsyncContext.getAsyncContextChainAsyncIds();
+    const lastAsyncContextAsyncChain = lastAsyncContext.getAsyncContextChainAsyncIdsWithoutTickObjects();
     const hasWriteOperationOnResource = lastAsyncContext.getHasWriteOperationOn(resourceDeclaration);
 
     for (let i = LENGTH - 2; i >= 0; i--)
     {
         const beforeLastAsyncContextToOperations = asyncContextToOperationsArray[i]!;
         const beforeLastAsyncContext = beforeLastAsyncContextToOperations[0];
-        const beforeLastAsyncContextAsyncChain = beforeLastAsyncContext.getAsyncContextChainAsyncIds();
+        const beforeLastAsyncContextAsyncChain = beforeLastAsyncContext.getAsyncContextChainAsyncIdsWithoutTickObjects();
         const beforeLastAsyncContextOperations = beforeLastAsyncContextToOperations[1];
 
         const timeDiff = lastAsyncContentOperations[lastAsyncContentOperations.length - 1]!.getTimestamp()
