@@ -245,6 +245,14 @@ export class Filter
             return false;
         }
 
+        // Test frameworks like mocha use setImmediate run test cases
+        // Test cases won't form race condition.
+        if (asyncContext1.asyncType === 'Immediate' && asyncContext1.immediateInfo === null
+            || asyncContext2.asyncType === 'Immediate' && asyncContext2.immediateInfo === null)
+        {
+            return false;
+        }
+
         while (asyncContext1.asyncType === 'TickObject')
         {
             asyncContext1 = asyncContext1.asyncContext!;
@@ -637,7 +645,7 @@ export class Filter
          */
         if (asyncContext1.asyncType === 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
         {
-            return asyncContext1.index > asyncContext2.index;
+            return true;
         }
         else if (asyncContext1.asyncType !== 'PROMISE' && asyncContext2.asyncType === 'PROMISE')
         {
