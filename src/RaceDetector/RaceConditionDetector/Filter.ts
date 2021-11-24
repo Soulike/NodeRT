@@ -152,18 +152,17 @@ export class Filter
         {
             return false;
         }
-        const asyncContext1FunctionDeclarationScope = asyncContext1FunctionDeclaration.getScope();
         const asyncContext2FunctionDeclarationScope = asyncContext2FunctionDeclaration.getScope();
-        if (asyncContext1FunctionDeclarationScope === null || asyncContext2FunctionDeclarationScope === null)
+        if (asyncContext2FunctionDeclarationScope === null)
         {
             return false;
         }
         let currentAsyncContext2FunctionDeclarationParentScope = asyncContext2FunctionDeclarationScope.parent;
         while (currentAsyncContext2FunctionDeclarationParentScope !== null)
         {
-            if (currentAsyncContext2FunctionDeclarationParentScope === asyncContext1FunctionDeclarationScope)
+            if (currentAsyncContext2FunctionDeclarationParentScope.func === asyncContext1Function)
             {
-                return true;
+                return false;
             }
             currentAsyncContext2FunctionDeclarationParentScope = currentAsyncContext2FunctionDeclarationParentScope.parent;
         }
