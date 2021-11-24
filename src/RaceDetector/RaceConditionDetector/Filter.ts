@@ -5,8 +5,6 @@ import {ObjectOperation} from '../../LogStore/ObjectLogStore';
 import {EnhancedSet} from '@datastructures-js/set';
 import {PrimitiveLogStore, PrimitiveOperation} from '../../LogStore/PrimitiveLogStore';
 import {PrimitiveInfo} from '../../LogStore/PrimitiveLogStore/Class/PrimitiveInfo';
-import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
-import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 import {BufferInfo} from '../../LogStore/BufferLogStore/Class/BufferInfo';
 import {BufferOperation} from '../../LogStore/BufferLogStore';
 import {SocketInfo} from '../../LogStore/SocketLogStore/Class/SocketInfo';
@@ -16,6 +14,8 @@ import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
 import {FileOperation} from '../../LogStore/FileLogStore';
 import objectHash from 'object-hash';
 import {ResourceInfo} from '../../LogStore/Class/ResourceInfo';
+import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
+import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 
 export class Filter
 {
@@ -237,20 +237,23 @@ export class Filter
         let asyncContext1 = asyncContextToOperations1[0];
         let asyncContext2 = asyncContextToOperations2[0];
 
-        // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
-        // These initializations won't form race condition.
-        if (asyncContext1.asyncType === 'Immediate' && asyncContext1.codeInfo === null
-            || asyncContext2.asyncType === 'Immediate' && asyncContext2.codeInfo === null)
+        if (process.env['UNIT_TEST'] === '1')
         {
-            return false;
-        }
+            // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
+            // These initializations won't form race condition.
+            if (asyncContext1.asyncType === 'Immediate' && asyncContext1.codeInfo === null
+                || asyncContext2.asyncType === 'Immediate' && asyncContext2.codeInfo === null)
+            {
+                return false;
+            }
 
-        // Test frameworks like mocha use setImmediate run test cases
-        // Test cases won't form race condition.
-        if (asyncContext1.asyncType === 'Immediate' && asyncContext1.immediateInfo === null
-            || asyncContext2.asyncType === 'Immediate' && asyncContext2.immediateInfo === null)
-        {
-            return false;
+            // Test frameworks like mocha use setImmediate run test cases
+            // Test cases won't form race condition.
+            if (asyncContext1.asyncType === 'Immediate' && asyncContext1.immediateInfo === null
+                || asyncContext2.asyncType === 'Immediate' && asyncContext2.immediateInfo === null)
+            {
+                return false;
+            }
         }
 
         while (asyncContext1.asyncType === 'TickObject')
@@ -610,9 +613,18 @@ export class Filter
                 }
             }
             assert.ok(asyncContext2LastWriteOperation !== null);
-            // If they affect the same listener, no matter who affects first
-            return !(asyncContext1LastWriteOperation.getAffectedListeners()
-                .equals(asyncContext2LastWriteOperation.getAffectedListeners()));
+
+            if ((asyncContext1LastWriteOperation.getOperationKind() === 'addListener'
+                && asyncContext2LastWriteOperation.getOperationKind() === 'addListener')
+                || (asyncContext1LastWriteOperation.getOperationKind() === 'removeListener'
+                    && asyncContext2LastWriteOperation.getOperationKind() === 'removeListener'))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {

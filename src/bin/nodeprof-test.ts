@@ -21,7 +21,7 @@ const {error} = childProcess.spawnSync(`cd ${process.argv.slice(2, 3)} && graaln
     '--analysis', path.resolve(ROOT, './dist/'),
     ...process.argv.slice(3),
 ], {
-    env: process.env,
+    env: {...process.env, UNIT_TEST: '1'},
     stdio: 'inherit',
     shell: true,
 });
