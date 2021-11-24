@@ -233,7 +233,7 @@ export class FsSyncOperationLogger extends Analysis
                 const [path] = args as Parameters<typeof fs.createReadStream>;
                 assert.ok(result instanceof Readable);
                 StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
-                result.once('close', () =>
+                result.once('end', () =>
                 {
                     FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'content', this.getSandbox(), iid);
                 });
@@ -243,7 +243,7 @@ export class FsSyncOperationLogger extends Analysis
                 const [path] = args as Parameters<typeof fs.createWriteStream>;
                 assert.ok(result instanceof Writable);
                 StreamLogStore.appendStreamOperation(result, 'write', 'construction', this.getSandbox(), iid);
-                result.once('close', () =>
+                result.once('finish', () =>
                 {
                     FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                 });
