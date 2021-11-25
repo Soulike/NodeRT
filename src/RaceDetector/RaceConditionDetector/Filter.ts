@@ -12,7 +12,6 @@ import {SocketOperation} from '../../LogStore/SocketLogStore/Class/SocketOperati
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
 import {FileInfo} from '../../LogStore/FileLogStore/Class/FileInfo';
 import {FileOperation} from '../../LogStore/FileLogStore';
-import objectHash from 'object-hash';
 import {ResourceInfo} from '../../LogStore/Class/ResourceInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
@@ -160,7 +159,7 @@ export class Filter
         let currentAsyncContext2FunctionDeclarationParentScope = asyncContext2FunctionDeclarationScope.parent;
         while (currentAsyncContext2FunctionDeclarationParentScope !== null)
         {
-            if (currentAsyncContext2FunctionDeclarationParentScope.func === asyncContext1Function)
+            if (currentAsyncContext2FunctionDeclarationParentScope.func?.deref() === asyncContext1Function)
             {
                 return false;
             }
@@ -714,18 +713,18 @@ export class Filter
 
         return [
             [
-                objectHash(asyncContextToOperations1[0].codeInfo, {algorithm: 'md5'}),
-                objectHash(asyncContextToOperations2[0].codeInfo, {algorithm: 'md5'}),
+                JSON.stringify(asyncContextToOperations1[0].codeInfo),
+                JSON.stringify(asyncContextToOperations2[0].codeInfo),
             ].join(','),
             [
-                objectHash(asyncContextToOperations2[0].codeInfo, {algorithm: 'md5'}),
-                objectHash(asyncContextToOperations1[0].codeInfo, {algorithm: 'md5'}),
+                JSON.stringify(asyncContextToOperations2[0].codeInfo),
+                JSON.stringify(asyncContextToOperations1[0].codeInfo),
             ].join(','),
         ];
     }
 
     private static getResourceInfoHash(resourceInfo: ResourceInfo): string
     {
-        return resourceInfo.id.toString();
+        return JSON.stringify(resourceInfo);
     }
 }

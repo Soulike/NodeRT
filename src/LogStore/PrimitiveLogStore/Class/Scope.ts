@@ -12,7 +12,7 @@ export class Scope
     public readonly id: number; // for debug
     public readonly type: ScopeType;
     public readonly name: string | null;
-    public readonly func: Function|null;    // if the scope is a function scope, store the function
+    public readonly func: WeakRef<Function>|null;    // if the scope is a function scope, store the function
     public readonly parent: Scope | null;	// null for global
     public readonly declarations: PrimitiveDeclaration[];
     public readonly sourceCodeInfo: SourceCodeInfo | null;  // null for global
@@ -22,7 +22,7 @@ export class Scope
         this.id = Date.now();
         this.type = type;
         this.name = name;
-        this.func = func;
+        this.func = func === null ? null: new WeakRef(func);
         this.parent = parent;
         this.declarations = declarations;
         this.sourceCodeInfo = sourceCodeInfo;
@@ -70,6 +70,8 @@ export class Scope
     {
         return {
             ...this,
+            func: undefined,
+            id: undefined,
             declarations: undefined,
         };
     }
