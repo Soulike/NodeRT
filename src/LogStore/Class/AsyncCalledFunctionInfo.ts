@@ -148,7 +148,7 @@ export class AsyncCalledFunctionInfo
                 }
             }
 
-            for (let i = 0; i < asyncContextCopies.length-1; i++)
+            for (let i = 0; i < asyncContextCopies.length - 1; i++)
             {
                 asyncContextCopies[i]!.asyncContext = asyncContextCopies[i + 1];
             }
@@ -178,14 +178,17 @@ export class AsyncCalledFunctionInfo
                     asyncContextChainWithoutTickObjectsAsyncIdsCache.add(currentAsyncContext.asyncId);
                 }
 
-                // Ignore async context introduced by test framework.
-                if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+                if (process.env['UNIT_TEST'] === '1')
                 {
-                    // Fake global. Prevent async context introduced by test framework form race condition with real global
-                    asyncContextChainWithoutTickObjectsAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
-                    break;
+                    // Ignore async context introduced by test framework.
+                    if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+                    {
+                        // Fake global. Prevent async context introduced by test framework form race condition with real global
+                        asyncContextChainWithoutTickObjectsAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
+                        break;
+                    }
                 }
-                
+
                 currentAsyncContext = currentAsyncContext.asyncContext;
             }
             this.asyncContextChainWithoutTickObjectsAsyncIdsCache = asyncContextChainWithoutTickObjectsAsyncIdsCache;
@@ -207,12 +210,16 @@ export class AsyncCalledFunctionInfo
             while (currentAsyncContext !== null)    // get the async id chain
             {
                 asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
-                // Ignore the chain introduced by test framework.
-                if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+
+                if (process.env['UNIT_TEST'] === '1')
                 {
-                    // Fake global. Prevent async context introduced by test framework form race condition with real global
-                    asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
-                    break;
+                    // Ignore the chain introduced by test framework.
+                    if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
+                    {
+                        // Fake global. Prevent async context introduced by test framework form race condition with real global
+                        asyncContextChainAsyncIdsCache.add(AsyncCalledFunctionInfo.GLOBAL_ASYNC_ID);
+                        break;
+                    }
                 }
 
                 currentAsyncContext = currentAsyncContext.asyncContext;
