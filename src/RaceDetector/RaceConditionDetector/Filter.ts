@@ -709,7 +709,7 @@ export class Filter
     private static getRaceConditionInfoHashPair(raceConditionInfo: RaceConditionInfo): [string, string] | null
     {
         const {
-            asyncContextToOperations1, asyncContextToOperations2,
+            asyncContextToOperations1, asyncContextToOperations2
         } = raceConditionInfo;
 
         return [
@@ -726,9 +726,6 @@ export class Filter
 
     private static getResourceInfoHash(resourceInfo: ResourceInfo): string
     {
-        return [
-            objectHash(resourceInfo.getType(), {algorithm: 'md5'}),
-            objectHash(resourceInfo.getPossibleDefineCodeScope(), {algorithm: 'md5'}),
-        ].join(',');
+        return resourceInfo.id.toString();
     }
 }
