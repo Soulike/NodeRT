@@ -42,7 +42,7 @@ export class FsPromisesOperationLogger extends Analysis
                         BufferLogStore.getArrayBufferRangeOfArrayBufferView(data),
                         getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 }
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {
@@ -61,7 +61,7 @@ export class FsPromisesOperationLogger extends Analysis
                 const [src, dst] = args as Parameters<typeof fsPromise.copyFile
                     | typeof fsPromise.cp>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'start', 'content', this.getSandbox(), iid);
-                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {
@@ -74,7 +74,7 @@ export class FsPromisesOperationLogger extends Analysis
             {
                 const [src, dst] = args as Parameters<typeof fsPromise.rename>;
                 FileLogStoreAdaptor.appendFileOperation(src, 'read', 'start', 'content', this.getSandbox(), iid);
-                FileLogStoreAdaptor.appendFileOperation(dst, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(dst, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {
@@ -92,7 +92,7 @@ export class FsPromisesOperationLogger extends Analysis
                     | typeof fsPromise.rmdir
                     | typeof fsPromise.rm
                     | typeof fsPromise.unlink>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {
@@ -102,7 +102,7 @@ export class FsPromisesOperationLogger extends Analysis
             else if (f === fsPromise.truncate)
             {
                 const [path] = args as Parameters<typeof fsPromise.truncate>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid));
 
@@ -112,7 +112,6 @@ export class FsPromisesOperationLogger extends Analysis
                 (result as ReturnType<typeof fsPromise.mkdtemp>).then(
                     path =>
                     {
-                        FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid);
                         FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
                     });
             }
@@ -125,7 +124,7 @@ export class FsPromisesOperationLogger extends Analysis
                 {
                     if (fileWillBeCreatedOrTruncated)
                     {
-                        FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'content', this.getSandbox(), iid);
+                        FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'content', this.getSandbox(), iid);
                     }
                     FileLogStore.addFileHandle(fileHandle, path, getSourceCodeInfoFromIid(iid, this.getSandbox()));
                 });
@@ -156,7 +155,7 @@ export class FsPromisesOperationLogger extends Analysis
                 || f === fsPromise.lchown)
             {
                 const [path] = args as Parameters<typeof fsPromise.chmod>;
-                FileLogStoreAdaptor.appendFileOperation(path, 'write', 'start', 'stat', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(path, 'read', 'start', 'stat', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() => FileLogStoreAdaptor.appendFileOperation(path, 'write', 'finish', 'stat', this.getSandbox(), iid));
             }
@@ -177,7 +176,7 @@ export class FsPromisesOperationLogger extends Analysis
                 {
                     ObjectLogStore.appendObjectOperation(data, 'read', Object.keys(data), false, this.getSandbox(), iid);
                 }
-                FileLogStoreAdaptor.appendFileOperation(file, 'write', 'start', 'content', this.getSandbox(), iid);
+                FileLogStoreAdaptor.appendFileOperation(file, 'read', 'start', 'content', this.getSandbox(), iid);
                 assert.ok(util.types.isPromise(result));
                 result.finally(() =>
                 {

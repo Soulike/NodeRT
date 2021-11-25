@@ -44,7 +44,7 @@ export class FileHandleOperationLogger extends Analysis
                             BufferLogStore.getArrayBufferRangeOfArrayBufferView(args[0]),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'start', 'content', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
                     assert.ok(util.types.isPromise(result));
                     result.finally(() =>
                     {
@@ -80,7 +80,7 @@ export class FileHandleOperationLogger extends Analysis
                     const stream = result as ReturnType<typeof fileHandle.createWriteStream>;
                     StreamLogStore.appendStreamOperation(stream, 'write',
                         'construction', this.getSandbox(), iid);
-                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'start',
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start',
                         'content', this.getSandbox(), iid);
                     stream.on('finish', () =>
                     {
@@ -172,14 +172,14 @@ export class FileHandleOperationLogger extends Analysis
                 }
                 else if (f === fileHandle.truncate)
                 {
-                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'start', 'content', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
                     assert.ok(util.types.isPromise(result));
                     result.finally(() => FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'finish', 'content', this.getSandbox(), iid));
                 }
                 else if (f === fileHandle.chmod
                     || f === fileHandle.chown)
                 {
-                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'start', 'stat', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'stat', this.getSandbox(), iid);
                     assert.ok(util.types.isPromise(result));
                     result.finally(() => FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'finish', 'stat', this.getSandbox(), iid));
                 }
@@ -222,7 +222,7 @@ export class FileHandleOperationLogger extends Analysis
                             BufferLogStore.getArrayBufferRangeOfArrayBufferView(buffer),
                             getSourceCodeInfoFromIid(iid, this.getSandbox()));
                     }
-                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'write', 'start', 'content', this.getSandbox(), iid);
+                    FileLogStoreAdaptor.appendFileOperation(fileHandle, 'read', 'start', 'content', this.getSandbox(), iid);
                     (result as ReturnType<typeof fileHandle.writev>)
                         .then(({buffers}) =>
                         {
