@@ -13,7 +13,7 @@ export class BufferDeclaration extends ResourceDeclaration
     private readonly bufferInfo: BufferInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, BufferOperation[]>;
 
-    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(buffer: ArrayBufferLike, possibleDefineCodeScope: SourceCodeInfo | null)
     {
         super();
         this.bufferInfo = new BufferInfo(buffer, possibleDefineCodeScope);

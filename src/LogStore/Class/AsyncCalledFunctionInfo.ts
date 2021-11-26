@@ -37,9 +37,9 @@ export class AsyncCalledFunctionInfo
     private nonTickObjectAsyncIdCache: number | undefined;
 
     constructor(func: Function | null, stackTrace: string[] | null,
-        asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
-        codeInfo: SourceCodeInfo | null,
-        timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
+                asyncId: number, asyncType: string, asyncContext: AsyncCalledFunctionInfo | null,
+                codeInfo: SourceCodeInfo | null,
+                timerInfo: TimerInfo | null, immediateInfo: ImmediateInfo | null)
     {
         this.functionWeakRef = func !== null ? new WeakRef(func) : null;
         this.stackTrace = stackTrace;
@@ -110,18 +110,6 @@ export class AsyncCalledFunctionInfo
         }
     }
 
-    private getPlainCopy(): Record<keyof AsyncCalledFunctionInfo, any>
-    {
-        return {
-            ...this,
-            functionWeakRef: undefined,
-            hasWriteOperationOnResourcesSet: undefined,
-            asyncContextChainAsyncIdsCache: undefined,
-            asyncContextChainWithoutTickObjectsAsyncIdsCache: undefined,
-            nonTickObjectAsyncIdCache: undefined,
-        };
-    }
-
     public toJSON()
     {
         if (this.codeInfo === null && this.asyncType === 'Immediate')
@@ -133,7 +121,7 @@ export class AsyncCalledFunctionInfo
             // prevent the chain from being too long to output
             const asyncContextMaxDepth = 20;
             const asyncContextCopies: Record<keyof AsyncCalledFunctionInfo, any>[] = [];
-            
+
             let currentAsyncContextDepth = 1;
             let currentAsyncContextCopy = this.getPlainCopy();
             asyncContextCopies.push(currentAsyncContextCopy);
@@ -245,5 +233,17 @@ export class AsyncCalledFunctionInfo
             this.nonTickObjectAsyncIdCache = currentAsyncContext.asyncId;
             return currentAsyncContext.asyncId;
         }
+    }
+
+    private getPlainCopy(): Record<keyof AsyncCalledFunctionInfo, any>
+    {
+        return {
+            ...this,
+            functionWeakRef: undefined,
+            hasWriteOperationOnResourcesSet: undefined,
+            asyncContextChainAsyncIdsCache: undefined,
+            asyncContextChainWithoutTickObjectsAsyncIdsCache: undefined,
+            nonTickObjectAsyncIdCache: undefined,
+        };
     }
 }

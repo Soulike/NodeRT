@@ -1,15 +1,15 @@
 // DO NOT INSTRUMENT
 
-import { strict as assert } from 'assert';
+import {strict as assert} from 'assert';
 import asyncHooks from 'async_hooks';
 import util from 'util';
-import { Sandbox } from '../../Type/nodeprof';
-import { getSourceCodeInfoFromIid } from '../../Util';
-import { AsyncContextLogStore } from '../AsyncContextLogStore';
-import { CallStackLogStore } from '../CallStackLogStore';
-import { SourceCodeInfo } from '../Class/SourceCodeInfo';
-import { BufferDeclaration } from './Class/BufferDeclaration';
-import { BufferOperation } from './Class/BufferOperation';
+import {Sandbox} from '../../Type/nodeprof';
+import {getSourceCodeInfoFromIid} from '../../Util';
+import {AsyncContextLogStore} from '../AsyncContextLogStore';
+import {CallStackLogStore} from '../CallStackLogStore';
+import {SourceCodeInfo} from '../Class/SourceCodeInfo';
+import {BufferDeclaration} from './Class/BufferDeclaration';
+import {BufferOperation} from './Class/BufferOperation';
 
 // Since buffer is used in many modules, we need to log its declarations in a shared object
 export class BufferLogStore
@@ -17,7 +17,7 @@ export class BufferLogStore
     private static bufferToBufferDeclaration: WeakMap<ArrayBufferLike, BufferDeclaration> = new WeakMap();
     private static bufferDeclarations: BufferDeclaration[] = [];
 
-    public static getBufferDeclaration(buffer: ArrayBufferLike, sourceCodeInfo: SourceCodeInfo|null)
+    public static getBufferDeclaration(buffer: ArrayBufferLike, sourceCodeInfo: SourceCodeInfo | null)
     {
         const bufferDeclaration = BufferLogStore.bufferToBufferDeclaration.get(buffer);
         if (bufferDeclaration === undefined)
@@ -38,7 +38,7 @@ export class BufferLogStore
         return BufferLogStore.bufferDeclarations;
     }
 
-    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sourceCodeInfo: SourceCodeInfo|null): void;
+    public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sourceCodeInfo: SourceCodeInfo | null): void;
     public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandbox: Sandbox, iid: number): void;
     public static appendBufferOperation(buffer: ArrayBufferLike | ArrayBufferView, type: 'read' | 'write', accessStage: BufferOperation['accessStage'], accessRange: BufferOperation['accessRange'], sandboxOrSourceCodeInfo: Sandbox | SourceCodeInfo | null, iid?: number): void
     {

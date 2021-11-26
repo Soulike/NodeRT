@@ -613,7 +613,7 @@ export class Filter
             assert.ok(asyncContext2LastWriteOperation !== null);
 
             if ((asyncContext1LastWriteOperation.getOperationKind() === 'addListener'
-                && asyncContext2LastWriteOperation.getOperationKind() === 'addListener')
+                    && asyncContext2LastWriteOperation.getOperationKind() === 'addListener')
                 || (asyncContext1LastWriteOperation.getOperationKind() === 'removeListener'
                     && asyncContext2LastWriteOperation.getOperationKind() === 'removeListener'))
             {
@@ -628,6 +628,40 @@ export class Filter
         {
             return true;
         }
+    }
+
+    /**
+     * Check if the RaceConditionInfo has been reported
+     */
+    public static hasReported(raceConditionInfo: RaceConditionInfo): boolean
+    {
+        const hashes = Filter.reportedRaceCondition.get(Filter.getResourceInfoHash(raceConditionInfo.resourceInfo));
+        if (hashes === undefined)
+        {
+            return false;
+        }
+        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
+        if (hashPair === null)
+        {
+            return false;
+        }
+        else
+        {
+            return hashes.has(hashPair[0]) || hashes.has(hashPair[1]);
+        }
+    }
+
+    public static addReported(raceConditionInfo: RaceConditionInfo): void
+    {
+        const resourceInfoHash = Filter.getResourceInfoHash(raceConditionInfo.resourceInfo);
+        let hashes = Filter.reportedRaceCondition.get(resourceInfoHash) ?? new Set();
+        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
+        if (hashPair !== null)
+        {
+            hashes.add(hashPair[0]);
+            hashes.add(hashPair[1]);
+        }
+        Filter.reportedRaceCondition.set(resourceInfoHash, hashes);
     }
 
     private static isPromiseViolationTP(raceConditionInfo: RaceConditionInfo): boolean
@@ -671,44 +705,10 @@ export class Filter
         }
     }
 
-    /**
-     * Check if the RaceConditionInfo has been reported
-     */
-    public static hasReported(raceConditionInfo: RaceConditionInfo): boolean
-    {
-        const hashes = Filter.reportedRaceCondition.get(Filter.getResourceInfoHash(raceConditionInfo.resourceInfo));
-        if (hashes === undefined)
-        {
-            return false;
-        }
-        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
-        if (hashPair === null)
-        {
-            return false;
-        }
-        else
-        {
-            return hashes.has(hashPair[0]) || hashes.has(hashPair[1]);
-        }
-    }
-
-    public static addReported(raceConditionInfo: RaceConditionInfo): void
-    {
-        const resourceInfoHash = Filter.getResourceInfoHash(raceConditionInfo.resourceInfo);
-        let hashes = Filter.reportedRaceCondition.get(resourceInfoHash) ?? new Set();
-        const hashPair = Filter.getRaceConditionInfoHashPair(raceConditionInfo);
-        if (hashPair !== null)
-        {
-            hashes.add(hashPair[0]);
-            hashes.add(hashPair[1]);
-        }
-        Filter.reportedRaceCondition.set(resourceInfoHash, hashes);
-    }
-
     private static getRaceConditionInfoHashPair(raceConditionInfo: RaceConditionInfo): [string, string] | null
     {
         const {
-            asyncContextToOperations1, asyncContextToOperations2
+            asyncContextToOperations1, asyncContextToOperations2,
         } = raceConditionInfo;
 
         return [

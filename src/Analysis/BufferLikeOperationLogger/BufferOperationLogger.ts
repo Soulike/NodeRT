@@ -457,7 +457,7 @@ export class BufferOperationLogger extends Analysis
             {
                 offset = typeof offset === 'number' ? offset : Number.parseInt(offset);
                 assert.ok(!Number.isNaN(offset));
-                BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset+1), this.getSandbox(), iid);
+                BufferLogStore.appendBufferOperation(base.buffer, 'write', 'finish', BufferLogStore.getArrayBufferRangeOfArrayBufferView(base, offset, offset + 1), this.getSandbox(), iid);
             }
 
             this.timeConsumed += Date.now() - startTimestamp;

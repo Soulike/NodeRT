@@ -13,9 +13,9 @@ export class RaceConditionInfo extends Info
      * `asyncContextToOperations1` MUST HAPPENS BEFORE `asyncContextToOperations2` in time order
      */
     constructor(resourceInfo: ResourceInfo,
-        asyncContextToOperations1: RaceConditionInfo['asyncContextToOperations1'],
-        asyncContextToOperations2: RaceConditionInfo['asyncContextToOperations2'],
-        timeDiff: bigint)
+                asyncContextToOperations1: RaceConditionInfo['asyncContextToOperations1'],
+                asyncContextToOperations2: RaceConditionInfo['asyncContextToOperations2'],
+                timeDiff: bigint)
     {
         super(resourceInfo);
         this.timeDiff = timeDiff;

@@ -67,7 +67,7 @@ export function isPrimitive(value: unknown): boolean
     return !(Object(value) === value);
 }
 
-export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox): SourceCodeInfo|null
+export function getSourceCodeInfoFromIid(iid: number, sandbox: Sandbox): SourceCodeInfo | null
 {
     const sourceObject = sandbox.iidToSourceObject(iid);
     if (!sourceObject)

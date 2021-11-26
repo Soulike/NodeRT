@@ -13,7 +13,7 @@ export class StreamDeclaration extends ResourceDeclaration
     private readonly streamInfo: StreamInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, StreamOperation[]>;
 
-    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(stream: Readable | Writable, possibleDefineCodeScope: SourceCodeInfo | null)
     {
         super();
         this.streamInfo = new StreamInfo(stream, possibleDefineCodeScope);

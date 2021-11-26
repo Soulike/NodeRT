@@ -36,7 +36,7 @@ export class OutgoingMessageLogStore
             new OutgoingMessageOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getOutgoingMessageDeclaration(outgoingMessage: http.OutgoingMessage, sourceCodeInfo: SourceCodeInfo|null)
+    private static getOutgoingMessageDeclaration(outgoingMessage: http.OutgoingMessage, sourceCodeInfo: SourceCodeInfo | null)
     {
         const outgoingMessageDeclaration = OutgoingMessageLogStore.outgoingMessageToOutgoingMessageDeclarations.get(outgoingMessage);
         if (outgoingMessageDeclaration === undefined)

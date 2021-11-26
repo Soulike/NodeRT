@@ -31,7 +31,7 @@ export class ObjectLogStore
             new ObjectOperation(type, new Set(fields), isConstruction, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getObjectDeclaration(object: object, sourceCodeInfo: SourceCodeInfo|null)
+    private static getObjectDeclaration(object: object, sourceCodeInfo: SourceCodeInfo | null)
     {
         const objectDeclaration = ObjectLogStore.objectToObjectDeclaration.get(object);
         if (objectDeclaration === undefined)

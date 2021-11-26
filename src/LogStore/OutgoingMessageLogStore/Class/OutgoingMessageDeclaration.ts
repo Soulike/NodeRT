@@ -1,19 +1,19 @@
 // DO NOT INSTRUMENT
 
 import http from 'http';
-import { RaceDetector } from '../../../RaceDetector';
-import { AsyncCalledFunctionInfo } from '../../Class/AsyncCalledFunctionInfo';
-import { ResourceDeclaration } from '../../Class/ResourceDeclaration';
-import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
-import { OutgoingMessageInfo } from './OutgoingMessageInfo';
-import { OutgoingMessageOperation } from './OutgoingMessageOperation';
+import {RaceDetector} from '../../../RaceDetector';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {OutgoingMessageInfo} from './OutgoingMessageInfo';
+import {OutgoingMessageOperation} from './OutgoingMessageOperation';
 
 export class OutgoingMessageDeclaration extends ResourceDeclaration
 {
     private readonly outgoingMessageInfo: OutgoingMessageInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, OutgoingMessageOperation[]>;
 
-    constructor(outgoingMessage: http.OutgoingMessage, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(outgoingMessage: http.OutgoingMessage, possibleDefineCodeScope: SourceCodeInfo | null)
     {
         super();
         this.outgoingMessageInfo = new OutgoingMessageInfo(outgoingMessage, possibleDefineCodeScope);

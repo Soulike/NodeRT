@@ -29,7 +29,7 @@ export class FileLogStore
         return this.fileHandles.has(fileHandle);
     }
 
-    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo|null)
+    public static addFileHandle(fileHandle: FileHandle, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo | null)
     {
         this.fileHandles.add(fileHandle);
         this.addFd(fileHandle.fd, filePathOrBuffer, sourceCodeInfo);
@@ -41,7 +41,7 @@ export class FileLogStore
         this.fdToFilePathOrBuffer.delete(fileHandle.fd);
     }
 
-    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo|null)
+    public static addFd(fd: number, filePathOrBuffer: string | URL | BufferLike, sourceCodeInfo: SourceCodeInfo | null)
     {
         if (typeof filePathOrBuffer === 'string')
         {
@@ -81,7 +81,7 @@ export class FileLogStore
         }
     }
 
-    public static getFileDeclaration(filePathLike: string | URL, sourceCodeInfo: SourceCodeInfo|null): FileDeclaration
+    public static getFileDeclaration(filePathLike: string | URL, sourceCodeInfo: SourceCodeInfo | null): FileDeclaration
     {
         const realFilePath = typeof filePathLike === 'string' ? filePathLike : filePathLike.href;
         const fileDeclaration = FileLogStore.filePathToFileDeclaration.get(realFilePath);

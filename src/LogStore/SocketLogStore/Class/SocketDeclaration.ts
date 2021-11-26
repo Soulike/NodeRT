@@ -13,7 +13,7 @@ export class SocketDeclaration extends ResourceDeclaration
     private readonly socketInfo: SocketInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, SocketOperation[]>;
 
-    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo | null)
     {
         super();
         this.socketInfo = new SocketInfo(socket, possibleDefineCodeScope);

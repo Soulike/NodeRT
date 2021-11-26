@@ -201,7 +201,7 @@ export class FsSyncOperationLogger extends Analysis
             }
 
             this.timeConsumed += Date.now() - startTimestamp;
-        }
+        };
 
         this.invokeFun = (iid, f, _base, args, result) =>
         {

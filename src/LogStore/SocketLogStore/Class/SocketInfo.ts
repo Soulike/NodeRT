@@ -7,7 +7,7 @@ export class SocketInfo extends ResourceInfo
 {
     private readonly socketWeakRef: WeakRef<net.Socket>;
 
-    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo|null)
+    constructor(socket: net.Socket, possibleDefineCodeScope: SourceCodeInfo | null)
     {
         super('socket', possibleDefineCodeScope);
         this.socketWeakRef = new WeakRef(socket);

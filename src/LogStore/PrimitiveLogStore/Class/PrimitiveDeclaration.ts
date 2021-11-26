@@ -1,23 +1,22 @@
 // DO NOT INSTRUMENT
 
-import { RaceDetector } from '../../../RaceDetector';
-import { AsyncCalledFunctionInfo } from '../../Class/AsyncCalledFunctionInfo';
-import { ResourceDeclaration } from '../../Class/ResourceDeclaration';
-import { SourceCodeInfo } from '../../Class/SourceCodeInfo';
-import { PrimitiveInfo } from './PrimitiveInfo';
-import { PrimitiveOperation } from './PrimitiveOperation';
-import { Scope } from './Scope';
+import {RaceDetector} from '../../../RaceDetector';
+import {AsyncCalledFunctionInfo} from '../../Class/AsyncCalledFunctionInfo';
+import {ResourceDeclaration} from '../../Class/ResourceDeclaration';
+import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {PrimitiveInfo} from './PrimitiveInfo';
+import {PrimitiveOperation} from './PrimitiveOperation';
+import {Scope} from './Scope';
 
 export class PrimitiveDeclaration extends ResourceDeclaration
 {
+    public hasInitialized: boolean;
     private readonly primitiveInfo: PrimitiveInfo;
     private readonly asyncContextToOperations: Map<AsyncCalledFunctionInfo, PrimitiveOperation[]>;
 
-    public hasInitialized: boolean;
-
-    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func: Function)
-    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null)
-    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo|null, func?: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'function', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo | null, func: Function)
+    constructor(iid: number, name: string, typeWhenDefined: 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo | null)
+    constructor(iid: number, name: string, typeWhenDefined: 'function' | 'var', scope: Scope | null, possibleDefineCodeScope: SourceCodeInfo | null, func?: Function)
     {
         super();
         this.primitiveInfo = new PrimitiveInfo(iid, name, typeWhenDefined, scope, possibleDefineCodeScope, func);

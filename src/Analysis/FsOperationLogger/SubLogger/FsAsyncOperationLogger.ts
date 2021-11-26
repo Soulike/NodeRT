@@ -274,7 +274,7 @@ export class FsAsyncOperationLogger extends Analysis
                     | typeof fs.exists
                     | typeof fs.stat
                     | typeof fs.lstat>;
-                const asyncId = asyncHooks.executionAsyncId();  
+                const asyncId = asyncHooks.executionAsyncId();
                 this.addRegistrationInfo(callback, {
                     register: f,
                     callback: () => FileLogStoreAdaptor.appendFileOperation(path, 'read', 'finish', 'stat', this.getSandbox(), iid),

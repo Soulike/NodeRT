@@ -301,7 +301,7 @@ export class ArrayOperationLogger extends Analysis
                     ObjectLogStore.appendObjectOperation(result, 'write', Object.keys(result), true, this.getSandbox(), iid);
                 }
             }
-            
+
             this.timeConsumed += Date.now() - startTimestamp;
 
         };

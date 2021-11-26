@@ -115,7 +115,7 @@ export class PrimitiveOperationLogger extends Analysis
                 const sandbox = this.getSandbox();
                 const sourceCodeInfo = getSourceCodeInfoFromIid(iid, sandbox);
 
-                const newScope = new Scope('function', functionDeclaration.getResourceInfo().getName(),f, functionDeclaration.getScope(), [], sourceCodeInfo);
+                const newScope = new Scope('function', functionDeclaration.getResourceInfo().getName(), f, functionDeclaration.getScope(), [], sourceCodeInfo);
                 PrimitiveLogStore.clearPendingPrimitiveDeclarations(newScope);
                 PrimitiveLogStore.getScopeStack().push(newScope);
             }

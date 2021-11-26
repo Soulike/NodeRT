@@ -140,7 +140,7 @@ export class FsPromisesOperationLogger extends Analysis
             }
             else if (f === fsPromise.access
                 || f === fsPromise.stat
-            || f === fsPromise.lstat)
+                || f === fsPromise.lstat)
             {
                 const [path] = args as Parameters<typeof fsPromise.stat
                     | typeof fsPromise.lstat

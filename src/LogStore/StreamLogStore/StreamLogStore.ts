@@ -32,7 +32,7 @@ export class StreamLogStore
             new StreamOperation(type, operationKind, CallStackLogStore.getCallStack(), getSourceCodeInfoFromIid(iid, sandbox)));
     }
 
-    private static getStreamDeclaration(stream: Readable | Writable, sourceCodeInfo: SourceCodeInfo|null)
+    private static getStreamDeclaration(stream: Readable | Writable, sourceCodeInfo: SourceCodeInfo | null)
     {
         const streamDeclaration = StreamLogStore.streamToStreamDeclarations.get(stream);
         if (streamDeclaration === undefined)

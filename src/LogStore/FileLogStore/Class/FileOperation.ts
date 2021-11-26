@@ -10,7 +10,7 @@ export class FileOperation extends ResourceOperation
     private readonly accessStage: 'start' | 'finish';
     private readonly operationOn: FileOperationOnType;
 
-    constructor(type: 'read' | 'write', accessStage: FileOperation['accessStage'], operationOn: FileOperation['operationOn'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo|null)
+    constructor(type: 'read' | 'write', accessStage: FileOperation['accessStage'], operationOn: FileOperation['operationOn'], stackTrace: string[] | null, sourceCodeScopeInfo: SourceCodeInfo | null)
     {
         super(type, stackTrace, sourceCodeScopeInfo);
         this.accessStage = accessStage;
