@@ -2,6 +2,7 @@ import {Detector} from '../Detector';
 import {RaceConditionInfo} from './RaceConditionInfo';
 import {Filter} from './Filter';
 import {AsyncCalledFunctionInfo} from '../../LogStore/Class/AsyncCalledFunctionInfo';
+import {StatisticsStore} from '../../LogStore/StatisticsStore';
 
 export const raceConditionDetector: Detector = resourceDeclaration =>
 {
@@ -62,7 +63,12 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
             && Filter.isTruePositive(raceConditionInfo);
         if (shouldReport)
         {
+            StatisticsStore.addRaceCount();
             Filter.addReported(raceConditionInfo);
+        }
+        else
+        {
+            StatisticsStore.addFilteredRaceCount();
         }
         return shouldReport;
     });

@@ -1,6 +1,8 @@
 export class StatisticsStore
 {
     private static eventCount = 0;
+    private static filteredRaceCount = 0;
+    private static raceCount = 0;
 
     private static bufferCount = 0;
     private static fileCount = 0;
@@ -23,6 +25,16 @@ export class StatisticsStore
     public static getEventCount()
     {
         return StatisticsStore.eventCount;
+    }
+
+    public static getRaceCount()
+    {
+        return StatisticsStore.raceCount;
+    }
+
+    public static getFilteredRaceCount()
+    {
+        return this.filteredRaceCount;
     }
 
     public static getTotalResourceCount()
@@ -52,6 +64,16 @@ export class StatisticsStore
     public static addEventCount()
     {
         StatisticsStore.eventCount++;
+    }
+
+    public static addRaceCount()
+    {
+        StatisticsStore.raceCount++;
+    }
+
+    public static addFilteredRaceCount()
+    {
+        StatisticsStore.filteredRaceCount++;
     }
 
     public static addBufferCount()
