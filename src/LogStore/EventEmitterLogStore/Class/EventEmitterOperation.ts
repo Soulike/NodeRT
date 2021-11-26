@@ -2,6 +2,7 @@ import {EnhancedSet} from '@datastructures-js/set';
 import {ResourceOperation} from '../../Class/ResourceOperation';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {EventEmitterOperationKind} from '../Type/EventEmitterOperationKind';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class EventEmitterOperation extends ResourceOperation
 {
@@ -13,6 +14,7 @@ export class EventEmitterOperation extends ResourceOperation
         super(type, stackTrace, sourceCodeScopeInfo);
         this.operationKind = operationKind;
         this.affectedListeners = affectedListeners;
+        StatisticsStore.addEventEmitterOperationCount();
     }
 
     public getOperationKind()
