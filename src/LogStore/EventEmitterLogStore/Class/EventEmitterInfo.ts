@@ -1,6 +1,7 @@
 import {EventEmitter} from 'events';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
+import {StatisticsStore} from '../../StatisticsStore';
 
 export class EventEmitterInfo extends ResourceInfo
 {
@@ -12,6 +13,7 @@ export class EventEmitterInfo extends ResourceInfo
         super('eventEmitter', possibleDefineCodeScope);
         this.eventEmitter = new WeakRef(eventEmitter);
         this.event = event;
+        StatisticsStore.addEventEmitterCount();
     }
 
     public override getHash(): object
