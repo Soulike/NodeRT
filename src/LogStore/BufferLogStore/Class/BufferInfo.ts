@@ -18,6 +18,11 @@ export class BufferInfo extends ResourceInfo
         StatisticsStore.addBufferCount();
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public is(otherBuffer: BufferLike): boolean
     {
         if (util.types.isAnyArrayBuffer(otherBuffer))

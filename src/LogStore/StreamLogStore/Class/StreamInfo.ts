@@ -14,6 +14,11 @@ export class StreamInfo extends ResourceInfo
         StatisticsStore.addStreamCount();
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public getStreamWeakRef()
     {
         return this.streamWeakRef;

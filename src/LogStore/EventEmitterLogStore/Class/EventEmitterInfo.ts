@@ -14,6 +14,11 @@ export class EventEmitterInfo extends ResourceInfo
         this.event = event;
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public is(other: unknown, event?: string | symbol): boolean
     {
         return this.eventEmitter.deref() === other && event === this.event;

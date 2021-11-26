@@ -14,6 +14,11 @@ export class SocketInfo extends ResourceInfo
         StatisticsStore.addSocketCount();
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public getSocketWeakRef()
     {
         return this.socketWeakRef;

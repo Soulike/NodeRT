@@ -22,4 +22,9 @@ export abstract class ResourceInfo
     }
 
     public abstract is(...other: unknown[]): boolean;
+
+    /**
+     * Used for filtering duplicates
+     */
+    public abstract getHash(): string | object;
 }

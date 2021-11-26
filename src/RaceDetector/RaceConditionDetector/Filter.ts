@@ -18,7 +18,7 @@ import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/E
 
 export class Filter
 {
-    private static readonly reportedRaceCondition = new Map<string, Set<string>>();
+    private static readonly reportedRaceCondition = new Map<string | object, Set<string>>();
 
     public static isTruePositive(raceConditionInfo: RaceConditionInfo): boolean
     {
@@ -723,8 +723,8 @@ export class Filter
         ];
     }
 
-    private static getResourceInfoHash(resourceInfo: ResourceInfo): string
+    private static getResourceInfoHash(resourceInfo: ResourceInfo): string | object
     {
-        return JSON.stringify(resourceInfo);
+        return resourceInfo.getHash();
     }
 }

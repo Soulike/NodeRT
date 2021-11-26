@@ -13,6 +13,11 @@ export class ObjectInfo extends ResourceInfo
         StatisticsStore.addObjectCount();
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public is(other: unknown): boolean
     {
         return this.objectWeakRef.deref() === other;

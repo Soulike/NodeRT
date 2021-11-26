@@ -13,6 +13,11 @@ export class FileInfo extends ResourceInfo
         StatisticsStore.addFileCount();
     }
 
+    public override getHash(): string
+    {
+        return JSON.stringify(this);
+    }
+
     public is(filePath: string): boolean
     {
         return this.filePath === filePath;

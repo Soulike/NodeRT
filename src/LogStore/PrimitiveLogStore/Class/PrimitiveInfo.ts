@@ -35,6 +35,17 @@ export class PrimitiveInfo extends ResourceInfo
         StatisticsStore.addPrimitiveCount();
     }
 
+    override getHash(): string
+    {
+        return JSON.stringify({
+            type: this.getType(),
+            iid: this.iid,
+            name: this.name,
+            typeWhenDefined: this.typeWhenDefined,
+            possibleDefineCodeScope: this.getPossibleDefineCodeScope(),
+        });
+    }
+
     public getScope()
     {
         return this.scope;

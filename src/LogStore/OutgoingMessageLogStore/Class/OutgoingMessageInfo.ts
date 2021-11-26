@@ -14,6 +14,11 @@ export class OutgoingMessageInfo extends ResourceInfo
         StatisticsStore.addOutgoingMessageCount();
     }
 
+    public override getHash(): object
+    {
+        return this;
+    }
+
     public getOutgoingMessageWeakRef()
     {
         return this.outgoingMessageWeakRef;
