@@ -196,9 +196,11 @@ export class ObjectOperationLogger extends Analysis
                 const writtenKeys: string[] = [];
                 for (const source of sources)
                 {
-                    assert.ok(isObject(source));
-                    ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
-                    writtenKeys.push(...Object.keys(source));
+                    if (isObject(source))
+                    {
+                        ObjectLogStore.appendObjectOperation(source, 'read', Object.keys(source), false, this.getSandbox(), iid);
+                        writtenKeys.push(...Object.keys(source));
+                    }
                 }
                 ObjectLogStore.appendObjectOperation(target, 'write', writtenKeys, false, this.getSandbox(), iid);
             }
