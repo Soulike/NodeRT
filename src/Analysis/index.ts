@@ -30,6 +30,7 @@ import {EventEmitterOperationLogger} from './EventEmitterOperationLogger';
 import {EventEmitterLogStoreAnalysis} from './LogStoreAnalysis/EventEmitterLogStoreAnalysis';
 import {JSONOperationLogger} from './JSONOperationLogger';
 import {AsyncAPILogger} from './AsyncAPILogger';
+import {MemoryUsageAnalysis} from './LogStoreAnalysis/MemoryUsageAnalysis';
 
 (function (sandbox: Sandbox)
 {
@@ -138,6 +139,8 @@ import {AsyncAPILogger} from './AsyncAPILogger';
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
         sandbox.addAnalysis(new JSONOperationLogger(sandbox));
+
+        sandbox.addAnalysis(new MemoryUsageAnalysis(sandbox));
 
         const endTimestamp = Date.now() - startTimestamp;
 
