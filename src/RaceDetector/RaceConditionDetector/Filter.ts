@@ -447,7 +447,7 @@ export class Filter
 
         // AsyncContext1 has ended, we can get fields info from cache
         let accessedFieldsInAsyncContext1 = Filter.objectAccessedFieldsCache.get(asyncContext1)?.get(resourceInfo);
-        let writeFieldsInAsyncContext1 = Filter.objectWrittenFieldsCache.get(asyncContext2)?.get(resourceInfo);
+        let writeFieldsInAsyncContext1 = Filter.objectWrittenFieldsCache.get(asyncContext1)?.get(resourceInfo);
 
         if (accessedFieldsInAsyncContext1 === undefined || writeFieldsInAsyncContext1 === undefined)    // cache miss
         {
