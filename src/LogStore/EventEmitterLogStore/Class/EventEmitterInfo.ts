@@ -2,6 +2,7 @@ import {EventEmitter} from 'events';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class EventEmitterInfo extends ResourceInfo
 {
@@ -16,9 +17,19 @@ export class EventEmitterInfo extends ResourceInfo
         StatisticsStore.addEventEmitterCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests() && typeof this.event === 'string')
+        {
+            return JSON.stringify({
+                ...this,
+                eventEmitter: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public is(other: unknown, event?: string | symbol): boolean

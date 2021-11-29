@@ -2,6 +2,7 @@ import http from 'http';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class OutgoingMessageInfo extends ResourceInfo
 {
@@ -14,9 +15,19 @@ export class OutgoingMessageInfo extends ResourceInfo
         StatisticsStore.addOutgoingMessageCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                outgoingMessageWeakRef: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public getOutgoingMessageWeakRef()

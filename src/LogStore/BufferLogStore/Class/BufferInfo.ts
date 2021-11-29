@@ -5,6 +5,7 @@ import {BufferLike} from '../../../Analysis/Type/BufferLike';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class BufferInfo extends ResourceInfo
 {
@@ -18,9 +19,19 @@ export class BufferInfo extends ResourceInfo
         StatisticsStore.addBufferCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                bufferWeakRef: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public is(otherBuffer: BufferLike): boolean

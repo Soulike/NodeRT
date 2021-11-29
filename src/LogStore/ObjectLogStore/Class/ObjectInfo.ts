@@ -1,6 +1,7 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class ObjectInfo extends ResourceInfo
 {
@@ -13,9 +14,19 @@ export class ObjectInfo extends ResourceInfo
         StatisticsStore.addObjectCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                objectWeakRef: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public is(other: unknown): boolean

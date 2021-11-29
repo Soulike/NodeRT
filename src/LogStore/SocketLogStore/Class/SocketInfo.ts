@@ -2,6 +2,7 @@ import net from 'net';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class SocketInfo extends ResourceInfo
 {
@@ -14,9 +15,19 @@ export class SocketInfo extends ResourceInfo
         StatisticsStore.addSocketCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                socketWeakRef: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public getSocketWeakRef()

@@ -1,6 +1,7 @@
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class FileInfo extends ResourceInfo
 {
@@ -15,7 +16,17 @@ export class FileInfo extends ResourceInfo
 
     public override getHash(): string
     {
-        return JSON.stringify(this);
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                filePath: undefined,
+            });
+        }
+        else
+        {
+            return JSON.stringify(this);
+        }
     }
 
     public is(filePath: string): boolean

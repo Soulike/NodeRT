@@ -2,6 +2,7 @@ import {Readable, Writable} from 'stream';
 import {ResourceInfo} from '../../Class/ResourceInfo';
 import {SourceCodeInfo} from '../../Class/SourceCodeInfo';
 import {StatisticsStore} from '../../StatisticsStore';
+import {isRunningUnitTests} from '../../../Util';
 
 export class StreamInfo extends ResourceInfo
 {
@@ -14,9 +15,19 @@ export class StreamInfo extends ResourceInfo
         StatisticsStore.addStreamCount();
     }
 
-    public override getHash(): object
+    public override getHash(): object | string
     {
-        return this;
+        if (isRunningUnitTests())
+        {
+            return JSON.stringify({
+                ...this,
+                streamWeakRef: undefined,
+            });
+        }
+        else
+        {
+            return this;
+        }
     }
 
     public getStreamWeakRef()
