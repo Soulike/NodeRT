@@ -17,6 +17,9 @@ export class Scope
     public readonly declarations: PrimitiveDeclaration[];
     public readonly sourceCodeInfo: SourceCodeInfo | null;  // null for global
 
+    private readonly declarationByNameCache: Map<string, PrimitiveDeclaration | null>;
+    private readonly declarationByIidCache: Map<number, PrimitiveDeclaration | null>;
+
     constructor(type: ScopeType, name: string | null, func: Function | null, parent: Scope | null, declarations: PrimitiveDeclaration[], sourceCodeInfo: SourceCodeInfo | null)
     {
         this.id = Date.now();
@@ -26,42 +29,61 @@ export class Scope
         this.parent = parent;
         this.declarations = declarations;
         this.sourceCodeInfo = sourceCodeInfo;
+
+        this.declarationByNameCache = new Map();
+        this.declarationByIidCache = new Map();
     }
 
     public getDeclarationByName(name: string): PrimitiveDeclaration | null
     {
+        const cachedDeclaration = this.declarationByNameCache.get(name);
+        if (cachedDeclaration !== undefined)
+        {
+            return cachedDeclaration;
+        }
         for (let i = this.declarations.length - 1; i >= 0; i--)
         {
             if (this.declarations[i]!.getResourceInfo().getName() === name)
             {
+                this.declarationByNameCache.set(name, this.declarations[i]!);
                 return this.declarations[i]!;
             }
         }
         if (this.parent === null)
         {
+            this.declarationByNameCache.set(name, null);
             return null;
         }
         else
         {
+            this.declarationByNameCache.set(name, this.parent.getDeclarationByName(name));
             return this.parent.getDeclarationByName(name);
         }
     }
 
     public getDeclarationByIid(iid: number): PrimitiveDeclaration | null
     {
+        const cachedDeclaration = this.declarationByIidCache.get(iid);
+        if (cachedDeclaration !== undefined)
+        {
+            return cachedDeclaration;
+        }
         for (const declaration of this.declarations)
         {
             if (declaration.getResourceInfo().getIid() === iid)
             {
+                this.declarationByIidCache.set(iid, declaration);
                 return declaration;
             }
         }
         if (this.parent === null)
         {
+            this.declarationByIidCache.set(iid, null);
             return null;
         }
         else
         {
+            this.declarationByIidCache.set(iid, this.parent.getDeclarationByIid(iid));
             return this.parent.getDeclarationByIid(iid);
         }
     }
