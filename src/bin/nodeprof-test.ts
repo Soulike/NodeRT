@@ -3,6 +3,7 @@
 import childProcess from 'child_process';
 import path from 'path';
 import {NODEPROF_PATH, ROOT} from './config';
+import {UNIT_TEST} from '../CONFIG';
 
 console.time('analysis');
 
@@ -21,7 +22,7 @@ const {error} = childProcess.spawnSync(`cd ${process.argv.slice(2, 3)} && graaln
     '--analysis', path.resolve(ROOT, './dist/'),
     ...process.argv.slice(3),
 ], {
-    env: {...process.env, UNIT_TEST: '1'},
+    env: {...process.env, [UNIT_TEST]: '1'},
     stdio: 'inherit',
     shell: true,
 });

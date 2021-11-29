@@ -7,7 +7,7 @@ import {BufferLike} from './Analysis/Type/BufferLike';
 import util from 'util';
 import fs from 'fs';
 import {isObject, isSymbol} from 'lodash';
-import {VERBOSE} from './CONFIG';
+import {UNIT_TEST, VERBOSE} from './CONFIG';
 import isBigInt from 'is-bigint';
 
 export function toJSON(object: unknown): string
@@ -132,6 +132,11 @@ export function outputSync(message: string | object, filePath: string)
 export function shouldBeVerbose()
 {
     return !!process.env[VERBOSE];
+}
+
+export function isRunningUnitTests()
+{
+    return !!process.env[UNIT_TEST];
 }
 
 export function logUnboundFunction(unboundFunction: Function, boundFunction: Function)
