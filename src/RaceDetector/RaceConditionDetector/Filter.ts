@@ -15,6 +15,7 @@ import {FileOperation} from '../../LogStore/FileLogStore';
 import {ResourceInfo} from '../../LogStore/Class/ResourceInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
+import {isRunningUnitTests} from '../../Util';
 
 export class Filter
 {
@@ -235,7 +236,7 @@ export class Filter
         let asyncContext1 = asyncContextToOperations1[0];
         let asyncContext2 = asyncContextToOperations2[0];
 
-        if (process.env['UNIT_TEST'] === '1')
+        if (isRunningUnitTests())
         {
             // Test frameworks like mocha use setImmediate to initialize resources before running each test case.
             // These initializations won't form race condition.

@@ -6,6 +6,7 @@ import assert from 'assert';
 import {ResourceInfo} from './ResourceInfo';
 import {TimerInfo} from './TimerInfo';
 import {ImmediateInfo} from './ImmediateInfo';
+import {isRunningUnitTests} from '../../Util';
 
 export class AsyncCalledFunctionInfo
 {
@@ -166,7 +167,7 @@ export class AsyncCalledFunctionInfo
                     asyncContextChainWithoutTickObjectsAsyncIdsCache.add(currentAsyncContext.asyncId);
                 }
 
-                if (process.env['UNIT_TEST'] === '1')
+                if (isRunningUnitTests())
                 {
                     // Ignore async context introduced by test framework.
                     if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
@@ -199,7 +200,7 @@ export class AsyncCalledFunctionInfo
             {
                 asyncContextChainAsyncIdsCache.add(currentAsyncContext.asyncId);
 
-                if (process.env['UNIT_TEST'] === '1')
+                if (isRunningUnitTests())
                 {
                     // Ignore the chain introduced by test framework.
                     if (currentAsyncContext.asyncType === 'Immediate' && currentAsyncContext.immediateInfo === null)
