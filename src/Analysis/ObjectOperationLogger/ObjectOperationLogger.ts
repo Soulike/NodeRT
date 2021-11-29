@@ -114,7 +114,6 @@ export class ObjectOperationLogger extends Analysis
         {
             const startTimestamp = Date.now();
 
-            assert.ok(isObject(base));
             // @ts-ignore
             if (base[offset] !== val)
             {
