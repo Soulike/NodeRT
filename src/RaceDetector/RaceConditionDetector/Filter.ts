@@ -413,10 +413,13 @@ export class Filter
         }
     }
 
+    private static objectAccessedFieldsCache: Map<AsyncCalledFunctionInfo, Map<ObjectInfo, EnhancedSet<unknown>>> = new Map();
+    private static objectWrittenFieldsCache: Map<AsyncCalledFunctionInfo, Map<ObjectInfo, EnhancedSet<unknown>>> = new Map();
     public static isObjectRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
     {
         const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
         assert.ok(resourceInfo instanceof ObjectInfo);
+        const asyncContext2 = asyncContextToOperations2[0]!;
 
         // It's impossible that any operation to a object is invoked before its constructor
         const asyncContext1 = asyncContextToOperations1[0]!;
@@ -441,17 +444,29 @@ export class Filter
             }
         }
 
-        const accessedFieldsInAsyncContext1 = new EnhancedSet();
-        const writeFieldsInAsyncContext1 = new EnhancedSet();
-        for (const operation of asyncContext1Operations)
+        // AsyncContext1 has ended, we can get fields info from cache
+        let accessedFieldsInAsyncContext1 = Filter.objectAccessedFieldsCache.get(asyncContext1)?.get(resourceInfo);
+        let writeFieldsInAsyncContext1 = Filter.objectAccessedFieldsCache.get(asyncContext2)?.get(resourceInfo);
+
+        if (accessedFieldsInAsyncContext1 === undefined || writeFieldsInAsyncContext1 === undefined)    // cache miss
         {
-            const {fields} = operation;
-            const type = operation.getType();
-            if (type === 'write')
+            accessedFieldsInAsyncContext1 = new EnhancedSet();
+            writeFieldsInAsyncContext1 = new EnhancedSet();
+            for (const operation of asyncContext1Operations)
             {
-                fields.forEach(field => writeFieldsInAsyncContext1.add(field));
+                const {fields} = operation;
+                const type = operation.getType();
+                if (type === 'write')
+                {
+                    fields.forEach(field => writeFieldsInAsyncContext1!.add(field));
+                }
+                fields.forEach(field => accessedFieldsInAsyncContext1!.add(field));
             }
-            fields.forEach(field => accessedFieldsInAsyncContext1.add(field));
+
+            Filter.objectAccessedFieldsCache.set(asyncContext1,
+                (Filter.objectAccessedFieldsCache.get(asyncContext1) ?? new Map()).set(resourceInfo, accessedFieldsInAsyncContext1));
+            Filter.objectWrittenFieldsCache.set(asyncContext1,
+                (Filter.objectWrittenFieldsCache.get(asyncContext1) ?? new Map()).set(resourceInfo, writeFieldsInAsyncContext1));
         }
 
         const asyncContext2Operations = asyncContextToOperations2[1]! as ObjectOperation[];
@@ -467,27 +482,46 @@ export class Filter
             }
             fields.forEach(field => accessedFieldsInAsyncContext2.add(field));
         }
+        Filter.objectAccessedFieldsCache.set(asyncContext2,
+            (Filter.objectAccessedFieldsCache.get(asyncContext2) ?? new Map()).set(resourceInfo, accessedFieldsInAsyncContext2));
+        Filter.objectWrittenFieldsCache.set(asyncContext2,
+            (Filter.objectWrittenFieldsCache.get(asyncContext2) ?? new Map()).set(resourceInfo, writeFieldsInAsyncContext2));
+
         // must be written and read on the same fields
         return ((accessedFieldsInAsyncContext1.intersect(writeFieldsInAsyncContext2)).size !== 0)
             || ((accessedFieldsInAsyncContext2.intersect(writeFieldsInAsyncContext1)).size !== 0);
     }
 
+    private static bufferAccessedRangesCache: Map<AsyncCalledFunctionInfo, Map<BufferInfo, BufferOperation['accessRange'][]>> = new Map();
+    private static bufferWrittenRangesCache: Map<AsyncCalledFunctionInfo, Map<BufferInfo, BufferOperation['accessRange'][]>> = new Map();
     public static isBufferRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
     {
         const {resourceInfo, asyncContextToOperations1, asyncContextToOperations2} = raceConditionInfo;
+        const asyncContext1 = asyncContextToOperations1[0];
+        const asyncContext2 = asyncContextToOperations2[0];
         assert.ok(resourceInfo instanceof BufferInfo);
         const asyncContext1Operations = asyncContextToOperations1[1]! as BufferOperation[];
-        const accessedRangesInAsyncContext1: BufferOperation['accessRange'][] = [];
-        const writeRangesInAsyncContext1: BufferOperation['accessRange'][] = [];
-        for (const operation of asyncContext1Operations)
+        let accessedRangesInAsyncContext1: BufferOperation['accessRange'][] | undefined = Filter.bufferAccessedRangesCache.get(asyncContext1)?.get(resourceInfo);
+        let writeRangesInAsyncContext1: BufferOperation['accessRange'][] | undefined = Filter.bufferWrittenRangesCache.get(asyncContext1)?.get(resourceInfo);
+        if (accessedRangesInAsyncContext1 === undefined || writeRangesInAsyncContext1 === undefined)
         {
-            const accessRange = operation.getAccessRange();
-            const type = operation.getType();
-            if (type === 'write')
+            accessedRangesInAsyncContext1 = [];
+            writeRangesInAsyncContext1 = [];
+            for (const operation of asyncContext1Operations)
             {
-                writeRangesInAsyncContext1.push(accessRange);
+                const accessRange = operation.getAccessRange();
+                const type = operation.getType();
+                if (type === 'write')
+                {
+                    writeRangesInAsyncContext1.push(accessRange);
+                }
+                accessedRangesInAsyncContext1.push(accessRange);
             }
-            accessedRangesInAsyncContext1.push(accessRange);
+
+            Filter.bufferAccessedRangesCache.set(asyncContext1,
+                (Filter.bufferAccessedRangesCache.get(asyncContext1) ?? new Map()).set(resourceInfo, accessedRangesInAsyncContext1));
+            Filter.bufferWrittenRangesCache.set(asyncContext1,
+                (Filter.bufferWrittenRangesCache.get(asyncContext1) ?? new Map()).set(resourceInfo, writeRangesInAsyncContext1));
         }
 
         const asyncContext2Operations = asyncContextToOperations2[1]! as BufferOperation[];
@@ -503,6 +537,11 @@ export class Filter
             }
             accessedRangesInAsyncContext2.push(accessRange);
         }
+
+        Filter.bufferAccessedRangesCache.set(asyncContext2,
+            (Filter.bufferAccessedRangesCache.get(asyncContext2) ?? new Map()).set(resourceInfo, accessedRangesInAsyncContext2));
+        Filter.bufferWrittenRangesCache.set(asyncContext2,
+            (Filter.bufferWrittenRangesCache.get(asyncContext2) ?? new Map()).set(resourceInfo, writeRangesInAsyncContext2));
 
         for (const {start: start1, end: end1} of accessedRangesInAsyncContext1)
         {
@@ -613,7 +652,7 @@ export class Filter
             assert.ok(asyncContext2LastWriteOperation !== null);
 
             if ((asyncContext1LastWriteOperation.getOperationKind() === 'addListener'
-                    && asyncContext2LastWriteOperation.getOperationKind() === 'addListener')
+                && asyncContext2LastWriteOperation.getOperationKind() === 'addListener')
                 || (asyncContext1LastWriteOperation.getOperationKind() === 'removeListener'
                     && asyncContext2LastWriteOperation.getOperationKind() === 'removeListener'))
             {
