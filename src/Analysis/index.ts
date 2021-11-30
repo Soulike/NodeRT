@@ -84,6 +84,8 @@ import {MemoryUsageAnalysis} from './LogStoreAnalysis/MemoryUsageAnalysis';
         sandbox.addAnalysis(new ZlibOperationLogger(sandbox));
         sandbox.addAnalysis(new StringDecoderOperationLogger(sandbox));
         sandbox.addAnalysis(new JSONOperationLogger(sandbox));
+
+        sandbox.addAnalysis(new MemoryUsageAnalysis(sandbox));
     }
     else
     {
