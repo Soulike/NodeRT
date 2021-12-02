@@ -1,7 +1,7 @@
 export class StatisticsStore
 {
     private static eventCount = 0;
-    private static filteredRaceCount = 0;
+    private static filteredFPCount = 0;
     private static raceCount = 0;
 
     private static bufferCount = 0;
@@ -32,9 +32,9 @@ export class StatisticsStore
         return StatisticsStore.raceCount;
     }
 
-    public static getFilteredRaceCount()
+    public static getFilteredFPCount()
     {
-        return this.filteredRaceCount;
+        return this.filteredFPCount;
     }
 
     public static getTotalResourceCount()
@@ -71,9 +71,9 @@ export class StatisticsStore
         StatisticsStore.raceCount++;
     }
 
-    public static addFilteredRaceCount()
+    public static addFilteredFPCount()
     {
-        StatisticsStore.filteredRaceCount++;
+        StatisticsStore.filteredFPCount++;
     }
 
     public static addBufferCount()

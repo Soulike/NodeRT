@@ -59,16 +59,17 @@ export const raceConditionDetector: Detector = resourceDeclaration =>
 
     return raceConditionInfos.filter(raceConditionInfo =>
     {
-        const shouldReport = !Filter.hasReported(raceConditionInfo)
-            && Filter.isTruePositive(raceConditionInfo);
+        const isTruePositive = Filter.isTruePositive(raceConditionInfo);
+        const hasReported = Filter.hasReported(raceConditionInfo);
+        const shouldReport = !hasReported && isTruePositive;
         if (shouldReport)
         {
             StatisticsStore.addRaceCount();
             Filter.addReported(raceConditionInfo);
         }
-        else
+        if (!isTruePositive)
         {
-            StatisticsStore.addFilteredRaceCount();
+            StatisticsStore.addFilteredFPCount();
         }
         return shouldReport;
     });
