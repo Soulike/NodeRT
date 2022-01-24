@@ -392,6 +392,7 @@ export class Filter
             // no operation can be done before construction. no race here
             if (operation.getOperationKind() === 'construction')
             {
+                StatisticsStore.addJavaScriptSyntaxFPCount()
                 return false;
             }
         }
