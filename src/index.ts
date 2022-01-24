@@ -16,5 +16,7 @@ process.on('exit', () =>
         console.log(`filteredFPCount: ${StatisticsStore.getFilteredFPCount()}`);
         console.log(`ResourceCount: ${StatisticsStore.getTotalResourceCount()}`);
         console.log(`ResourceOperationCount: ${StatisticsStore.getTotalResourceOperationCount()}`);
+        console.log(`CQPFPCount: ${StatisticsStore.getCallbackQueuePrioritiesFPCount()}`);
+        console.log(`JSSFPCount: ${StatisticsStore.getJavaScriptSyntaxFPCount()}`);
     }
 });

@@ -22,6 +22,29 @@ export class StatisticsStore
     private static outgoingMessageOperationCount = 0;
     private static eventEmitterOperationCount = 0;
 
+    private static callbackQueuePrioritiesFPCount = 0;
+    private static javaScriptSyntaxFPCount = 0;
+
+    public static getCallbackQueuePrioritiesFPCount()
+    {
+        return StatisticsStore.callbackQueuePrioritiesFPCount;
+    }
+
+    public static addCallbackQueuePrioritiesFPCount()
+    {
+        StatisticsStore.callbackQueuePrioritiesFPCount++;
+    }
+
+    public static getJavaScriptSyntaxFPCount()
+    {
+        return StatisticsStore.javaScriptSyntaxFPCount;
+    }
+
+    public static addJavaScriptSyntaxFPCount()
+    {
+        StatisticsStore.javaScriptSyntaxFPCount++;
+    }
+
     public static getEventCount()
     {
         return StatisticsStore.eventCount;

@@ -16,6 +16,7 @@ import {ResourceInfo} from '../../LogStore/Class/ResourceInfo';
 import {EventEmitterInfo} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterInfo';
 import {EventEmitterOperation} from '../../LogStore/EventEmitterLogStore/Class/EventEmitterOperation';
 import {isRunningUnitTests} from '../../Util';
+import {StatisticsStore} from '../../LogStore/StatisticsStore';
 
 export class Filter
 {
@@ -34,14 +35,17 @@ export class Filter
         }
         if (!Filter.isPromiseViolationTP(raceConditionInfo))
         {
+            StatisticsStore.addCallbackQueuePrioritiesFPCount();
             return false;
         }
         if (!Filter.isTimerRaceConditionTP(raceConditionInfo))
         {
+            StatisticsStore.addCallbackQueuePrioritiesFPCount();
             return false;
         }
         if (!Filter.isImmediateRaceConditionTP(raceConditionInfo))
         {
+            StatisticsStore.addCallbackQueuePrioritiesFPCount();
             return false;
         }
         if (Filter.isInnerFunction(raceConditionInfo))
@@ -52,7 +56,6 @@ export class Filter
         {
             return false;
         }
-
 
         if (resourceInfo instanceof ObjectInfo)
         {
@@ -358,7 +361,7 @@ export class Filter
             }
         }
 
-        return (asyncContext1ReadStat && asyncContext2WriteStat)
+        const result = (asyncContext1ReadStat && asyncContext2WriteStat)
             || (asyncContext1WriteStat && asyncContext2ReadStat)
 
             || (asyncContext1WriteStat && asyncContext2WriteStat)
@@ -370,6 +373,12 @@ export class Filter
 
             || ((asyncContext1ReadContent || asyncContext1WriteContent) && asyncContext2WriteStat)
             || (asyncContext1WriteStat && (asyncContext2ReadContent || asyncContext2WriteContent));
+        
+        if (!result)
+        {
+            StatisticsStore.addJavaScriptSyntaxFPCount();
+        }
+        return result;
     }
 
     public static isSocketRaceConditionTP(raceConditionInfo: RaceConditionInfo): boolean
@@ -428,6 +437,7 @@ export class Filter
         assert.ok(object !== undefined);
         if (asyncContext1.functionWeakRef?.deref() === Object.getPrototypeOf(object).constructor)
         {
+            StatisticsStore.addJavaScriptSyntaxFPCount();
             return false;
         }
 
@@ -566,6 +576,7 @@ export class Filter
             }
         }
 
+        StatisticsStore.addJavaScriptSyntaxFPCount();
         return false;
     }
 
@@ -585,6 +596,7 @@ export class Filter
                 // It's impossible that a variable initialization forms race condition
                 if (operation.isInitialization)
                 {
+                    StatisticsStore.addJavaScriptSyntaxFPCount();
                     return false;
                 }
             }
